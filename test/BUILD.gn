@@ -1,0 +1,291 @@
+# Copyright (C) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//build/ohos_var.gni")
+import("//build/test.gni")
+
+module_output_path = "qosmanagertest/"
+
+gtest_public_deps = [ "//third_party/googletest:gtest_main" ]
+
+config("test_config") {
+  include_dirs = [
+    "../include/",
+    "../frameworks/concurrent_task_client/include",
+    "../interfaces/inner_api/",
+    "../services/include/",
+    "//third_party/jsoncpp/include/",
+    "//foundation/resourceschedule/frame_aware_sched/common/include/",
+  ]
+}
+
+config("ffrt_test_config") {
+  include_dirs = [
+    "//foundation/resourceschedule/resourceschedule_qos_manager/interfaces/inner_api/",
+    "//foundation/resourceschedule/resourceschedule_qos_manager/include",
+  ]
+
+  cflags = [
+    "-Wno-unused-variable",
+    "-Wno-unused-function",
+  ]
+
+  defines = [
+    "QOS_INTERVAL",
+    "QOS_DISPATCH",
+    "QOS_RTG",
+    "QOS_MULTI_RTG",
+    "QOS_RTG_RT",
+    "QOS_CHECKPOINT",
+    "QOS_SUBMIT",
+    "QOS_DEMO",
+    "ATRACE_MODE=0", # 0 is off, 5 is bytrace, 6 is pmu
+    "ATRACE_LEVEL=0",
+    "ATRACE_LOGI_ENABLE=0",
+    "ATRACE_LOGD_ENABLE=0",
+    "ATRACE_SCOPE_LOG_ENABLE=0",
+    "ATRACE_DURATION_LOG_ENABLE=0",
+    "FFRT_RELEASE",
+    "DISABLE_MONITOR"
+  ]
+  if (use_musl) {
+    defines += [ "TDD_MUSL" ]
+  }
+}
+
+ohos_unittest("concurrent_svc_intf_test") {
+    module_out_path = module_output_path
+
+    configs = [
+        ":test_config",
+    ]
+
+    sources = [
+        "unittest/phone/concurrent_svc_intf_test.cpp",
+    ]
+    deps = [
+        "../frameworks/concurrent_task_client:concurrent_task_client",
+    ]
+    external_deps = [
+        "c_utils:utils",
+        "eventhandler:libeventhandler",
+        "safwk:system_ability_fwk",
+        "samgr:samgr_proxy",
+        "ipc:ipc_single",
+        "hiviewdfx_hilog_native:libhilog",
+    ]
+
+    if (is_standard_system) {
+      public_deps = gtest_public_deps
+    }
+
+    subsystem_name = "resourceschedule"
+    part_name = "resourceschedule_qos_manager"
+}
+
+ohos_unittest("concurrent_task_client_test") {
+    module_out_path = module_output_path
+
+    configs = [
+        ":ffrt_test_config",
+        ":test_config",
+    ]
+
+    sources = [
+        "unittest/phone/concurrent_task_client_test.cpp",
+    ]
+    deps = [
+        "../frameworks/concurrent_task_client:concurrent_task_client",
+    ]
+
+    if (is_standard_system) {
+      public_deps = gtest_public_deps
+    }
+
+    external_deps = [
+      "ipc:ipc_single",
+      "hiviewdfx_hilog_native:libhilog",
+    ]
+
+    subsystem_name = "resourceschedule"
+    part_name = "resourceschedule_qos_manager"
+}
+
+ohos_unittest("concurrent_task_controller_test") {
+    module_out_path = module_output_path
+
+    configs = [
+        ":ffrt_test_config",
+        ":test_config",
+    ]
+
+    sources = [
+        "unittest/phone/concurrent_task_controller_test.cpp",
+    ]
+    deps = [
+        "../services:concurrentsvc",
+        "../frameworks/concurrent_task_client:concurrent_task_client",
+        "//third_party/jsoncpp:jsoncpp",
+    ]
+
+    external_deps = [
+        "c_utils:utils",
+        "hiviewdfx_hilog_native:libhilog",
+        "safwk:system_ability_fwk",
+        "samgr:samgr_proxy",
+    ]
+
+    if (is_standard_system) {
+      public_deps = gtest_public_deps
+    }
+
+    subsystem_name = "resourceschedule"
+    part_name = "resourceschedule_qos_manager"
+}
+
+ohos_unittest("concurrent_task_service_ability_test") {
+    module_out_path = module_output_path
+
+    configs = [
+        ":ffrt_test_config",
+        ":test_config",
+    ]
+
+    sources = [
+        "unittest/phone/concurrent_task_service_ability_test.cpp",
+    ]
+    deps = [
+        "../services:concurrentsvc",
+        "../frameworks/concurrent_task_client:concurrent_task_client",
+    ]
+    external_deps = [
+        "c_utils:utils",
+        "hiviewdfx_hilog_native:libhilog",
+        "safwk:system_ability_fwk",
+        "samgr:samgr_proxy",
+    ]
+
+    if (is_standard_system) {
+      public_deps = gtest_public_deps
+    }
+
+    subsystem_name = "resourceschedule"
+    part_name = "resourceschedule_qos_manager"
+}
+
+ohos_unittest("qos_interface_test") {
+    module_out_path = module_output_path
+
+    configs = [
+        ":ffrt_test_config",
+        ":test_config",
+    ]
+
+    sources = [
+        "unittest/phone/qos_interface_test.cpp",
+    ]
+    deps = [
+        "../services:concurrentsvc",
+        "../frameworks/concurrent_task_client:concurrent_task_client",
+    ]
+    external_deps = [
+        "c_utils:utils",
+        "safwk:system_ability_fwk",
+        "samgr:samgr_proxy",
+        "hiviewdfx_hilog_native:libhilog",
+    ]
+
+    if (is_standard_system) {
+      public_deps = gtest_public_deps
+    }
+
+    subsystem_name = "resourceschedule"
+    part_name = "resourceschedule_qos_manager"
+}
+
+ohos_unittest("qos_manager_test") {
+    module_out_path = module_output_path
+
+    configs = [
+        ":ffrt_test_config",
+        ":test_config",
+    ]
+
+    sources = [
+        "unittest/phone/qos_manager_test.cpp",
+    ]
+    deps = [
+        "../services:concurrentsvc",
+        "../frameworks/concurrent_task_client:concurrent_task_client",
+    ]
+    external_deps = [
+        "c_utils:utils",
+        "safwk:system_ability_fwk",
+        "samgr:samgr_proxy",
+        "hiviewdfx_hilog_native:libhilog",
+    ]
+
+    if (is_standard_system) {
+      public_deps = gtest_public_deps
+    }
+
+    subsystem_name = "resourceschedule"
+    part_name = "resourceschedule_qos_manager"
+}
+
+ohos_unittest("concurrent_task_service_test") {
+    module_out_path = module_output_path
+
+    configs = [
+        ":ffrt_test_config",
+        ":test_config",
+    ]
+
+    sources = [
+        "unittest/phone/concurrent_task_service_test.cpp",
+    ]
+    deps = [
+        "../services:concurrentsvc",
+        "../frameworks/concurrent_task_client:concurrent_task_client",
+    ]
+    external_deps = [
+        "c_utils:utils",
+        "safwk:system_ability_fwk",
+        "samgr:samgr_proxy",
+        "hiviewdfx_hilog_native:libhilog",
+    ]
+
+    if (is_standard_system) {
+      public_deps = gtest_public_deps
+    }
+
+    subsystem_name = "resourceschedule"
+    part_name = "resourceschedule_qos_manager"
+}
+
+group("concurrent_unittest") {
+  testonly = true
+  deps = []
+  if (!is_asan) {
+    deps += [
+      ":qos_interface_test",
+      ":qos_manager_test",
+      ":concurrent_svc_intf_test",
+      ":concurrent_task_client_test",
+      ":concurrent_task_controller_test",
+      ":concurrent_task_service_ability_test",
+      ":concurrent_task_service_test",
+    ]
+  }
+}
