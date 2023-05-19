@@ -23,7 +23,7 @@
 namespace OHOS {
 namespace ConcurrentTask {
 /*
- * this class wraped the functions of IConcurrentTaskService,effect is the same.
+ * this class wrapped the functions of IConcurrentTaskService,effect is the same.
  * but through ConcurrentTaskClient, you don't need to get IConcurrentTaskService from samgr,
  * just use the functions is ok.
  */
@@ -31,15 +31,32 @@ namespace ConcurrentTask {
 class ConcurrentTaskClient {
 public:
     /**
-     * Only need one client connect to ConcurrentTaskService, singleton pattern.
+     * @brief Only need one client connect to ConcurrentTaskService, singleton pattern.
      *
      * @return Returns the only one implement of ConcurrentTaskClient.
      */
     static ConcurrentTaskClient& GetInstance();
 
+    /**
+     * @brief Report scene data to the concurrent task service through inter-process communication.
+     *
+     * @param resType Indicates the resource type, default is 0.
+     * @param value Indicates the uid of module of report scene module.
+     * @param mapPayload Indicates the context info of the scene data.
+     */
     void ReportData(uint32_t resType, int64_t value, const std::unordered_map<std::string, std::string>& mapPayload);
+
+    /**
+     * @brief Query rtg id and other info provided by concurrent task service.
+     *
+     * @param queryItem Information of the corresponding query module.
+     * @param queryRs Indicates the context info of the query message.
+     */
     void QueryInterval(int queryItem, IntervalReply& queryRs);
 
+    /**
+     * @brief Stop remote object and reset ConcurrentTaskClient.
+     */
     void StopRemoteObject();
 
 protected:
