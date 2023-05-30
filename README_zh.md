@@ -7,7 +7,7 @@
 ## 目录<a name="section_catalogue"></a>
 
 ```
-//foundation/resourceschedule/resourceschedule_qos_manager
+//foundation/resourceschedule/qos_manager
 ├── etc
 │   └── init                                # 权限管控服务配置文件
 |
@@ -50,7 +50,7 @@
 系统开发者可以通过配置productdefine/common/products下的产品定义json文件，增加或移除本部件，来启用或停用本部件：
 
 ```
-"resourceschedule:resourceschedule_qos_manager":{}
+"qos_manager:concurrent_task_client":{}
 ```
 
 ## 相关仓<a name="section_related_repositories"></a>
