@@ -358,7 +358,7 @@ void TaskController::NewBackground(int uid)
 
     int ret = AuthPause(uidParam);
     if (ret == 0) {
-        CONCUR_LOGI("auth_pause %{public}d success", ret);
+        CONCUR_LOGI("auth_pause %{public}d success", uid);
     } else {
         CONCUR_LOGI("auth_pause %{public}d fail with %{public}d", uid, ret);
     }
