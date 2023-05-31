@@ -59,8 +59,9 @@ config("ffrt_test_config") {
     "FFRT_RELEASE",
     "DISABLE_MONITOR"
   ]
-  if (use_musl) {
-    defines += [ "TDD_MUSL" ]
+
+  if (target_cpu == "arm64") {
+    defines += [ "ARM64_TEST" ]
   }
 }
 
