@@ -59,11 +59,7 @@ HWTEST_F(QosInterfaceTest, EnableRtgTest, TestSize.Level1)
 {
     bool flag = true;
     int ret = EnableRtg(flag);
-#if TDD_MUSL
     EXPECT_EQ(ret, 0);
-#else
-    (void)ret;
-#endif
 }
 
 /**
@@ -77,11 +73,7 @@ HWTEST_F(QosInterfaceTest, AuthEnableTest, TestSize.Level1)
     unsigned int uaFlag = 1;
     unsigned int status = 1;
     int ret = AuthEnable(uid, uaFlag, status);
-#if TDD_MUSL
     EXPECT_EQ(ret, 0);
-#else
-    (void)ret;
-#endif
 }
 
 /**
@@ -96,11 +88,7 @@ HWTEST_F(QosInterfaceTest, AuthSwitchTest, TestSize.Level1)
     unsigned int qosFlag = 1;
     unsigned int status = 1;
     int ret = AuthSwitch(uid, rtgFlag, qosFlag, status);
-#if TDD_MUSL
     EXPECT_EQ(ret, 0);
-#else
-    (void)ret;
-#endif
 }
 
 /**
@@ -112,11 +100,7 @@ HWTEST_F(QosInterfaceTest, AuthDeleteTest, TestSize.Level1)
 {
     unsigned int uid = 1;
     int ret = AuthDelete(uid);
-#if TDD_MUSL
     EXPECT_EQ(ret, 0);
-#else
-    (void)ret;
-#endif
 }
 
 /**
@@ -129,11 +113,7 @@ HWTEST_F(QosInterfaceTest, AuthPauseTest, TestSize.Level1)
     unsigned int uid = 1;
     int ret = -1;
     ret = AuthPause(uid);
-#if TDD_MUSL
     EXPECT_EQ(ret, -1);
-#else
-    (void)ret;
-#endif
 }
 
 /**
@@ -146,8 +126,8 @@ HWTEST_F(QosInterfaceTest, QosApplyTest, TestSize.Level1)
     unsigned int level = 1;
     int ret = -1;
     ret = QosApply(level);
-#if TDD_MUSL
-    EXPECT_EQ(ret, -1);
+#if ARM64_TEST
+    EXPECT_EQ(ret, 0);
 #else
     (void)ret;
 #endif
@@ -166,16 +146,10 @@ HWTEST_F(QosInterfaceTest, AuthGetTest, TestSize.Level1)
     unsigned int status1 = 0;
     unsigned int *status = &status1;
     int ret = AuthGet(uid, uaFlag, status);
-#if TDD_MUSL
     EXPECT_GE(ret, 0);
-#endif
     uid = -1;
     ret = AuthGet(uid, uaFlag, status);
-#if TDD_MUSL
     EXPECT_EQ(ret, -1);
-#else
-    (void)ret;
-#endif
 }
 
 /**
@@ -186,10 +160,10 @@ HWTEST_F(QosInterfaceTest, AuthGetTest, TestSize.Level1)
 HWTEST_F(QosInterfaceTest, QosApplyForOtherTest, TestSize.Level1)
 {
     unsigned int level = 1;
-    int tid = 1;
+    int tid = gettid();
     int ret = -1;
     ret = QosApplyForOther(level, tid);
-#if TDD_MUSL
+#if ARM64_TEST
     EXPECT_EQ(ret, 0);
 #else
     (void)ret;
@@ -205,8 +179,8 @@ HWTEST_F(QosInterfaceTest, QosLeaveTest, TestSize.Level1)
 {
     int ret = -1;
     ret = QosLeave();
-#if TDD_MUSL
-    EXPECT_EQ(ret, -1);
+#if ARM64_TEST
+    EXPECT_EQ(ret, 0);
 #else
     (void)ret;
 #endif
@@ -220,9 +194,11 @@ HWTEST_F(QosInterfaceTest, QosLeaveTest, TestSize.Level1)
 HWTEST_F(QosInterfaceTest, QosLeaveForOtherTest, TestSize.Level1)
 {
     int ret = -1;
-    int tid = 1;
+    int tid = gettid();
+    int level = 1;
+    ret = QosApplyForOther(level, tid);
     ret = QosLeaveForOther(tid);
-#if TDD_MUSL
+#if ARM64_TEST
     EXPECT_EQ(ret, 0);
 #else
     (void)ret;
@@ -234,15 +210,30 @@ HWTEST_F(QosInterfaceTest, QosLeaveForOtherTest, TestSize.Level1)
  * @tc.desc: Test whether the QosPolicy interface are normal.
  * @tc.type: FUNC
  */
+
+static struct QosPolicyDatas g_defaultQosPolicy = {
+    .policyType = static_cast<unsigned int>(QosPolicyType::QOS_POLICY_DEFAULT),
+    .policyFlag = QOS_FLAG_ALL,
+    .policys = {
+        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0},
+    }
+};
+
 HWTEST_F(QosInterfaceTest, QosPolicyTest, TestSize.Level1)
 {
     int ret = -1;
     struct QosPolicyDatas *policyDatas = nullptr;
     ret = QosPolicy(policyDatas);
-#if TDD_MUSL
     EXPECT_EQ(ret, -1);
-#else
-    (void)ret;
+#if ARM64_TEST
+    ret = QosPolicy(&g_defaultQosPolicy);
+    EXPECT_EQ(ret, 0);
 #endif
 }
 }
