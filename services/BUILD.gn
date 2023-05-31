@@ -60,5 +60,5 @@ ohos_shared_library("concurrentsvc") {
   ]
 
   subsystem_name = "resourceschedule"
-  part_name = "resourceschedule_qos_manager"
+  part_name = "qos_manager"
 }
