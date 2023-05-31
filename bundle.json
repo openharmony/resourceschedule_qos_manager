@@ -1,16 +1,16 @@
 {
-    "name": "@ohos/resourceschedule_qos_manager",
-    "description": "resourceschedule_qos_manager",
+    "name": "@ohos/qos_manager",
+    "description": "qos_manager",
     "version": "3.1",
     "license": "Apache License 2.0",
     "publishAs": "code-segment",
     "segment": {
-        "destPath": "foundation/resourceschedule/resourceschedule_qos_manager"
+        "destPath": "foundation/resourceschedule/qos_manager"
     },
     "dirs": {},
     "scripts": {},
     "component": {
-        "name": "resourceschedule_qos_manager",
+        "name": "qos_manager",
         "subsystem": "resourceschedule",
         "syscap": [],
         "features": [],
@@ -37,24 +37,24 @@
         },
         "build": {
             "sub_component": [
-                "//foundation/resourceschedule/resourceschedule_qos_manager/etc/init:concurrent_task_service.cfg",
-                "//foundation/resourceschedule/resourceschedule_qos_manager/sa_profile:concurrent_task_sa_profile",
-                "//foundation/resourceschedule/resourceschedule_qos_manager/services:concurrentsvc",
-                "//foundation/resourceschedule/resourceschedule_qos_manager/frameworks/concurrent_task_client:concurrent_task_client"
+                "//foundation/resourceschedule/qos_manager/etc/init:concurrent_task_service.cfg",
+                "//foundation/resourceschedule/qos_manager/sa_profile:concurrent_task_sa_profile",
+                "//foundation/resourceschedule/qos_manager/services:concurrentsvc",
+                "//foundation/resourceschedule/qos_manager/frameworks/concurrent_task_client:concurrent_task_client"
             ],
             "inner_kits": [
                 {
                     "header": {
-                        "header_base": "//foundation/resourceschedule/resourceschedule_qos_manager/interfaces/inner_api/",
+                        "header_base": "//foundation/resourceschedule/qos_manager/interfaces/inner_api/",
                         "header_files": [
                             "concurrent_task_client.h"
                         ]
                     },
-                    "name": "//foundation/resourceschedule/resourceschedule_qos_manager/frameworks/concurrent_task_client:concurrent_task_client"
+                    "name": "//foundation/resourceschedule/qos_manager/frameworks/concurrent_task_client:concurrent_task_client"
                 }
             ],
             "test": [
-                "//foundation/resourceschedule/resourceschedule_qos_manager/test:concurrent_unittest"
+                "//foundation/resourceschedule/qos_manager/test:concurrent_unittest"
             ]
         }
     }
