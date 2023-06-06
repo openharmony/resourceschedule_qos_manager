@@ -1,0 +1,15 @@
+diff --git a/inherit/rich.json b/inherit/rich.json
+index 324d061..bfc9604 100644
+--- a/inherit/rich.json
++++ b/inherit/rich.json
+@@ -872,6 +872,10 @@
+           "component": "frame_aware_sched",
+           "features": []
+         },
++        {
++          "component": "qos_manager",
++          "features": []
++        },
+         {
+           "component": "device_usage_statistics",
+           "features": []
