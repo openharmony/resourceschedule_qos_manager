@@ -37,7 +37,24 @@
         },
         "build": {
             "sub_component": [
-                "//foundation/resourceschedule/qos_manager/etc/init:concurrent_task_service.cfg"
+                "//foundation/resourceschedule/qos_manager/etc/init:concurrent_task_service.cfg",
+                "//foundation/resourceschedule/qos_manager/sa_profile:concurrent_task_sa_profile",
+                "//foundation/resourceschedule/qos_manager/services:concurrentsvc",
+                "//foundation/resourceschedule/qos_manager/frameworks/concurrent_task_client:concurrent_task_client"
+            ],
+            "inner_kits": [
+                {
+                    "header": {
+                        "header_base": "//foundation/resourceschedule/qos_manager/interfaces/inner_api/",
+                        "header_files": [
+                            "concurrent_task_client.h"
+                        ]
+                    },
+                    "name": "//foundation/resourceschedule/qos_manager/frameworks/concurrent_task_client:concurrent_task_client"
+                }
+            ],
+            "test": [
+                "//foundation/resourceschedule/qos_manager/test:concurrent_unittest"
             ]
         }
     }
