@@ -1,0 +1,44 @@
+{
+    "name": "@ohos/qos_manager",
+    "description": "qos_manager",
+    "version": "3.1",
+    "license": "Apache License 2.0",
+    "publishAs": "code-segment",
+    "segment": {
+        "destPath": "foundation/resourceschedule/qos_manager"
+    },
+    "dirs": {},
+    "scripts": {},
+    "component": {
+        "name": "qos_manager",
+        "subsystem": "resourceschedule",
+        "syscap": [],
+        "features": [],
+        "adapted_system_type": [
+            "mini",
+            "small",
+            "standard"
+        ],
+        "rom": "2048KB",
+        "ram": "10240KB",
+        "deps": {
+            "components": [
+                "ability_base",
+                "ability_runtime",
+                "libeventhandler",
+                "ipc_single",
+                "samgr",
+                "system_ability_fwk"
+            ],
+            "third_party": [
+                "xml2",
+                "json"
+            ]
+        },
+        "build": {
+            "sub_component": [
+                "//foundation/resourceschedule/qos_manager/etc/init:concurrent_task_service.cfg"
+            ]
+        }
+    }
+}
