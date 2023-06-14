@@ -25,14 +25,18 @@
             "components": [
                 "ability_base",
                 "ability_runtime",
-                "libeventhandler",
-                "ipc_single",
-                "samgr",
-                "system_ability_fwk"
+                "c_utils",
+                "eventhandler",
+                "frame_aware_sched",
+                "hitrace_native",
+                "hiviewdfx_hilog_native",
+                "ipc",
+                "safwk",
+                "samgr"
             ],
             "third_party": [
-                "xml2",
-                "json"
+                "json",
+                "jsoncpp"
             ]
         },
         "build": {
