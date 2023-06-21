@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef CONCURRENT_TASK_SERVICES_INTERFACES_INNERKITS_CONCURRENT_TASK_CLIENT_INCLUDE_ICONCURRENT_TASK_SERVICE_H
-#define CONCURRENT_TASK_SERVICES_INTERFACES_INNERKITS_CONCURRENT_TASK_CLIENT_INCLUDE_ICONCURRENT_TASK_SERVICE_H
+#ifndef CONCURRENT_TASK_SERVICES_IPC_INTERFACE_CODE_H
+#define CONCURRENT_TASK_SERVICES_IPC_INTERFACE_CODE_H
 
 #include "iremote_broker.h"
 #include "json/json.h"
@@ -23,14 +23,11 @@
 /* SAID:1912 */
 namespace OHOS {
 namespace ConcurrentTask {
-class IConcurrentTaskService : public IRemoteBroker {
-public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.ResourceSchedule.ConcurrentTaskService");
-
-    virtual void ReportData(uint32_t resType, int64_t value, const Json::Value& payload) = 0;
-    virtual void QueryInterval(int queryItem, IntervalReply& queryRs) = 0;
-};
+    enum class ConcurrentTaskInterfaceCode {
+        REPORT_DATA = 1,
+        QUERY_INTERVAL = 2,
+    };
 } // namespace ConcurrentTask
 } // namespace OHOS
 
-#endif // CONCURRENT_TASK_SERVICES_INTERFACES_INNERKITS_CONCURRENT_TASK_CLIENT_INCLUDE_ICONCURRENT_TASK_SERVICE_H
+#endif // CONCURRENT_TASK_SERVICES_IPC_INTERFACE_CODE_H

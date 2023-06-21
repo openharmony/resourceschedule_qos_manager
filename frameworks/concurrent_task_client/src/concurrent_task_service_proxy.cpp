@@ -37,7 +37,8 @@ void ConcurrentTaskServiceProxy::ReportData(uint32_t resType, int64_t value, con
     if (!data.WriteString(payload.toStyledString())) {
         return;
     }
-    error = Remote()->SendRequest(IConcurrentTaskService::REPORT_DATA, data, reply, option);
+    uint32_t code = static_cast<uint32_t>(ConcurrentTaskInterfaceCode::REPORT_DATA);
+    error = Remote()->SendRequest(code, data, reply, option);
     if (error != NO_ERROR) {
         CONCUR_LOGE("Send request error: %{public}d", error);
         return;
@@ -61,7 +62,9 @@ void ConcurrentTaskServiceProxy::QueryInterval(int queryItem, IntervalReply& que
     if (!data.WriteInt64(queryItem)) {
         return;
     }
-    error = Remote()->SendRequest(IConcurrentTaskService::QUERY_INTERVAL, data, reply, option);
+
+    uint32_t code = static_cast<uint32_t>(ConcurrentTaskInterfaceCode::QUERY_INTERVAL);
+    error = Remote()->SendRequest(code, data, reply, option);
     if (error != NO_ERROR) {
         CONCUR_LOGE("QueryInterval error: %{public}d", error);
         return;
