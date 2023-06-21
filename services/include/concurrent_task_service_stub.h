@@ -19,6 +19,7 @@
 #include <map>
 #include "iremote_stub.h"
 #include "iconcurrent_task_service.h"
+#include "concurrent_task_service_ipc_interface_code.h"
 
 namespace OHOS {
 namespace ConcurrentTask {
