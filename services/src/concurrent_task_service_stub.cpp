@@ -140,9 +140,9 @@ Json::Value ConcurrentTaskServiceStub::StringToJson(const std::string& payload)
 void ConcurrentTaskServiceStub::Init()
 {
     funcMap_ = {
-        { REPORT_DATA,
+        { static_cast<uint32_t>(ConcurrentTaskInterfaceCode::REPORT_DATA),
             [this](auto& data, auto& reply) {return ReportDataInner(data, reply); } },
-        { QUERY_INTERVAL,
+        { static_cast<uint32_t>(ConcurrentTaskInterfaceCode::QUERY_INTERVAL),
             [this](auto& data, auto& reply) {return QueryIntervalInner(data, reply); } },
     };
 }
