@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 
 config("concurrent_task_config") {
-  visibility = [":*"]
+  visibility = [ ":*" ]
   cflags_cc = [ "-fexceptions" ]
   include_dirs = [
     "include",
