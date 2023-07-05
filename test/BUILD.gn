@@ -84,7 +84,7 @@ ohos_unittest("concurrent_svc_intf_test") {
         "safwk:system_ability_fwk",
         "samgr:samgr_proxy",
         "ipc:ipc_single",
-        "hiviewdfx_hilog_native:libhilog",
+        "hilog:libhilog",
     ]
 
     if (is_standard_system) {
@@ -116,7 +116,7 @@ ohos_unittest("concurrent_task_client_test") {
 
     external_deps = [
       "ipc:ipc_single",
-      "hiviewdfx_hilog_native:libhilog",
+      "hilog:libhilog",
     ]
 
     subsystem_name = "resourceschedule"
@@ -142,7 +142,7 @@ ohos_unittest("concurrent_task_controller_test") {
 
     external_deps = [
         "c_utils:utils",
-        "hiviewdfx_hilog_native:libhilog",
+        "hilog:libhilog",
         "safwk:system_ability_fwk",
         "samgr:samgr_proxy",
     ]
@@ -172,7 +172,7 @@ ohos_unittest("concurrent_task_service_ability_test") {
     ]
     external_deps = [
         "c_utils:utils",
-        "hiviewdfx_hilog_native:libhilog",
+        "hilog:libhilog",
         "safwk:system_ability_fwk",
         "samgr:samgr_proxy",
     ]
@@ -204,7 +204,7 @@ ohos_unittest("qos_interface_test") {
         "c_utils:utils",
         "safwk:system_ability_fwk",
         "samgr:samgr_proxy",
-        "hiviewdfx_hilog_native:libhilog",
+        "hilog:libhilog",
     ]
 
     if (is_standard_system) {
@@ -234,7 +234,7 @@ ohos_unittest("qos_manager_test") {
         "c_utils:utils",
         "safwk:system_ability_fwk",
         "samgr:samgr_proxy",
-        "hiviewdfx_hilog_native:libhilog",
+        "hilog:libhilog",
     ]
 
     if (is_standard_system) {
@@ -264,7 +264,7 @@ ohos_unittest("concurrent_task_service_test") {
         "c_utils:utils",
         "safwk:system_ability_fwk",
         "samgr:samgr_proxy",
-        "hiviewdfx_hilog_native:libhilog",
+        "hilog:libhilog",
     ]
 
     if (is_standard_system) {
