@@ -28,15 +28,13 @@ config("client_private_config") {
 }
 
 config("client_public_config") {
-  visibility = [":*"]
+  visibility = [ ":*" ]
   cflags = [ "-fstack-protector-strong" ]
   include_dirs = [ "include" ]
 }
 
 ohos_shared_library("concurrent_task_client") {
-  configs = [
-    ":client_private_config",
-  ]
+  configs = [ ":client_private_config" ]
 
   public_configs = [ ":client_public_config" ]
 
@@ -45,9 +43,7 @@ ohos_shared_library("concurrent_task_client") {
     "src/concurrent_task_service_proxy.cpp",
   ]
 
-  deps = [
-    "//third_party/jsoncpp:jsoncpp",
-  ]
+  deps = [ "//third_party/jsoncpp:jsoncpp" ]
 
   external_deps = [
     "c_utils:utils",
