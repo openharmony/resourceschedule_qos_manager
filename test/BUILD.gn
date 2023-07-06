@@ -50,7 +50,7 @@ config("ffrt_test_config") {
     "QOS_CHECKPOINT",
     "QOS_SUBMIT",
     "QOS_DEMO",
-    "ATRACE_MODE=0", # 0 is off, 5 is bytrace, 6 is pmu
+    "ATRACE_MODE=0",  # 0 is off, 5 is bytrace, 6 is pmu
     "ATRACE_LEVEL=0",
     "ATRACE_LOGI_ENABLE=0",
     "ATRACE_LOGD_ENABLE=0",
