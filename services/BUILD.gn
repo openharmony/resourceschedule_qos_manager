@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 
 config("concurrent_task_config") {
-  visibility = [":*"]
+  visibility = [ ":*" ]
   cflags_cc = [ "-fexceptions" ]
   include_dirs = [
     "include",
@@ -29,29 +29,24 @@ config("concurrent_task_config") {
 }
 
 ohos_shared_library("concurrentsvc") {
-
-  public_configs = [
-    ":concurrent_task_config",
-  ]
+  public_configs = [ ":concurrent_task_config" ]
 
   sources = [
+    "src/concurrent_task_controller.cpp",
     "src/concurrent_task_service.cpp",
     "src/concurrent_task_service_ability.cpp",
     "src/concurrent_task_service_stub.cpp",
-    "src/concurrent_task_controller.cpp",
     "src/qos_interface.cpp",
     "src/qos_manager.cpp",
   ]
 
-  deps = [
-    "//third_party/jsoncpp:jsoncpp",
-  ]
+  deps = [ "//third_party/jsoncpp:jsoncpp" ]
 
   external_deps = [
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "frame_aware_sched:rtg_interface",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_single",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",

@@ -28,8 +28,8 @@
                 "c_utils",
                 "eventhandler",
                 "frame_aware_sched",
-                "hitrace_native",
-                "hiviewdfx_hilog_native",
+                "hilog",
+                "hitrace",
                 "ipc",
                 "safwk",
                 "samgr"
