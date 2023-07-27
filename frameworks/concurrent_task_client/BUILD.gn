@@ -17,20 +17,20 @@ import("//build/test.gni")
 config("client_private_config") {
   cflags_cc = [ "-fexceptions" ]
   include_dirs = [
-    "./include",
     "../../include",
     "../../services/include",
-    "../../interfaces/inner_api/",
     "//commonlibrary/c_utils/base/include",
     "//utils/system/safwk/native/include",
-    "//third_party/jsoncpp/include",
   ]
 }
 
 config("client_public_config") {
   visibility = [ ":*" ]
   cflags = [ "-fstack-protector-strong" ]
-  include_dirs = [ "include" ]
+  include_dirs = [
+    "include",
+    "../../interfaces/inner_api/",
+  ]
 }
 
 ohos_shared_library("concurrent_task_client") {
@@ -43,7 +43,7 @@ ohos_shared_library("concurrent_task_client") {
     "src/concurrent_task_service_proxy.cpp",
   ]
 
-  deps = [ "//third_party/jsoncpp:jsoncpp" ]
+  public_deps = [ "//third_party/jsoncpp:jsoncpp" ]
 
   external_deps = [
     "c_utils:utils",
