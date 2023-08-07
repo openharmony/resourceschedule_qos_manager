@@ -54,14 +54,14 @@ enum class AuthStatus {
 };
 
 enum class QosClassLevel {
-    qos_unspecified = 0,
-    qos_background = 1,
-    qos_utility = 2,
-    qos_default = 3,
-    qos_user_initiated = 4,
-    qos_deadline_request = 5,
-    qos_user_interactive = 6,
-    qos_max,
+    QOS_UNSPECIFIED = 0,
+    QOS_BACKGROUND = 1,
+    QOS_UTILITY = 2,
+    QOS_DEFAULT = 3,
+    QOS_USER_INITIATED = 4,
+    QOS_DEADLINE_REQUEST = 5,
+    QOS_USER_INTERACTIVE = 6,
+    QOS_MAX,
 };
 
 #define BASIC_AUTH_CTRL_OPERATION \
@@ -111,7 +111,7 @@ enum class QosPolicyType {
 struct QosPolicyDatas {
     int policyType;
     unsigned int policyFlag;
-    struct QosPolicyData policys[static_cast<int>(QosClassLevel::qos_max)];
+    struct QosPolicyData policys[static_cast<int>(QosClassLevel::QOS_MAX)];
 };
 
 #define QOS_CTRL_BASIC_OPERATION \

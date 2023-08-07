@@ -126,7 +126,7 @@ HWTEST_F(QosInterfaceTest, QosApplyTest, TestSize.Level1)
     unsigned int level = 1;
     int ret = -1;
     ret = QosApply(level);
-#if ARM64_TEST
+#if defined(ARM64_TEST) && ARM64_TEST
     EXPECT_EQ(ret, 0);
 #else
     (void)ret;
@@ -163,7 +163,7 @@ HWTEST_F(QosInterfaceTest, QosApplyForOtherTest, TestSize.Level1)
     int tid = gettid();
     int ret = -1;
     ret = QosApplyForOther(level, tid);
-#if ARM64_TEST
+#if defined(ARM64_TEST) && ARM64_TEST
     EXPECT_EQ(ret, 0);
 #else
     (void)ret;
@@ -179,7 +179,7 @@ HWTEST_F(QosInterfaceTest, QosLeaveTest, TestSize.Level1)
 {
     int ret = -1;
     ret = QosLeave();
-#if ARM64_TEST
+#if defined(ARM64_TEST) && ARM64_TEST
     EXPECT_EQ(ret, 0);
 #else
     (void)ret;
@@ -198,7 +198,7 @@ HWTEST_F(QosInterfaceTest, QosLeaveForOtherTest, TestSize.Level1)
     int level = 1;
     ret = QosApplyForOther(level, tid);
     ret = QosLeaveForOther(tid);
-#if ARM64_TEST
+#if defined(ARM64_TEST) && ARM64_TEST
     EXPECT_EQ(ret, 0);
 #else
     (void)ret;
@@ -231,7 +231,7 @@ HWTEST_F(QosInterfaceTest, QosPolicyTest, TestSize.Level1)
     struct QosPolicyDatas *policyDatas = nullptr;
     ret = QosPolicy(policyDatas);
     EXPECT_EQ(ret, -1);
-#if ARM64_TEST
+#if defined(ARM64_TEST) && ARM64_TEST
     ret = QosPolicy(&g_defaultQosPolicy);
     EXPECT_EQ(ret, 0);
 #endif
