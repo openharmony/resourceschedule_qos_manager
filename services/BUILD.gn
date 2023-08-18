@@ -41,8 +41,8 @@ ohos_shared_library("concurrentsvc") {
   ]
 
   deps = [
-    "//third_party/jsoncpp:jsoncpp",
     "../etc/param:ffrt_etc",
+    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
