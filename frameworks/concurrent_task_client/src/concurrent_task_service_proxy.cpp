@@ -16,6 +16,7 @@
 #include "concurrent_task_service_proxy.h"
 #include "concurrent_task_log.h"
 #include "concurrent_task_errors.h"
+#include "ipc_util.h"
 
 namespace OHOS {
 namespace ConcurrentTask {
@@ -25,18 +26,10 @@ void ConcurrentTaskServiceProxy::ReportData(uint32_t resType, int64_t value, con
     MessageParcel data;
     MessageParcel reply;
     MessageOption option = { MessageOption::TF_ASYNC };
-    if (!data.WriteInterfaceToken(ConcurrentTaskServiceProxy::GetDescriptor())) {
-        return;
-    }
-    if (!data.WriteUint32(resType)) {
-        return;
-    }
-    if (!data.WriteInt64(value)) {
-        return;
-    }
-    if (!data.WriteString(payload.toStyledString())) {
-        return;
-    }
+    WRITE_PARCEL(data, InterfaceToken, ConcurrentTaskServiceProxy::GetDescriptor(), , ConcurrentTaskServiceProxy);
+    WRITE_PARCEL(data, Uint32, resType, , ConcurrentTaskServiceProxy);
+    WRITE_PARCEL(data, Int64, value, , ConcurrentTaskServiceProxy);
+    WRITE_PARCEL(data, String, payload.toStyledString(), , ConcurrentTaskServiceProxy);
     uint32_t code = static_cast<uint32_t>(ConcurrentTaskInterfaceCode::REPORT_DATA);
     error = Remote()->SendRequest(code, data, reply, option);
     if (error != NO_ERROR) {
@@ -56,12 +49,8 @@ void ConcurrentTaskServiceProxy::QueryInterval(int queryItem, IntervalReply& que
     queryRs.paramA = -1;
     queryRs.paramB = -1;
     queryRs.paramC = -1;
-    if (!data.WriteInterfaceToken(ConcurrentTaskServiceProxy::GetDescriptor())) {
-        return;
-    }
-    if (!data.WriteInt64(queryItem)) {
-        return;
-    }
+    WRITE_PARCEL(data, InterfaceToken, ConcurrentTaskServiceProxy::GetDescriptor(), , ConcurrentTaskServiceProxy);
+    WRITE_PARCEL(data, Int64, queryItem, , ConcurrentTaskServiceProxy);
 
     uint32_t code = static_cast<uint32_t>(ConcurrentTaskInterfaceCode::QUERY_INTERVAL);
     error = Remote()->SendRequest(code, data, reply, option);
@@ -69,18 +58,10 @@ void ConcurrentTaskServiceProxy::QueryInterval(int queryItem, IntervalReply& que
         CONCUR_LOGE("QueryInterval error: %{public}d", error);
         return;
     }
-    if (!reply.ReadInt32(queryRs.rtgId)) {
-        return;
-    }
-    if (!reply.ReadInt32(queryRs.paramA)) {
-        return;
-    }
-    if (!reply.ReadInt32(queryRs.paramB)) {
-        return;
-    }
-    if (!reply.ReadInt32(queryRs.paramC)) {
-        return;
-    }
+    READ_PARCEL(reply, Int32, queryRs.rtgId, , ConcurrentTaskServiceProxy);
+    READ_PARCEL(reply, Int32, queryRs.paramA, , ConcurrentTaskServiceProxy);
+    READ_PARCEL(reply, Int32, queryRs.paramB, , ConcurrentTaskServiceProxy);
+    READ_PARCEL(reply, Int32, queryRs.paramC, , ConcurrentTaskServiceProxy);
     return;
 }
 } // namespace ConcurrentTask
