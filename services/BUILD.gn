@@ -40,7 +40,10 @@ ohos_shared_library("concurrentsvc") {
     "src/qos_manager.cpp",
   ]
 
-  deps = [ "//third_party/jsoncpp:jsoncpp" ]
+  deps = [
+    "//third_party/jsoncpp:jsoncpp",
+    "../etc/param:ffrt_etc",
+  ]
 
   external_deps = [
     "c_utils:utils",
