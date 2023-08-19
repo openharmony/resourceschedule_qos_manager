@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <unistd.h>
 #include <cinttypes>
 #include <sys/resource.h>
 #include <sched.h>
@@ -20,12 +21,18 @@
 #include "rtg_interface.h"
 #include "ipc_skeleton.h"
 #include "concurrent_task_log.h"
+#include "parameters.h"
 #include "concurrent_task_controller.h"
-constexpr int TARGET_UID = 3039;
+
+constexpr int RS_UID = 1003;
 using namespace OHOS::RME;
 
 namespace OHOS {
 namespace ConcurrentTask {
+const std::string INTERVAL_DDL = "ffrt.interval.renderthread";
+constexpr int CURRENT_RATE = 90;
+constexpr int PARAM_TYPE = 1;
+
 TaskController& TaskController::GetInstance()
 {
     static TaskController instance;
@@ -131,14 +138,23 @@ void TaskController::QueryRender(int uid, IntervalReply& queryRs)
 
 void TaskController::QueryRenderService(int uid, IntervalReply& queryRs)
 {
-    if (renderServiceGrpId_ > 0) {
-        CONCUR_LOGD("uid %{public}d query rs group %{public}d.", uid, renderServiceGrpId_);
-        queryRs.rtgId = renderServiceGrpId_;
-        return;
+    if (renderServiceGrpId_ <= 0) {
+        TryCreateRsGroup();
+        CONCUR_LOGI("uid %{public}d query rs group failed and create %{public}d.", uid, renderServiceGrpId_);
+        if (renderServiceGrpId_ <= 0) {
+            CONCUR_LOGE("uid %{public}d create rs group failed", uid);
+            return;
+        }
     }
-    TryCreateRsGroup();
     queryRs.rtgId = renderServiceGrpId_;
-    CONCUR_LOGE("uid %{public}d query rs group failed and create %{public}d.", uid, renderServiceGrpId_);
+    if (rsTid_ <= 0) {
+        rsTid_ = queryRs.tid;
+        int ret = AddThreadToRtg(rsTid_, renderServiceGrpId_, PRIO_RT);
+        if (ret < 0) {
+            CONCUR_LOGE("uid %{public}d tid %{public}d join rs group failed.", uid, rsTid_);
+        }
+    }
+    SetFrameRateAndPrioType(renderServiceGrpId_, CURRENT_RATE, PARAM_TYPE);
 }
 
 void TaskController::QueryHwc(int uid, IntervalReply& queryRs)
@@ -161,25 +177,25 @@ void TaskController::QueryHwc(int uid, IntervalReply& queryRs)
     }
 }
 
-void TaskController::SetHwcAuth(bool status)
+void TaskController::SetSystemAuth(int uid, bool status)
 {
     int ret;
     if (status) {
-        ret = AuthEnable(TARGET_UID, AF_RTG_ALL, static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOREGROUND));
+        ret = AuthEnable(uid, AF_RTG_ALL, static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOREGROUND));
     } else {
-        ret = AuthDelete(TARGET_UID);
+        ret = AuthDelete(uid);
     }
 
     if (ret == 0) {
-        CONCUR_LOGI("set auth status(%{public}d) for %{public}d success", status, TARGET_UID);
+        CONCUR_LOGI("set auth status(%{public}d) for %{public}d success", status, uid);
     } else {
-        CONCUR_LOGE("set auth status(%{public}d) for %{public}d fail with ret %{public}d ", status, TARGET_UID, ret);
+        CONCUR_LOGE("set auth status(%{public}d) for %{public}d fail with ret %{public}d ", status, uid, ret);
     }
 }
 
 void TaskController::Init()
 {
-    SetHwcAuth(true);
+    SetSystemAuth(RS_UID, true);
     TypeMapInit();
     qosManager_.Init();
     TryCreateRsGroup();
@@ -187,7 +203,7 @@ void TaskController::Init()
 
 void TaskController::Release()
 {
-    SetHwcAuth(false);
+    SetSystemAuth(RS_UID, false);
     msgType_.clear();
     if (renderServiceGrpId_ <= 0) {
         return;
@@ -222,7 +238,9 @@ void TaskController::TryCreateRsGroup()
     }
     if (renderServiceGrpId_ <= 0) {
         CONCUR_LOGI("CreateRsRtgGroup failed! rtGrp:%{public}d", renderServiceGrpId_);
+        return;
     }
+    SetSystemAuth(RS_UID, true);
 }
 
 int TaskController::GetRequestType(std::string strRequstType)
@@ -256,7 +274,7 @@ void TaskController::DealSystemRequest(int requestType, const Json::Value& paylo
     }
     switch (requestType) {
         case MSG_FOREGROUND:
-            NewForeground(appUid);
+            NewForeground(appUid, payload);
             break;
         case MSG_BACKGROUND:
             NewBackground(appUid);
@@ -309,8 +327,21 @@ std::list<ForegroundAppRecord>::iterator TaskController::GetRecordOfUid(int uid)
     return foregroundApp_.end();
 }
 
-void TaskController::NewForeground(int uid)
+void TaskController::NewForeground(int uid, const Json::Value& payload)
 {
+    int uiTid = 0;
+#ifdef QOS_EXT_ENABLE
+    try {
+        uiTid = std::stoi(payload["pid"].asString());
+    } catch (...) {
+        CONCUR_LOGE("Unexpected pid format uiTid is %{public}d", uiTid);
+        return;
+    }
+    if (uiTid < 0) {
+        CONCUR_LOGE("uiTid error: %{public}d", uiTid);
+        return;
+    }
+#endif
     auto it = find(authApps_.begin(), authApps_.end(), uid);
     if (it == authApps_.end()) {
         CONCUR_LOGI("un-authed uid %{public}d", uid);
@@ -319,7 +350,6 @@ void TaskController::NewForeground(int uid)
     unsigned int uidParam = static_cast<unsigned int>(uid);
     unsigned int uaFlag = AF_RTG_ALL;
     unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOREGROUND);
-
     int ret = AuthEnable(uidParam, uaFlag, status);
     if (ret == 0) {
         CONCUR_LOGI("auth_enable %{public}d success", uid);
@@ -327,18 +357,24 @@ void TaskController::NewForeground(int uid)
         CONCUR_LOGE("auth_enable %{public}d fail with ret %{public}d", uid, ret);
     }
     bool found = false;
+    bool ddlEnabled = OHOS::system::GetBoolParameter(INTERVAL_DDL, false);
     for (auto iter = foregroundApp_.begin(); iter != foregroundApp_.end(); iter++) {
         if (iter->GetUid() == uid) {
             found = true;
-            CONCUR_LOGI("uid %{public}d is already in foreground.", uid);
+            if (ddlEnabled) {
+                iter->AddKeyThread(uiTid, PRIO_RT);
+            }
             iter->BeginScene();
         }
     }
     CONCUR_LOGI("uid %{public}d change to foreground.", uid);
     if (!found) {
-        ForegroundAppRecord *tempRecord = new ForegroundAppRecord(uid);
+        ForegroundAppRecord *tempRecord = new ForegroundAppRecord(uid, uiTid);
         if (tempRecord->IsValid()) {
             foregroundApp_.push_back(*tempRecord);
+            if (ddlEnabled) {
+                tempRecord->AddKeyThread(uiTid, PRIO_RT);
+            }
             tempRecord->BeginScene();
         } else {
             delete tempRecord;
@@ -418,16 +454,14 @@ void TaskController::PrintInfo()
     }
 }
 
-ForegroundAppRecord::ForegroundAppRecord(int uid)
+ForegroundAppRecord::ForegroundAppRecord(int uid, int uiTid)
 {
     uid_ = uid;
-    grpId_ = CreateNewRtgGrp(PRIO_RT, MAX_KEY_THREADS);
-    if (grpId_ <= 0) {
-        CONCUR_LOGI("CreateNewRtgGroup with RT failed, try change to normal type.");
-        grpId_ = CreateNewRtgGrp(PRIO_NORMAL, MAX_KEY_THREADS);
-    }
-    if (grpId_ <= 0) {
-        CONCUR_LOGI("CreateNewRtgGroup failed! rtGrp:%{public}d, pid: %{public}d", grpId_, uid);
+    uiTid_ = uiTid;
+    if (OHOS::system::GetBoolParameter(INTERVAL_DDL, false)) {
+        grpId_ = CreateNewRtgGrp(PRIO_RT, MAX_KEY_THREADS);
+    } else {
+        grpId_ = -1;
     }
 }
 
@@ -457,7 +491,7 @@ void ForegroundAppRecord::AddKeyThread(int tid, int prio)
     } else {
         int ret = AddThreadToRtg(tid, grpId_, rtgPrio);
         if (ret != 0) {
-            CONCUR_LOGI("Add key thread fail: Kernel err report.");
+            CONCUR_LOGI("Add key thread fail: Kernel err report. ret is %{public}d", ret);
         } else {
             CONCUR_LOGI("Add key thread %{public}d", tid);
         }
@@ -478,8 +512,9 @@ bool ForegroundAppRecord::BeginScene()
 
 bool ForegroundAppRecord::EndScene()
 {
+    grpId_ = SearchRtgForTid(uiTid_);
     if (grpId_ <= 0) {
-        CONCUR_LOGI("Error end scene in uid %{public}d", uid_);
+        CONCUR_LOGI("Error end scene loss grpId_ in uid %{public}d", uid_);
         return false;
     }
     OHOS::RME::EndScene(grpId_);
@@ -498,7 +533,7 @@ int ForegroundAppRecord::GetGrpId()
 
 bool ForegroundAppRecord::IsValid()
 {
-    if (uid_ > 0 && grpId_ > 0) {
+    if (uid_ > 0) {
         return true;
     }
     return false;

@@ -18,7 +18,6 @@
 #include "concurrent_task_errors.h"
 #include "string_ex.h"
 #include "ipc_skeleton.h"
-#include "ipc_util.h"
 
 namespace OHOS {
 namespace ConcurrentTask {
@@ -46,15 +45,14 @@ int32_t ConcurrentTaskServiceStub::ReportDataInner(MessageParcel& data, [[maybe_
     if (!IsValidToken(data)) {
         return ERR_CONCURRENT_TASK_PARCEL_ERROR;
     }
+
     uint32_t type = 0;
-    READ_PARCEL(data, Uint32, type, ERR_CONCURRENT_TASK_PARCEL_ERROR, ConcurrentTaskServiceStub);
-
     int64_t value = 0;
-    READ_PARCEL(data, Int64, value, ERR_CONCURRENT_TASK_PARCEL_ERROR, ConcurrentTaskServiceStub);
-
     std::string payload;
-    READ_PARCEL(data, String, payload, ERR_CONCURRENT_TASK_PARCEL_ERROR, ConcurrentTaskServiceStub);
-
+    if (!data.ReadUint32(type) || !data.ReadInt64(value) || !data.ReadString(payload)) {
+        CONCUR_LOGE("Read info failed in ReportData Stub");
+        return IPC_STUB_ERR;
+    }
     if (payload.empty()) {
         return ERR_OK;
     }
@@ -68,17 +66,21 @@ int32_t ConcurrentTaskServiceStub::QueryIntervalInner(MessageParcel& data, [[may
         return ERR_CONCURRENT_TASK_PARCEL_ERROR;
     }
     int item;
-    READ_PARCEL(data, Int32, item, ERR_CONCURRENT_TASK_PARCEL_ERROR, ConcurrentTaskServiceStub);
     IntervalReply queryRs;
     queryRs.rtgId = -1;
+    queryRs.tid = -1;
     queryRs.paramA = -1;
     queryRs.paramB = -1;
-    queryRs.paramC = -1;
+    if (!data.ReadInt32(item) || !data.ReadInt32(queryRs.tid)) {
+        CONCUR_LOGE("Read info failed in QueryInterval Stub");
+        return IPC_STUB_ERR;
+    }
     QueryInterval(item, queryRs);
-    WRITE_PARCEL(reply, Int32, queryRs.rtgId, ERR_CONCURRENT_TASK_PARCEL_ERROR, ConcurrentTaskServiceStub);
-    WRITE_PARCEL(reply, Int32, queryRs.paramA, ERR_CONCURRENT_TASK_PARCEL_ERROR, ConcurrentTaskServiceStub);
-    WRITE_PARCEL(reply, Int32, queryRs.paramB, ERR_CONCURRENT_TASK_PARCEL_ERROR, ConcurrentTaskServiceStub);
-    WRITE_PARCEL(reply, Int32, queryRs.paramC, ERR_CONCURRENT_TASK_PARCEL_ERROR, ConcurrentTaskServiceStub);
+    if (!data.WriteInt32(queryRs.rtgId) || !data.WriteInt32(queryRs.tid)
+        || !data.WriteInt32(queryRs.paramA) || !data.WriteInt32(queryRs.paramB)) {
+        CONCUR_LOGE("Write info failed in QueryInterval Stub");
+        return IPC_STUB_ERR;
+    }
     return ERR_OK;
 }
 

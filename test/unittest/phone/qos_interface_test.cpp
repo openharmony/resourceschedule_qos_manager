@@ -212,7 +212,7 @@ HWTEST_F(QosInterfaceTest, QosLeaveForOtherTest, TestSize.Level1)
  */
 
 static struct QosPolicyDatas g_defaultQosPolicy = {
-    .policyType = static_cast<unsigned int>(QosPolicyType::QOS_POLICY_DEFAULT),
+    .policyType = QOS_POLICY_DEFAULT,
     .policyFlag = QOS_FLAG_ALL,
     .policys = {
         {0, 0, 0, 1024, 0},
