@@ -43,7 +43,7 @@ private:
     bool CheckUid(pid_t uid);
     void TypeMapInit();
     void QosApplyInit();
-    void SetHwcAuth(bool status);
+    void SetSystemAuth(int uid, bool status);
     void TryCreateRsGroup();
     void QueryUi(pid_t uid, IntervalReply& queryRs);
     void QueryRender(pid_t uid, IntervalReply& queryRs);
@@ -52,7 +52,7 @@ private:
     int GetRequestType(std::string strRequstType);
     void DealSystemRequest(int requestType, const Json::Value& payload);
     void DealAppRequest(int requestType, const Json::Value& payload, pid_t uid);
-    void NewForeground(int uid);
+    void NewForeground(int uid, const Json::Value& payload);
     void NewBackground(int uid);
     void NewAppStart(int uid);
     void AppKilled(int uid);
@@ -65,12 +65,13 @@ private:
     QosManager qosManager_;
     std::vector<int> authApps_;
     int renderServiceGrpId_ = -1;
+    int rsTid_ = -1;
     bool rtgEnabled_ = false;
 };
 
 class ForegroundAppRecord {
 public:
-    explicit ForegroundAppRecord(int uid);
+    explicit ForegroundAppRecord(int uid, int uiTid);
     ~ForegroundAppRecord();
 
     void AddKeyThread(int tid, int prio = PRIO_NORMAL);
@@ -84,6 +85,7 @@ public:
 private:
     int uid_ = 0;
     int grpId_ = 0;
+    int uiTid_ = 0;
     std::unordered_set<int> keyThreads_;
 };
 } // namespace ConcurrentTask

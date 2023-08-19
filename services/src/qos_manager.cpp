@@ -18,7 +18,7 @@
 #include "concurrent_task_log.h"
 
 static struct QosPolicyDatas g_defaultQosPolicy = {
-    .policyType = static_cast<unsigned int>(QosPolicyType::QOS_POLICY_DEFAULT),
+    .policyType = QOS_POLICY_DEFAULT,
     .policyFlag = QOS_FLAG_ALL,
     .policys = {
         {0, 0, 0, 1024, 0},
@@ -32,21 +32,27 @@ static struct QosPolicyDatas g_defaultQosPolicy = {
 };
 
 static struct QosPolicyDatas g_foregroundQosPolicy = {
-    .policyType = static_cast<unsigned int>(QosPolicyType::QOS_POLICY_FRONT),
+    .policyType = QOS_POLICY_FRONT,
     .policyFlag = QOS_FLAG_ALL,
     .policys = {
         {0, 0, 0, 1024, 0},
         {10, 10, 0, 200, 0},
         {5, 5, 0, 250, 0},
         {0, 0, 0, 1024, 0},
-        {-5, -5, 300, 1024, 0},
+#ifdef QOS_EXT_ENABLE
+        {-10, 0, 300, 1024, 0},
         {-10, -10, 500, 1024, 0},
         {-10, -10, 500, 1024, 2},
+#else
+        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0},
+#endif
     }
 };
 
 static struct QosPolicyDatas g_backgroundQosPolicy = {
-    .policyType = static_cast<unsigned int>(QosPolicyType::QOS_POLICY_BACK),
+    .policyType = QOS_POLICY_BACK,
     .policyFlag = QOS_FLAG_ALL & ~QOS_FLAG_RT,
     .policys = {
         {0, 0, 0, 1024, 0},
@@ -54,22 +60,33 @@ static struct QosPolicyDatas g_backgroundQosPolicy = {
         {10, 10, 0, 200, 0},
         {5, 5, 0, 250, 0},
         {0, 0, 0, 300, 0},
+#ifdef QOS_EXT_ENABLE
         {-5, -5, 0, 350, 0},
         {-5, -5, 0, 350, 3},
+#else
+        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0},
+#endif
     }
 };
 
 static struct QosPolicyDatas g_systemServerQosPolicy = {
-    .policyType = static_cast<unsigned int>(QosPolicyType::QOS_POLICY_SYSTEM_SERVER),
+    .policyType = QOS_POLICY_SYSTEM_SERVER,
     .policyFlag = QOS_FLAG_ALL,
     .policys = {
         {0, 0, 0, 1024, 0},
         {10, 10, 0, 200, 0},
         {5, 5, 0, 250, 0},
         {0, 0, 0, 1024, 0},
-        {-5, -5, 300, 1024, 0},
+#ifdef QOS_EXT_ENABLE
+        {-10, 0, 300, 1024, 0},
         {-10, -10, 500, 1024, 0},
         {-10, -10, 500, 1024, 2},
+#else
+        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0},
+#endif
     }
 };
 

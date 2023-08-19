@@ -66,7 +66,7 @@ static int TrivalOpenQosCtrlNode(void)
 int EnableRtg(bool flag)
 {
     struct RtgEnableData enableData;
-    char configStr[] = "load_freq_switch:1;sched_cycle:1;frame_max_util:750";
+    char configStr[] = "load_freq_switch:1;sched_cycle:1;frame_max_util:1024";
     int ret;
 
     enableData.enable = flag;
@@ -303,7 +303,7 @@ int QosLeaveForOther(int tid)
     return ret;
 }
 
-int QosPolicy(struct QosPolicyDatas *policyDatas)
+int QosPolicy(const struct QosPolicyDatas *policyDatas)
 {
     int fd;
     int ret;

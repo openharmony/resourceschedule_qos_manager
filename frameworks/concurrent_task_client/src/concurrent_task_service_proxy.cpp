@@ -16,7 +16,6 @@
 #include "concurrent_task_service_proxy.h"
 #include "concurrent_task_log.h"
 #include "concurrent_task_errors.h"
-#include "ipc_util.h"
 
 namespace OHOS {
 namespace ConcurrentTask {
@@ -26,10 +25,14 @@ void ConcurrentTaskServiceProxy::ReportData(uint32_t resType, int64_t value, con
     MessageParcel data;
     MessageParcel reply;
     MessageOption option = { MessageOption::TF_ASYNC };
-    WRITE_PARCEL(data, InterfaceToken, ConcurrentTaskServiceProxy::GetDescriptor(), , ConcurrentTaskServiceProxy);
-    WRITE_PARCEL(data, Uint32, resType, , ConcurrentTaskServiceProxy);
-    WRITE_PARCEL(data, Int64, value, , ConcurrentTaskServiceProxy);
-    WRITE_PARCEL(data, String, payload.toStyledString(), , ConcurrentTaskServiceProxy);
+    if (!data.WriteInterfaceToken(ConcurrentTaskServiceProxy::GetDescriptor())) {
+        CONCUR_LOGE("Write interface token failed in ReportData Proxy");
+        return;
+    }
+    if (!data.WriteUint32(resType) || !data.WriteInt64(value) || !data.WriteString(payload.toStyledString())) {
+        CONCUR_LOGE("Write info failed in ReportData Proxy");
+        return;
+    }
     uint32_t code = static_cast<uint32_t>(ConcurrentTaskInterfaceCode::REPORT_DATA);
     error = Remote()->SendRequest(code, data, reply, option);
     if (error != NO_ERROR) {
@@ -45,12 +48,15 @@ void ConcurrentTaskServiceProxy::QueryInterval(int queryItem, IntervalReply& que
     MessageParcel data;
     MessageParcel reply;
     MessageOption option = { MessageOption::TF_SYNC };
-    queryRs.rtgId = -1;
-    queryRs.paramA = -1;
-    queryRs.paramB = -1;
-    queryRs.paramC = -1;
-    WRITE_PARCEL(data, InterfaceToken, ConcurrentTaskServiceProxy::GetDescriptor(), , ConcurrentTaskServiceProxy);
-    WRITE_PARCEL(data, Int64, queryItem, , ConcurrentTaskServiceProxy);
+
+    if (!data.WriteInterfaceToken(ConcurrentTaskServiceProxy::GetDescriptor())) {
+        CONCUR_LOGE("Write interface token failed in QueryInterval Proxy");
+        return;
+    }
+    if (!data.WriteInt32(queryItem) || !data.WriteInt32(queryRs.tid)) {
+        CONCUR_LOGE("Write info failed in QueryInterval Proxy");
+        return;
+    }
 
     uint32_t code = static_cast<uint32_t>(ConcurrentTaskInterfaceCode::QUERY_INTERVAL);
     error = Remote()->SendRequest(code, data, reply, option);
@@ -58,10 +64,16 @@ void ConcurrentTaskServiceProxy::QueryInterval(int queryItem, IntervalReply& que
         CONCUR_LOGE("QueryInterval error: %{public}d", error);
         return;
     }
-    READ_PARCEL(reply, Int32, queryRs.rtgId, , ConcurrentTaskServiceProxy);
-    READ_PARCEL(reply, Int32, queryRs.paramA, , ConcurrentTaskServiceProxy);
-    READ_PARCEL(reply, Int32, queryRs.paramB, , ConcurrentTaskServiceProxy);
-    READ_PARCEL(reply, Int32, queryRs.paramC, , ConcurrentTaskServiceProxy);
+    queryRs.rtgId = -1;
+    queryRs.tid = -1;
+    queryRs.paramA = -1;
+    queryRs.paramB = -1;
+
+    if (!data.ReadInt32(queryRs.rtgId) || !data.WriteInt32(queryRs.tid)
+        || !data.ReadInt32(queryRs.paramA) || !data.WriteInt32(queryRs.paramB)) {
+        CONCUR_LOGE("Read info failed in QueryInterval Proxy");
+        return;
+    }
     return;
 }
 } // namespace ConcurrentTask

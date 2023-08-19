@@ -16,6 +16,7 @@ import("//build/ohos.gni")
 config("concurrent_task_config") {
   visibility = [ ":*" ]
   cflags_cc = [ "-fexceptions" ]
+  cflags = [ "-fstack-protector-strong" ]
   include_dirs = [
     "include",
     "../include",
@@ -45,11 +46,16 @@ ohos_shared_library("concurrentsvc") {
     "//third_party/jsoncpp:jsoncpp",
   ]
 
+  if (defined(global_parts_info.resourceschedule_frame_aware_sched_override)) {
+    defines = [ "QOS_EXT_ENABLE" ]
+  }
+
   external_deps = [
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "frame_aware_sched:rtg_interface",
     "hilog:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_single",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",

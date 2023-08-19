@@ -23,8 +23,13 @@ extern "C" {
 /*
  * generic
  */
-#define SYSTEM_UID 1000
-#define ROOT_UID 0
+constexpr int SYSTEM_UID = 1000;
+constexpr int ROOT_UID = 0;
+constexpr int NR_QOS = 6;
+constexpr unsigned int SET_RTG_ENABLE = 1;
+constexpr unsigned int QOS_CTRL_IPC_MAGIC = 0xCC;
+constexpr unsigned int AUTH_CTRL_IPC_MAGIC = 0xCD;
+constexpr unsigned int RTG_SCHED_IPC_MAGIC = 0xAB;
 
 /*
  * auth_ctrl
@@ -50,22 +55,19 @@ enum class AuthStatus {
     AUTH_STATUS_SYSTEM_SERVER = 2,
     AUTH_STATUS_FOREGROUND = 3,
     AUTH_STATUS_BACKGROUND = 4,
+#ifdef QOS_EXT_ENABLE
+    AUTH_STATUS_FOCUS = 5,
+#endif
     AUTH_STATUS_DEAD,
 };
 
-enum class QosClassLevel {
-    QOS_UNSPECIFIED = 0,
-    QOS_BACKGROUND = 1,
-    QOS_UTILITY = 2,
-    QOS_DEFAULT = 3,
-    QOS_USER_INITIATED = 4,
-    QOS_DEADLINE_REQUEST = 5,
-    QOS_USER_INTERACTIVE = 6,
-    QOS_MAX,
+enum AuthCtrlCmdid {
+    BASIC_AUTH_CTRL = 1,
+    AUTH_CTRL_MAX_NR
 };
 
 #define BASIC_AUTH_CTRL_OPERATION \
-    _IOWR(0xCD, 1, struct AuthCtrlData)
+    _IOWR(AUTH_CTRL_IPC_MAGIC, BASIC_AUTH_CTRL, struct AuthCtrlData)
 
 /*
  * qos ctrl
@@ -73,6 +75,9 @@ enum class QosClassLevel {
 enum class QosManipulateType {
     QOS_APPLY = 1,
     QOS_LEAVE,
+#ifdef QOS_EXT_ENABLE
+    QOS_GET,
+#endif
     QOS_MAX_NR,
 };
 
@@ -80,6 +85,12 @@ struct QosCtrlData {
     int pid;
     unsigned int type;
     unsigned int level;
+#ifdef QOS_EXT_ENABLE
+    int qos;
+    int staticQos;
+    int dynamicQos;
+    bool tagSchedEnable = false;
+#endif
 };
 
 struct QosPolicyData {
@@ -90,11 +101,14 @@ struct QosPolicyData {
     int rtSchedPriority;
 };
 
-enum class QosPolicyType {
+enum QosPolicyType {
     QOS_POLICY_DEFAULT = 1,
     QOS_POLICY_SYSTEM_SERVER = 2,
     QOS_POLICY_FRONT = 3,
     QOS_POLICY_BACK = 4,
+#ifdef QOS_EXT_ENABLE
+    QOS_POLICY_FOCUS = 5,
+#endif
     QOS_POLICY_MAX_NR,
 };
 
@@ -111,13 +125,19 @@ enum class QosPolicyType {
 struct QosPolicyDatas {
     int policyType;
     unsigned int policyFlag;
-    struct QosPolicyData policys[static_cast<int>(QosClassLevel::QOS_MAX)];
+    struct QosPolicyData policys[NR_QOS + 1];
+};
+
+enum QosCtrlCmdid {
+    QOS_CTRL = 1,
+    QOS_POLICY = 2,
+    QOS_CTRL_MAX_NR
 };
 
 #define QOS_CTRL_BASIC_OPERATION \
-    _IOWR(0xCC, 1, struct QosCtrlData)
+    _IOWR(QOS_CTRL_IPC_MAGIC, QOS_CTRL, struct QosCtrlData)
 #define QOS_CTRL_POLICY_OPERATION \
-    _IOWR(0xCC, 2, struct QosPolicyDatas)
+    _IOWR(QOS_CTRL_IPC_MAGIC, QOS_POLICY, struct QosPolicyDatas)
 
 /*
  * RTG
@@ -132,7 +152,7 @@ struct RtgEnableData {
 };
 
 #define CMD_ID_SET_ENABLE \
-    _IOWR(0xAB, 1, struct RtgEnableData)
+    _IOWR(RTG_SCHED_IPC_MAGIC, SET_RTG_ENABLE, struct RtgEnableData)
 
 /*
  * interface
@@ -147,7 +167,7 @@ int QosApply(unsigned int level);
 int QosApplyForOther(unsigned int level, int tid);
 int QosLeave(void);
 int QosLeaveForOther(int tid);
-int QosPolicy(struct QosPolicyDatas *policyDatas);
+int QosPolicy(const struct QosPolicyDatas *policyDatas);
 
 #ifdef __cplusplus
 }
