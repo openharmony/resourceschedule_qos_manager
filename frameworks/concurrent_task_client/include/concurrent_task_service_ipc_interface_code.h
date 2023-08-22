@@ -16,17 +16,13 @@
 #ifndef CONCURRENT_TASK_SERVICES_IPC_INTERFACE_CODE_H
 #define CONCURRENT_TASK_SERVICES_IPC_INTERFACE_CODE_H
 
-#include "iremote_broker.h"
-#include "json/json.h"
-#include "concurrent_task_type.h"
-
 /* SAID:1912 */
 namespace OHOS {
 namespace ConcurrentTask {
-    enum class ConcurrentTaskInterfaceCode {
-        REPORT_DATA = 1,
-        QUERY_INTERVAL = 2,
-    };
+enum class ConcurrentTaskInterfaceCode {
+    REPORT_DATA = 1,
+    QUERY_INTERVAL = 2,
+};
 } // namespace ConcurrentTask
 } // namespace OHOS
 

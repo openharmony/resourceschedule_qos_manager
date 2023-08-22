@@ -49,9 +49,9 @@ enum QueryIntervalItem {
 
 struct IntervalReply {
     int rtgId;
+    int tid;
     int paramA;
     int paramB;
-    int paramC;
 };
 }
 }
