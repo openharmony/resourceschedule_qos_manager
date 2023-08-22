@@ -15,8 +15,6 @@
         "syscap": [],
         "features": [],
         "adapted_system_type": [
-            "mini",
-            "small",
             "standard"
         ],
         "rom": "2048KB",
@@ -30,6 +28,7 @@
                 "frame_aware_sched",
                 "hilog",
                 "hitrace",
+                "init",
                 "ipc",
                 "safwk",
                 "samgr"

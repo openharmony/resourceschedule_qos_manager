@@ -26,15 +26,11 @@ void ConcurrentTaskServiceProxy::ReportData(uint32_t resType, int64_t value, con
     MessageParcel reply;
     MessageOption option = { MessageOption::TF_ASYNC };
     if (!data.WriteInterfaceToken(ConcurrentTaskServiceProxy::GetDescriptor())) {
+        CONCUR_LOGE("Write interface token failed in ReportData Proxy");
         return;
     }
-    if (!data.WriteUint32(resType)) {
-        return;
-    }
-    if (!data.WriteInt64(value)) {
-        return;
-    }
-    if (!data.WriteString(payload.toStyledString())) {
+    if (!data.WriteUint32(resType) || !data.WriteInt64(value) || !data.WriteString(payload.toStyledString())) {
+        CONCUR_LOGE("Write info failed in ReportData Proxy");
         return;
     }
     uint32_t code = static_cast<uint32_t>(ConcurrentTaskInterfaceCode::REPORT_DATA);
@@ -52,14 +48,13 @@ void ConcurrentTaskServiceProxy::QueryInterval(int queryItem, IntervalReply& que
     MessageParcel data;
     MessageParcel reply;
     MessageOption option = { MessageOption::TF_SYNC };
-    queryRs.rtgId = -1;
-    queryRs.paramA = -1;
-    queryRs.paramB = -1;
-    queryRs.paramC = -1;
+
     if (!data.WriteInterfaceToken(ConcurrentTaskServiceProxy::GetDescriptor())) {
+        CONCUR_LOGE("Write interface token failed in QueryInterval Proxy");
         return;
     }
-    if (!data.WriteInt64(queryItem)) {
+    if (!data.WriteInt32(queryItem) || !data.WriteInt32(queryRs.tid)) {
+        CONCUR_LOGE("Write info failed in QueryInterval Proxy");
         return;
     }
 
@@ -69,16 +64,14 @@ void ConcurrentTaskServiceProxy::QueryInterval(int queryItem, IntervalReply& que
         CONCUR_LOGE("QueryInterval error: %{public}d", error);
         return;
     }
-    if (!reply.ReadInt32(queryRs.rtgId)) {
-        return;
-    }
-    if (!reply.ReadInt32(queryRs.paramA)) {
-        return;
-    }
-    if (!reply.ReadInt32(queryRs.paramB)) {
-        return;
-    }
-    if (!reply.ReadInt32(queryRs.paramC)) {
+    queryRs.rtgId = -1;
+    queryRs.tid = -1;
+    queryRs.paramA = -1;
+    queryRs.paramB = -1;
+
+    if (!data.ReadInt32(queryRs.rtgId) || !data.WriteInt32(queryRs.tid)
+        || !data.ReadInt32(queryRs.paramA) || !data.WriteInt32(queryRs.paramB)) {
+        CONCUR_LOGE("Read info failed in QueryInterval Proxy");
         return;
     }
     return;
