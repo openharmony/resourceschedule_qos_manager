@@ -57,7 +57,8 @@
                 }
             ],
             "test": [
-                "//foundation/resourceschedule/qos_manager/test:concurrent_unittest"
+                "//foundation/resourceschedule/qos_manager/test:concurrent_unittest",
+                "//foundation/resourceschedule/qos_manager/test/fuzztest:concurrent_fuzztest"
             ]
         }
     }
