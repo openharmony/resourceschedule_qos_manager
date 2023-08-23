@@ -330,7 +330,6 @@ std::list<ForegroundAppRecord>::iterator TaskController::GetRecordOfUid(int uid)
 void TaskController::NewForeground(int uid, const Json::Value& payload)
 {
     int uiTid = 0;
-#ifdef QOS_EXT_ENABLE
     try {
         uiTid = std::stoi(payload["pid"].asString());
     } catch (...) {
@@ -341,7 +340,6 @@ void TaskController::NewForeground(int uid, const Json::Value& payload)
         CONCUR_LOGE("uiTid error: %{public}d", uiTid);
         return;
     }
-#endif
     auto it = find(authApps_.begin(), authApps_.end(), uid);
     if (it == authApps_.end()) {
         CONCUR_LOGI("un-authed uid %{public}d", uid);

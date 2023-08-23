@@ -43,7 +43,8 @@
                 "//foundation/resourceschedule/qos_manager/etc/init:concurrent_task_service.cfg",
                 "//foundation/resourceschedule/qos_manager/sa_profile:concurrent_task_sa_profile",
                 "//foundation/resourceschedule/qos_manager/services:concurrentsvc",
-                "//foundation/resourceschedule/qos_manager/frameworks/concurrent_task_client:concurrent_task_client"
+                "//foundation/resourceschedule/qos_manager/frameworks/concurrent_task_client:concurrent_task_client",
+                "//foundation/resourceschedule/qos_manager/qos:qos"
             ],
             "inner_kits": [
                 {
@@ -54,6 +55,15 @@
                         ]
                     },
                     "name": "//foundation/resourceschedule/qos_manager/frameworks/concurrent_task_client:concurrent_task_client"
+                },
+                {
+                    "header": {
+                        "header_base": "//foundation/resourceschedule/qos_manager/interfaces/inner_api/",
+                        "header_files": [
+                            "qos.h"
+                        ]
+                    },
+                    "name": "//foundation/resourceschedule/qos_manager/qos:qos"
                 }
             ],
             "test": [

@@ -28,40 +28,14 @@ config("test_config") {
     "//third_party/jsoncpp/include/",
     "//foundation/resourceschedule/frame_aware_sched/common/include/",
   ]
-}
-
-config("ffrt_test_config") {
-  include_dirs = [
-    "//foundation/resourceschedule/resourceschedule_qos_manager/interfaces/inner_api/",
-    "//foundation/resourceschedule/resourceschedule_qos_manager/include",
-  ]
 
   cflags = [
     "-Wno-unused-variable",
     "-Wno-unused-function",
   ]
 
-  defines = [
-    "QOS_INTERVAL",
-    "QOS_DISPATCH",
-    "QOS_RTG",
-    "QOS_MULTI_RTG",
-    "QOS_RTG_RT",
-    "QOS_CHECKPOINT",
-    "QOS_SUBMIT",
-    "QOS_DEMO",
-    "ATRACE_MODE=0",  # 0 is off, 5 is bytrace, 6 is pmu
-    "ATRACE_LEVEL=0",
-    "ATRACE_LOGI_ENABLE=0",
-    "ATRACE_LOGD_ENABLE=0",
-    "ATRACE_SCOPE_LOG_ENABLE=0",
-    "ATRACE_DURATION_LOG_ENABLE=0",
-    "FFRT_RELEASE",
-    "DISABLE_MONITOR",
-  ]
-
   if (target_cpu == "arm64") {
-    defines += [ "ARM64_TEST" ]
+    defines = [ "ARM64_TEST" ]
   }
 }
 
@@ -86,16 +60,13 @@ ohos_unittest("concurrent_svc_intf_test") {
   }
 
   subsystem_name = "resourceschedule"
-  part_name = "resourceschedule_qos_manager"
+  part_name = "qos_manager"
 }
 
 ohos_unittest("concurrent_task_client_test") {
   module_out_path = module_output_path
 
-  configs = [
-    ":ffrt_test_config",
-    ":test_config",
-  ]
+  configs = [ ":test_config" ]
 
   sources = [ "unittest/phone/concurrent_task_client_test.cpp" ]
   deps = [ "../frameworks/concurrent_task_client:concurrent_task_client" ]
@@ -110,16 +81,13 @@ ohos_unittest("concurrent_task_client_test") {
   ]
 
   subsystem_name = "resourceschedule"
-  part_name = "resourceschedule_qos_manager"
+  part_name = "qos_manager"
 }
 
 ohos_unittest("concurrent_task_controller_test") {
   module_out_path = module_output_path
 
-  configs = [
-    ":ffrt_test_config",
-    ":test_config",
-  ]
+  configs = [ ":test_config" ]
 
   sources = [ "unittest/phone/concurrent_task_controller_test.cpp" ]
   deps = [
@@ -140,16 +108,13 @@ ohos_unittest("concurrent_task_controller_test") {
   }
 
   subsystem_name = "resourceschedule"
-  part_name = "resourceschedule_qos_manager"
+  part_name = "qos_manager"
 }
 
 ohos_unittest("concurrent_task_service_ability_test") {
   module_out_path = module_output_path
 
-  configs = [
-    ":ffrt_test_config",
-    ":test_config",
-  ]
+  configs = [ ":test_config" ]
 
   sources = [ "unittest/phone/concurrent_task_service_ability_test.cpp" ]
   deps = [
@@ -168,16 +133,13 @@ ohos_unittest("concurrent_task_service_ability_test") {
   }
 
   subsystem_name = "resourceschedule"
-  part_name = "resourceschedule_qos_manager"
+  part_name = "qos_manager"
 }
 
 ohos_unittest("qos_interface_test") {
   module_out_path = module_output_path
 
-  configs = [
-    ":ffrt_test_config",
-    ":test_config",
-  ]
+  configs = [ ":test_config" ]
 
   sources = [ "unittest/phone/qos_interface_test.cpp" ]
   deps = [
@@ -196,16 +158,13 @@ ohos_unittest("qos_interface_test") {
   }
 
   subsystem_name = "resourceschedule"
-  part_name = "resourceschedule_qos_manager"
+  part_name = "qos_manager"
 }
 
 ohos_unittest("qos_policy_test") {
   module_out_path = module_output_path
 
-  configs = [
-    ":ffrt_test_config",
-    ":test_config",
-  ]
+  configs = [ ":test_config" ]
 
   sources = [ "unittest/phone/qos_policy_test.cpp" ]
   deps = [
@@ -224,16 +183,13 @@ ohos_unittest("qos_policy_test") {
   }
 
   subsystem_name = "resourceschedule"
-  part_name = "resourceschedule_qos_manager"
+  part_name = "qos_manager"
 }
 
 ohos_unittest("concurrent_task_service_test") {
   module_out_path = module_output_path
 
-  configs = [
-    ":ffrt_test_config",
-    ":test_config",
-  ]
+  configs = [ ":test_config" ]
 
   sources = [ "unittest/phone/concurrent_task_service_test.cpp" ]
   deps = [
@@ -252,7 +208,27 @@ ohos_unittest("concurrent_task_service_test") {
   }
 
   subsystem_name = "resourceschedule"
-  part_name = "resourceschedule_qos_manager"
+  part_name = "qos_manager"
+}
+
+ohos_unittest("qos_test") {
+  module_out_path = module_output_path
+
+  configs = [ ":test_config" ]
+
+  sources = [ "unittest/phone/qos_test.cpp" ]
+  deps = [ "../qos:qos" ]
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+  ]
+
+  if (is_standard_system) {
+    public_deps = gtest_public_deps
+  }
+
+  subsystem_name = "resourceschedule"
+  part_name = "qos_manager"
 }
 
 group("concurrent_unittest") {
@@ -267,6 +243,7 @@ group("concurrent_unittest") {
       ":concurrent_task_service_test",
       ":qos_interface_test",
       ":qos_policy_test",
+      ":qos_test",
     ]
   }
 }
