@@ -23,7 +23,7 @@
 #include <vector>
 #include "json/json.h"
 #include "concurrent_task_type.h"
-#include "qos_manager.h"
+#include "qos_policy.h"
 
 namespace OHOS {
 namespace ConcurrentTask {
@@ -62,7 +62,7 @@ private:
     std::mutex appInfoLock_;
     std::list<ForegroundAppRecord> foregroundApp_ = {};
     std::unordered_map<std::string, int> msgType_ = {};
-    QosManager qosManager_;
+    QosPolicy qosPolicy_;
     std::vector<int> authApps_;
     int renderServiceGrpId_ = -1;
     int rsTid_ = -1;

@@ -14,7 +14,7 @@
  */
 
 #include "gtest/gtest.h"
-#include "qos_manager.h"
+#include "qos_policy.h"
 
 namespace OHOS {
 namespace FFRT_TEST {
@@ -25,7 +25,7 @@ using namespace ConcurrentTask;
 using namespace std;
 
 
-class QosManagerTest : public testing::Test {
+class QosPolicyTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
@@ -33,19 +33,19 @@ public:
     void TearDown();
 };
 
-void QosManagerTest::SetUpTestCase()
+void QosPolicyTest::SetUpTestCase()
 {
 }
 
-void QosManagerTest::TearDownTestCase()
+void QosPolicyTest::TearDownTestCase()
 {
 }
 
-void QosManagerTest::SetUp()
+void QosPolicyTest::SetUp()
 {
 }
 
-void QosManagerTest::TearDown()
+void QosPolicyTest::TearDown()
 {
 }
 
@@ -54,10 +54,10 @@ void QosManagerTest::TearDown()
  * @tc.desc: Confirm the test binary can execute in root priv.
  * @tc.type: FUNC
  */
-HWTEST_F(QosManagerTest, TaskHandleTest, TestSize.Level1)
+HWTEST_F(QosPolicyTest, TaskHandleTest, TestSize.Level1)
 {
-    QosManager qosManager;
-    qosManager.Init();
+    QosPolicy qosPolicy;
+    qosPolicy.Init();
 }
 }
 }

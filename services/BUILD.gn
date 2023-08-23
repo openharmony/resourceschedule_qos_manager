@@ -38,7 +38,7 @@ ohos_shared_library("concurrentsvc") {
     "src/concurrent_task_service_ability.cpp",
     "src/concurrent_task_service_stub.cpp",
     "src/qos_interface.cpp",
-    "src/qos_manager.cpp",
+    "src/qos_policy.cpp",
   ]
 
   deps = [

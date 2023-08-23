@@ -229,10 +229,10 @@ HWTEST_F(QosInterfaceTest, QosPolicyTest, TestSize.Level1)
 {
     int ret = -1;
     struct QosPolicyDatas *policyDatas = nullptr;
-    ret = QosPolicy(policyDatas);
+    ret = QosPolicySet(policyDatas);
     EXPECT_EQ(ret, -1);
 #if defined(ARM64_TEST) && ARM64_TEST
-    ret = QosPolicy(&g_defaultQosPolicy);
+    ret = QosPolicySet(&g_defaultQosPolicy);
     EXPECT_EQ(ret, 0);
 #endif
 }
