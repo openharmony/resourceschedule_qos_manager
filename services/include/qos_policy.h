@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace ConcurrentTask {
-class QosManager {
+class QosPolicy {
 public:
     void Init();
     int SetQosPolicy(struct QosPolicyDatas *policyDatas);

@@ -197,7 +197,7 @@ void TaskController::Init()
 {
     SetSystemAuth(RS_UID, true);
     TypeMapInit();
-    qosManager_.Init();
+    qosPolicy_.Init();
     TryCreateRsGroup();
 }
 

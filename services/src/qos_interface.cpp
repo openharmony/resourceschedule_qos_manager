@@ -303,7 +303,7 @@ int QosLeaveForOther(int tid)
     return ret;
 }
 
-int QosPolicy(const struct QosPolicyDatas *policyDatas)
+int QosPolicySet(const struct QosPolicyDatas *policyDatas)
 {
     int fd;
     int ret;

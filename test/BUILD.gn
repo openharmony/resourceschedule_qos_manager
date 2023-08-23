@@ -199,7 +199,7 @@ ohos_unittest("qos_interface_test") {
   part_name = "resourceschedule_qos_manager"
 }
 
-ohos_unittest("qos_manager_test") {
+ohos_unittest("qos_policy_test") {
   module_out_path = module_output_path
 
   configs = [
@@ -207,7 +207,7 @@ ohos_unittest("qos_manager_test") {
     ":test_config",
   ]
 
-  sources = [ "unittest/phone/qos_manager_test.cpp" ]
+  sources = [ "unittest/phone/qos_policy_test.cpp" ]
   deps = [
     "../frameworks/concurrent_task_client:concurrent_task_client",
     "../services:concurrentsvc",
@@ -266,7 +266,7 @@ group("concurrent_unittest") {
       ":concurrent_task_service_ability_test",
       ":concurrent_task_service_test",
       ":qos_interface_test",
-      ":qos_manager_test",
+      ":qos_policy_test",
     ]
   }
 }
