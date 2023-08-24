@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "qos_manager.h"
+#include "qos_policy.h"
 #include <unistd.h>
 #include "concurrent_task_log.h"
 
@@ -92,12 +92,12 @@ static struct QosPolicyDatas g_systemServerQosPolicy = {
 
 namespace OHOS {
 namespace ConcurrentTask {
-int QosManager::SetQosPolicy(struct QosPolicyDatas *policyDatas)
+int QosPolicy::SetQosPolicy(struct QosPolicyDatas *policyDatas)
 {
-    return QosPolicy(policyDatas);
+    return QosPolicySet(policyDatas);
 }
 
-void QosManager::Init()
+void QosPolicy::Init()
 {
     int ret;
 
