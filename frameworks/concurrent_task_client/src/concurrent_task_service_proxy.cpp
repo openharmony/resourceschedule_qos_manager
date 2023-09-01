@@ -69,8 +69,8 @@ void ConcurrentTaskServiceProxy::QueryInterval(int queryItem, IntervalReply& que
     queryRs.paramA = -1;
     queryRs.paramB = -1;
 
-    if (!data.ReadInt32(queryRs.rtgId) || !data.WriteInt32(queryRs.tid)
-        || !data.ReadInt32(queryRs.paramA) || !data.WriteInt32(queryRs.paramB)) {
+    if (!reply.ReadInt32(queryRs.rtgId) || !reply.WriteInt32(queryRs.tid)
+        || !reply.ReadInt32(queryRs.paramA) || !reply.WriteInt32(queryRs.paramB)) {
         CONCUR_LOGE("Read info failed in QueryInterval Proxy");
         return;
     }

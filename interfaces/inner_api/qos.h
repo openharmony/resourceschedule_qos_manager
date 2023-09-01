@@ -23,6 +23,7 @@ enum class QosLevel {
     QOS_UTILITY,
     QOS_DEFAULT,
     QOS_USER_INITIATED,
+    QOS_MAX,
 };
 
 class QosController {
