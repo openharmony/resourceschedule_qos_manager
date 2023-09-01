@@ -76,8 +76,8 @@ int32_t ConcurrentTaskServiceStub::QueryIntervalInner(MessageParcel& data, [[may
         return IPC_STUB_ERR;
     }
     QueryInterval(item, queryRs);
-    if (!data.WriteInt32(queryRs.rtgId) || !data.WriteInt32(queryRs.tid)
-        || !data.WriteInt32(queryRs.paramA) || !data.WriteInt32(queryRs.paramB)) {
+    if (!reply.WriteInt32(queryRs.rtgId) || !reply.WriteInt32(queryRs.tid)
+        || !reply.WriteInt32(queryRs.paramA) || !reply.WriteInt32(queryRs.paramB)) {
         CONCUR_LOGE("Write info failed in QueryInterval Stub");
         return IPC_STUB_ERR;
     }

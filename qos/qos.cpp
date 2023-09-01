@@ -20,7 +20,7 @@
 #include "qos.h"
 using namespace OHOS::ConcurrentTask;
 
-constexpr int ERROR_NUM = -1;
+static constexpr int ERROR_NUM = -1;
 
 namespace OHOS {
 namespace QOS {
@@ -33,7 +33,7 @@ QosController& QosController::GetInstance()
 int QosController::SetThreadQosForOtherThread(enum QosLevel level, int tid)
 {
     int qos = static_cast<int>(level);
-    if (level < QosLevel::QOS_BACKGROUND || level > QosLevel::QOS_USER_INITIATED) {
+    if (level < QosLevel::QOS_BACKGROUND || level >= QosLevel::QOS_MAX) {
         CONCUR_LOGE("[Qos] invalid qos level %{public}d", qos);
         return ERROR_NUM;
     }
