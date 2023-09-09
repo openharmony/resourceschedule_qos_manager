@@ -200,25 +200,26 @@ HWTEST_F(ConcurrentTaskControllerTest, GetRequestTypeTest, TestSize.Level1)
 HWTEST_F(ConcurrentTaskControllerTest, NewForegroundTest, TestSize.Level1)
 {
     TaskController fore;
-    int uid = 0;
-    fore.NewForeground(uid, 0);
-    fore.NewBackground(uid);
-    fore.NewAppStart(uid);
-    fore.NewForeground(uid, 0);
-    fore.NewBackground(uid);
-    fore.AppKilled(uid);
+    int uid = getuid();
+    int tid = gettid();
+    fore.NewForeground(uid, tid);
+    fore.NewBackground(uid, tid);
+    fore.NewAppStart(uid, tid);
+    fore.NewForeground(uid, tid);
+    fore.NewBackground(uid, tid);
+    fore.AppKilled(uid, tid);
     uid = 574;
     fore.foregroundApp_.push_back(ForegroundAppRecord(574, 0));
     fore.foregroundApp_.push_back(ForegroundAppRecord(1, 0));
     fore.foregroundApp_.push_back(ForegroundAppRecord(3, 0));
     auto iter = fore.foregroundApp_.begin();
     EXPECT_EQ(iter->GetUid(), uid);
-    fore.NewForeground(uid, 0);
-    fore.NewBackground(uid);
-    fore.NewAppStart(uid);
-    fore.NewForeground(uid, 0);
-    fore.NewBackground(uid);
-    fore.AppKilled(uid);
+    fore.NewForeground(uid, tid);
+    fore.NewBackground(uid, tid);
+    fore.NewAppStart(uid, tid);
+    fore.NewForeground(uid, tid);
+    fore.NewBackground(uid, tid);
+    fore.AppKilled(uid, tid);
 }
 
 /**

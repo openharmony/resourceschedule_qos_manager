@@ -260,30 +260,40 @@ bool TaskController::CheckUid(pid_t uid)
     return true;
 }
 
+bool TaskController::ParsePayload(const Json::Value& payload, int& uid, int& pid)
+{
+    try {
+        uid = stoi(payload["uid"].asString());
+        pid = stoi(payload["pid"].asString());
+    } catch(...) {
+        CONCUR_LOGE("Unexpected uid or pid format");
+        return false;
+    }
+    if (uid > 0 && pid > 0) {
+        return true;
+    }
+    return false;
+}
+
 void TaskController::DealSystemRequest(int requestType, const Json::Value& payload)
 {
-    int appUid = 0;
-    try {
-        appUid = stoi(payload["uid"].asString());
-    } catch (...) {
-        CONCUR_LOGE("Unexpected uid format");
-    }
-    if (appUid < 0) {
-        CONCUR_LOGE("appUid error:%d", appUid);
+    int uid = -1;
+    int pid = -1;
+    if (!ParsePayload(payload, uid, pid)) {
         return;
     }
     switch (requestType) {
         case MSG_FOREGROUND:
-            NewForeground(appUid, payload);
+            NewForeground(uid, pid);
             break;
         case MSG_BACKGROUND:
-            NewBackground(appUid);
+            NewBackground(uid, pid);
             break;
         case MSG_APP_START:
-            NewAppStart(appUid);
+            NewAppStart(uid, pid);
             break;
         case MSG_APP_KILLED:
-            AppKilled(appUid);
+            AppKilled(uid, pid);
             break;
         default:
             CONCUR_LOGE("Unknown system request");
@@ -327,20 +337,10 @@ std::list<ForegroundAppRecord>::iterator TaskController::GetRecordOfUid(int uid)
     return foregroundApp_.end();
 }
 
-void TaskController::NewForeground(int uid, const Json::Value& payload)
+void TaskController::NewForeground(int uid, int pid)
 {
-    int uiTid = 0;
-    try {
-        uiTid = std::stoi(payload["pid"].asString());
-    } catch (...) {
-        CONCUR_LOGE("Unexpected pid format uiTid is %{public}d", uiTid);
-        return;
-    }
-    if (uiTid < 0) {
-        CONCUR_LOGE("uiTid error: %{public}d", uiTid);
-        return;
-    }
-    auto it = find(authApps_.begin(), authApps_.end(), uid);
+    int uiTid = pid;
+    auto it = authApps_.find(uid);
     if (it == authApps_.end()) {
         CONCUR_LOGI("un-authed uid %{public}d", uid);
         return;
@@ -380,9 +380,9 @@ void TaskController::NewForeground(int uid, const Json::Value& payload)
     }
 }
 
-void TaskController::NewBackground(int uid)
+void TaskController::NewBackground(int uid, int pid)
 {
-    auto it = find(authApps_.begin(), authApps_.end(), uid);
+    auto it = authApps_.find(uid);
     if (it == authApps_.end()) {
         CONCUR_LOGI("un-authed uid %{public}d", uid);
         return;
@@ -404,7 +404,7 @@ void TaskController::NewBackground(int uid)
     }
 }
 
-void TaskController::NewAppStart(int uid)
+void TaskController::NewAppStart(int uid, int pid)
 {
     CONCUR_LOGI("uid %{public}d start.", uid);
     unsigned int uidParam = static_cast<unsigned int>(uid);
@@ -416,13 +416,33 @@ void TaskController::NewAppStart(int uid)
         CONCUR_LOGI("auth_enable %{public}d success", uid);
     } else {
         CONCUR_LOGE("auth_enable %{public}d fail with ret %{public}d", uid, ret);
+        return;
     }
-    authApps_.push_back(uid);
+    auto it = authApps_.find(uid);
+    if (it == authApps_.end()) {
+        authApps_.insert(pair<int, unordered_set<int>>(uid, {pid}));
+        CONCUR_LOGD("uid %{public}d create, insert pid %{public}d", uid, pid);
+    } else {
+        auto iter = it->second.find(pid);
+        if (iter == it->second.end()) {
+            it->second.insert(pid);
+            CONCUR_LOGD("pid %{public}d insert uid %{public}d, size = %{public}lu", pid, uid, it->second.size());
+        }
+    }
 }
 
-void TaskController::AppKilled(int uid)
+void TaskController::AppKilled(int uid, int pid)
 {
     CONCUR_LOGI("uid %{public}d killed.", uid);
+    auto it = authApps_.find(uid);
+    if (it != authApps_.end()) {
+        it->second.erase(pid);
+        if (it->second.size() != 0) {
+            CONCUR_LOGD("uid %{public}d is still has %{public}lu pid", uid, it->second.size());
+            return;
+        }
+        authApps_.erase(it);
+    }
     unsigned int uidParam = static_cast<unsigned int>(uid);
     int ret = AuthDelete(uidParam);
     if (ret == 0) {
@@ -434,12 +454,6 @@ void TaskController::AppKilled(int uid)
     for (auto iter = foregroundApp_.begin(); iter != foregroundApp_.end(); iter++) {
         if (iter->GetUid() == uid) {
             foregroundApp_.erase(iter++);
-            break;
-        }
-    }
-    for (auto iter = authApps_.begin(); iter != authApps_.end(); iter++) {
-        if (*iter == uid) {
-            authApps_.erase(iter++);
             break;
         }
     }
