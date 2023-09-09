@@ -426,7 +426,8 @@ void TaskController::NewAppStart(int uid, int pid)
         auto iter = it->second.find(pid);
         if (iter == it->second.end()) {
             it->second.insert(pid);
-            CONCUR_LOGD("pid %{public}d insert uid %{public}d, size = %{public}lu", pid, uid, it->second.size());
+            CONCUR_LOGD("pid %{public}d insert uid %{public}d, size = %{public}d",
+                pid, uid, static_cast<int>(it->second.size()));
         }
     }
 }
@@ -438,7 +439,7 @@ void TaskController::AppKilled(int uid, int pid)
     if (it != authApps_.end()) {
         it->second.erase(pid);
         if (it->second.size() != 0) {
-            CONCUR_LOGD("uid %{public}d is still has %{public}lu pid", uid, it->second.size());
+            CONCUR_LOGD("uid %{public}d is still has %{public}d pid", uid, static_cast<int>(it->second.size()));
             return;
         }
         authApps_.erase(it);
