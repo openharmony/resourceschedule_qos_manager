@@ -15,12 +15,13 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 
 ohos_fuzztest("ConcurrentFuzzTest") {
-  module_out_path = "qos_manager/concurrent_fuzz_test/"
+  module_out_path = "qos_manager/qos_manager/"
   fuzz_config_file = "../../../test/fuzztest/concurrent_fuzzer"
   include_dirs = [
     "../../../include/",
     "../../../interfaces/inner_api/",
     "../../../frameworks/concurrent_task_client/include/",
+    "../../../services/include/",
   ]
   cflags = [
     "-g",
@@ -36,6 +37,7 @@ ohos_fuzztest("ConcurrentFuzzTest") {
   ]
   external_deps = [
     "c_utils:utils",
+    "hilog:libhilog",
     "ipc:ipc_single",
     "samgr:samgr_proxy",
   ]
