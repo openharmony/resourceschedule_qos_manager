@@ -52,18 +52,19 @@ private:
     int GetRequestType(std::string strRequstType);
     void DealSystemRequest(int requestType, const Json::Value& payload);
     void DealAppRequest(int requestType, const Json::Value& payload, pid_t uid);
-    void NewForeground(int uid, const Json::Value& payload);
-    void NewBackground(int uid);
-    void NewAppStart(int uid);
-    void AppKilled(int uid);
+    void NewForeground(int uid, int pid);
+    void NewBackground(int uid, int pid);
+    void NewAppStart(int uid, int pid);
+    void AppKilled(int uid, int pid);
     std::list<ForegroundAppRecord>::iterator GetRecordOfUid(int uid);
     void PrintInfo();
+    bool ParsePayload(const Json::Value& payload, int& uid, int& pid);
 
     std::mutex appInfoLock_;
     std::list<ForegroundAppRecord> foregroundApp_ = {};
     std::unordered_map<std::string, int> msgType_ = {};
     QosPolicy qosPolicy_;
-    std::vector<int> authApps_;
+    std::map<int, std::unordered_set<int>> authApps_;
     int renderServiceGrpId_ = -1;
     int rsTid_ = -1;
     bool rtgEnabled_ = false;
