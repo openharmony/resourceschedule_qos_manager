@@ -18,12 +18,32 @@
 #include "concurrent_task_client.h"
 #undef private
 #include "concurrent_task_service_proxy.h"
+#include "concurrent_task_service.h"
 #include "securec.h"
 #include "concurrent_fuzzer.h"
 
 using namespace OHOS::ConcurrentTask;
 
 namespace OHOS {
+const uint8_t *g_baseFuzzData = nullptr;
+size_t g_baseFuzzSize = 0;
+size_t g_baseFuzzPos;
+
+template <class T> T GetData()
+{
+    T object{};
+    size_t objectSize = sizeof(object);
+    if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
+        return object;
+    }
+    ErrCode ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
+    if (ret != ERR_OK) {
+        return {};
+    }
+    g_baseFuzzPos += objectSize;
+    return object;
+}
+
 bool FuzzConcurrentTaskTryConnect(const uint8_t* data, size_t size)
 {
     if (data == nullptr) {
@@ -37,36 +57,49 @@ bool FuzzConcurrentTaskTryConnect(const uint8_t* data, size_t size)
 
 bool FuzzConcurrentTaskServiceReportData(const uint8_t* data, size_t size)
 {
-    if (data == nullptr) {
-        return false;
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        MessageParcel data1;
+        Parcel parcel;
+        sptr<IRemoteObject> iremoteobject = IRemoteObject::Unmarshalling(parcel);
+        int intdata = GetData<int>();
+        void *voiddata = &intdata;
+        size_t size1 = sizeof(int);
+        data1.WriteRemoteObject(iremoteobject);
+        data1.WriteRawData(voiddata, size1);
+        data1.ReadRawData(size1);
+        MessageParcel reply;
+        MessageOption option;
+        uint32_t code = static_cast<uint32_t>(ConcurrentTaskInterfaceCode::REPORT_DATA);
+        ConcurrentTaskService s = ConcurrentTaskService();
+        s.OnRemoteRequest(code, data1, reply, option);
     }
-    if (size < sizeof(int32_t)) {
-        return false;
-    }
-
-    std::string name((const char*) data, size);
-    uint32_t resType = static_cast<uint32_t>(*data);
-    int64_t value = static_cast<int64_t>(*data);
-    std::unordered_map<std::string, std::string> payload;
-    payload["name"] = name;
-    OHOS::ConcurrentTask::ConcurrentTaskClient::GetInstance().ReportData(resType, value, payload);
     return true;
 }
 
 bool FuzzConcurrentTaskServiceQueryInterval(const uint8_t* data, size_t size)
 {
-    if (data == nullptr) {
-        return false;
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        MessageParcel data1;
+        Parcel parcel;
+        sptr<IRemoteObject> iremoteobject = IRemoteObject::Unmarshalling(parcel);
+        int intdata = GetData<int>();
+        void *voiddata = &intdata;
+        size_t size1 = sizeof(int);
+        data1.WriteRemoteObject(iremoteobject);
+        data1.WriteRawData(voiddata, size1);
+        data1.ReadRawData(size1);
+        MessageParcel reply;
+        MessageOption option;
+        uint32_t code = static_cast<uint32_t>(ConcurrentTaskInterfaceCode::QUERY_INTERVAL);
+        ConcurrentTaskService s = ConcurrentTaskService();
+        s.OnRemoteRequest(code, data1, reply, option);
     }
-    if (size < sizeof(int32_t)) {
-        return false;
-    }
-
-    std::string name((const char*) data, size);
-    int queryItem = static_cast<int>(*data);
-    IntervalReply rs;
-    rs.rtgId = -1;
-    OHOS::ConcurrentTask::ConcurrentTaskClient::GetInstance().QueryInterval(queryItem, rs);
     return true;
 }
 } // namespace OHOS
