@@ -89,7 +89,7 @@ struct QosCtrlData {
     int qos;
     int staticQos;
     int dynamicQos;
-    bool tagSchedEnable = false;
+    bool tagSchedEnable = true;
 #endif
 };
 
