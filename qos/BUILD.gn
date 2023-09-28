@@ -24,6 +24,7 @@ config("qos_config") {
 
 ohos_shared_library("qos") {
   public_configs = [ ":qos_config" ]
+ 
   sources = [
     "../services/src/qos_interface.cpp",
     "qos.cpp",
