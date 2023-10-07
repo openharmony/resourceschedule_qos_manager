@@ -31,7 +31,11 @@ config("concurrent_task_config") {
 
 ohos_shared_library("concurrentsvc") {
   public_configs = [ ":concurrent_task_config" ]
-
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
   sources = [
     "src/concurrent_task_controller.cpp",
     "src/concurrent_task_service.cpp",
