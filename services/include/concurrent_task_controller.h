@@ -36,6 +36,7 @@ public:
     virtual ~TaskController() = default;
     void ReportData(uint32_t resType, int64_t value, const Json::Value& payload);
     void QueryInterval(int queryItem, IntervalReply& queryRs);
+    void QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload);
     void Init();
     void Release();
 
@@ -56,6 +57,12 @@ private:
     void NewBackground(int uid, int pid);
     void NewAppStart(int uid, int pid);
     void AppKilled(int uid, int pid);
+    bool ModifySystemRate(const Json::Value& payload);
+    void SetAppRate(const Json::Value& payload);
+    int FindRateFromInfo(int uiTid, const Json::Value& payload);
+    void SetRenderServiceRate(const Json::Value& payload);
+    bool CheckJsonValid(const Json::Value& payload);
+    void SetFrameRate(int rtgId, int rate);
     std::list<ForegroundAppRecord>::iterator GetRecordOfUid(int uid);
     void PrintInfo();
     bool ParsePayload(const Json::Value& payload, int& uid, int& pid);
@@ -67,6 +74,7 @@ private:
     std::map<int, std::unordered_set<int>> authApps_;
     int renderServiceGrpId_ = -1;
     int rsTid_ = -1;
+    int systemRate_ = 0;
     bool rtgEnabled_ = false;
 };
 
@@ -78,14 +86,19 @@ public:
     void AddKeyThread(int tid, int prio = PRIO_NORMAL);
     bool BeginScene();
     bool EndScene();
-    int GetUid();
-    int GetGrpId();
+    int GetUid() const;
+    int GetGrpId() const;
+    int GetRate() const;
+    void SetRate(int appRate);
+    int GetUiTid() const;
+    void SetUiTid(int uiTid);
     bool IsValid();
     void PrintKeyThreads();
 
 private:
     int uid_ = 0;
     int grpId_ = 0;
+    int rate_ = 0;
     int uiTid_ = 0;
     std::unordered_set<int> keyThreads_;
 };

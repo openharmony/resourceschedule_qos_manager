@@ -102,6 +102,30 @@ bool FuzzConcurrentTaskServiceQueryInterval(const uint8_t* data, size_t size)
     }
     return true;
 }
+
+bool FuzzConcurrentTaskServiceQueryDeadline(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        MessageParcel data1;
+        Parcel parcel;
+        sptr<IRemoteObject> iremoteobject = IRemoteObject::Unmarshalling(parcel);
+        int intdata = GetData<int>();
+        void *voiddata = &intdata;
+        size_t size1 = sizeof(int);
+        data1.WriteRemoteObject(iremoteobject);
+        data1.WriteRawData(voiddata, size1);
+        data1.ReadRawData(size1);
+        MessageParcel reply;
+        MessageOption option;
+        uint32_t code = static_cast<uint32_t>(ConcurrentTaskInterfaceCode::QUERY_DEADLINE);
+        ConcurrentTaskService s = ConcurrentTaskService();
+        s.OnRemoteRequest(code, data1, reply, option);
+    }
+    return true;
+}
 } // namespace OHOS
 
 /* Fuzzer entry point */

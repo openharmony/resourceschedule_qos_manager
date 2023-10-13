@@ -32,6 +32,7 @@ public:
 private:
     int32_t ReportDataInner(MessageParcel& data, MessageParcel& reply);
     int32_t QueryIntervalInner(MessageParcel& data, MessageParcel& reply);
+    int32_t QueryDeadlineInner(MessageParcel& data, MessageParcel& reply);
     Json::Value StringToJson(const std::string& str);
 
     void Init();

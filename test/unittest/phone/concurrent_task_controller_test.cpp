@@ -336,5 +336,140 @@ HWTEST_F(ConcurrentTaskControllerTest, PrintKeyThreadsTest, TestSize.Level1)
     EXPECT_NE(iter, foregroundapprecord.keyThreads_.end());
     foregroundapprecord.PrintKeyThreads();
 }
+
+
+/**
+ * @tc.name: QueryDeadlineTest
+ * @tc.desc: Test whether the QueryDeadlineTest interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, QueryDeadlineTest, TestSize.Level1)
+{
+    int queryItem = DDL_RATE;
+    DeadlineReply ddlReply = { false };
+    const Json::Value payload;
+    TaskController::GetInstance().QueryDeadline(queryItem, ddlReply, payload);
+}
+
+/**
+ * @tc.name: ModifySystemRateTest
+ * @tc.desc: Test whether the ModifySystemRate interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, ModifySystemRateTest, TestSize.Level1)
+{
+    Json::Value payload;
+    TaskController::GetInstance().ModifySystemRate(payload);
+    payload["1111"] = "60";
+    TaskController::GetInstance().ModifySystemRate(payload);
+}
+
+/**
+ * @tc.name: SetAppRate
+ * @tc.desc: Test whether the SetAppRate interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, SetAppRateTest, TestSize.Level1)
+{
+    Json::Value payload;
+    ForegroundAppRecord foreApp1 = ForegroundAppRecord(758, 758);
+    foreApp1.SetRate(60);
+    TaskController::GetInstance().foregroundApp_.push_back(foreApp1);
+    TaskController::GetInstance().foregroundApp_.begin()->grpId_ = 1;
+    payload["758"] = "120";
+    TaskController::GetInstance().SetAppRate(payload);
+    int curAppRate = TaskController::GetInstance().foregroundApp_.begin()->GetRate();
+    EXPECT_EQ(curAppRate, 120);
+}
+
+/**
+ * @tc.name: FindRateFromInfo
+ * @tc.desc: Test whether the FindRateFromInfo interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, FindRateFromInfoTest, TestSize.Level1)
+{
+    Json::Value payload;
+    payload["758"] = "120";
+    payload["759"] = "120XXY";
+    int ret = TaskController::GetInstance().FindRateFromInfo(754, payload);
+    EXPECT_EQ(ret, 0);
+    ret = TaskController::GetInstance().FindRateFromInfo(758, payload);
+    EXPECT_EQ(ret, 120);
+    TaskController::GetInstance().FindRateFromInfo(759, payload);
+}
+
+/**
+ * @tc.name: SetRenderServiceRate
+ * @tc.desc: Test whether the SetRenderServiceRate interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, SetRenderServiceRateTest, TestSize.Level1)
+{
+    Json::Value payload;
+    payload["758"] = "120";
+    TaskController::GetInstance().rsTid_ = 758;
+    TaskController::GetInstance().systemRate_ = 0;
+    TaskController::GetInstance().SetRenderServiceRate(payload);
+    EXPECT_EQ(TaskController::GetInstance().systemRate_, 120);
+}
+
+/**
+ * @tc.name: SetFrameRate
+ * @tc.desc: Test whether the SetFrameRate interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, SetFrameRateTest, TestSize.Level1)
+{
+    TaskController::GetInstance().SetFrameRate(758, 120);
+    TaskController::GetInstance().SetFrameRate(0, 120);
+}
+
+/**
+ * @tc.name: GetUid
+ * @tc.desc: Test whether the GetUid interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, GetUidTest, TestSize.Level1)
+{
+    ForegroundAppRecord foreApp = ForegroundAppRecord(758, 0);
+    EXPECT_EQ(foreApp.GetUid(), 758);
+}
+
+/**
+ * @tc.name: GetUiTid
+ * @tc.desc: Test whether the GetUiTid interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, GetUiTidTest, TestSize.Level1)
+{
+    ForegroundAppRecord foreApp = ForegroundAppRecord(758, 758);
+    EXPECT_EQ(foreApp.GetUiTid(), 758);
+}
+
+/**
+ * @tc.name: SetRate
+ * @tc.desc: Test whether the SetRate interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, SetRateTest, TestSize.Level1)
+{
+    ForegroundAppRecord foreApp = ForegroundAppRecord(758, 758);
+    foreApp.SetRate(120);
+    EXPECT_EQ(foreApp.GetRate(), 120);
+}
+
+/**
+ * @tc.name: SetUiTid
+ * @tc.desc: Test whether the SetUiTid interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, SetUiTidTest, TestSize.Level1)
+{
+    ForegroundAppRecord foreApp = ForegroundAppRecord(758, 758);
+    EXPECT_EQ(foreApp.GetUiTid(), 758);
+    foreApp.SetUiTid(755);
+    EXPECT_EQ(foreApp.GetUiTid(), 755);
+}
 }
 }

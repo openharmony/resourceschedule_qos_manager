@@ -84,6 +84,25 @@ int32_t ConcurrentTaskServiceStub::QueryIntervalInner(MessageParcel& data, [[may
     return ERR_OK;
 }
 
+int32_t ConcurrentTaskServiceStub::QueryDeadlineInner(MessageParcel& data, [[maybe_unused]] MessageParcel& reply)
+{
+    if (!IsValidToken(data)) {
+        return ERR_CONCURRENT_TASK_PARCEL_ERROR;
+    }
+    int queryItem;
+    DeadlineReply ddlReply;
+    std::string payload;
+    if (!data.ReadInt32(queryItem) || !data.ReadString(payload)) {
+        CONCUR_LOGE("Read info failed in QueryDeadline Stub");
+        return IPC_STUB_ERR;
+    }
+    if (payload.empty()) {
+        return ERR_OK;
+    }
+    QueryDeadline(queryItem, ddlReply, StringToJson(payload));
+    return ERR_OK;
+}
+
 int32_t ConcurrentTaskServiceStub::OnRemoteRequest(uint32_t code, MessageParcel& data,
     MessageParcel& reply, MessageOption& option)
 {
@@ -132,6 +151,8 @@ void ConcurrentTaskServiceStub::Init()
             [this](auto& data, auto& reply) {return ReportDataInner(data, reply); } },
         { static_cast<uint32_t>(ConcurrentTaskInterfaceCode::QUERY_INTERVAL),
             [this](auto& data, auto& reply) {return QueryIntervalInner(data, reply); } },
+        { static_cast<uint32_t>(ConcurrentTaskInterfaceCode::QUERY_DEADLINE),
+            [this](auto& data, auto& reply) {return QueryDeadlineInner(data, reply); } },
     };
 }
 } // namespace ResourceSchedule

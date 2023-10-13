@@ -53,6 +53,20 @@ void ConcurrentTaskClient::QueryInterval(int queryItem, IntervalReply& queryRs)
     return;
 }
 
+void ConcurrentTaskClient::QueryDeadline(int queryItem, DeadlineReply& ddlReply,
+                                         const std::unordered_map<pid_t, uint32_t>& mapPayload)
+{
+    if (TryConnect() != ERR_OK) {
+        return;
+    }
+    Json::Value payload;
+    for (auto it = mapPayload.begin(); it != mapPayload.end(); ++it) {
+        payload[std::to_string(it->first)] = std::to_string(it->second);
+    }
+    clientService_->QueryDeadline(queryItem, ddlReply, payload);
+    return;
+}
+
 ErrCode ConcurrentTaskClient::TryConnect()
 {
     std::lock_guard<std::mutex> lock(mutex_);

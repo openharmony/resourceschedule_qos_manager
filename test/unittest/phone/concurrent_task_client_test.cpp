@@ -83,5 +83,20 @@ HWTEST_F(ConcurrentTaskClientTest, StopRemoteObjectTest, TestSize.Level1)
 {
     ConcurrentTaskClient::GetInstance().StopRemoteObject();
 }
+
+/**
+ * @tc.name: PushTaskTest
+ * @tc.desc: Test whether the PushTask interface are normal.
+ * @tc.type: FUNC
+*/
+HWTEST_F(ConcurrentTaskClientTest, QueryDeadlineTest, TestSize.Level1)
+{
+    int queryItem = 0;
+    DeadlineReply ddlReply = { false };
+    std::unordered_map<pid_t, uint32_t> payload;
+    payload[1111] = 60;
+    payload[2222] = 90;
+    ConcurrentTaskClient::GetInstance().QueryDeadline(queryItem, ddlReply, payload);
+}
 }
 }
