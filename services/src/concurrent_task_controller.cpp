@@ -46,13 +46,7 @@ void TaskController::ReportData(uint32_t resType, int64_t value, const Json::Val
         CONCUR_LOGE("only system call can be allowed");
         return;
     }
-    Json::ValueType type = payload.type();
-    if (type != Json::objectValue) {
-        CONCUR_LOGE("error payload");
-        return;
-    }
-    if (payload.empty()) {
-        CONCUR_LOGE("payload is empty");
+    if (!CheckJsonValid(payload)) {
         return;
     }
     std::string strRequstType = "";
@@ -460,6 +454,101 @@ void TaskController::AppKilled(int uid, int pid)
     }
 }
 
+void TaskController::QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload)
+{
+    pid_t uid = IPCSkeleton::GetInstance().GetCallingUid();
+    if ((uid != RS_UID) && (uid != ROOT_UID)) {
+        CONCUR_LOGE("only render service call can be allowed, but uid is %{public}d", uid);
+        return;
+    }
+    switch (queryItem) {
+        case DDL_RATE: {
+            bool ret = ModifySystemRate(payload);
+            ddlReply.setStatus = ret;
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+}
+
+bool TaskController::ModifySystemRate(const Json::Value& payload)
+{
+    if (!CheckJsonValid(payload)) {
+        CONCUR_LOGI("service receive json invalid");
+        return false;
+    }
+    SetAppRate(payload);
+    SetRenderServiceRate(payload);
+    return true;
+}
+
+void TaskController::SetAppRate(const Json::Value& payload)
+{
+    int rtgId = 0;
+    int uiTid = 0;
+    int appRate = 0;
+    for (auto iter = foregroundApp_.begin(); iter != foregroundApp_.end(); iter++) {
+        uiTid = iter->GetUiTid();
+        rtgId = iter->GetGrpId();
+        if (uiTid > 0 && rtgId > 0) {
+            appRate = FindRateFromInfo(uiTid, payload);
+            if (appRate > 0 && appRate != iter->GetRate()) {
+                CONCUR_LOGI("set app rate %{public}d rtgId is %{public}d", appRate, rtgId);
+                SetFrameRate(rtgId, appRate);
+                iter->SetRate(appRate);
+            }
+        }
+    }
+}
+
+int TaskController::FindRateFromInfo(int uiTid, const Json::Value& payload)
+{
+    int appRate = 0;
+    if (payload[std::to_string(uiTid)].isNull()) {
+        CONCUR_LOGI("FindRateFromInfo tid %{public}d is null", uiTid);
+        return appRate;
+    }
+    try {
+        appRate = stoi(payload[std::to_string(uiTid)].asString());
+    } catch (...) {
+        CONCUR_LOGI("application %{public}d is not in rtg_group", uiTid);
+    }
+    return appRate;
+}
+
+void TaskController::SetRenderServiceRate(const Json::Value& payload)
+{
+    int rsRate = FindRateFromInfo(rsTid_, payload);
+    if (renderServiceGrpId_ > 0 && rsRate > 0 && rsRate != systemRate_) {
+        CONCUR_LOGI("set rs rate %{public}d rtgId is %{public}d", rsRate, renderServiceGrpId_);
+        SetFrameRate(renderServiceGrpId_, rsRate);
+        systemRate_ = rsRate;
+    }
+}
+
+bool TaskController::CheckJsonValid(const Json::Value& payload)
+{
+    Json::ValueType type = payload.type();
+    if (type != Json::objectValue) {
+        CONCUR_LOGE("error payload");
+        return false;
+    }
+    if (payload.empty()) {
+        CONCUR_LOGI("payload empty");
+        return false;
+    }
+    return true;
+}
+
+void TaskController::SetFrameRate(int rtgId, int rate)
+{
+    if (rtgId > 0) {
+        SetFrameRateAndPrioType(rtgId, rate, PARAM_TYPE);
+    }
+}
+
 void TaskController::PrintInfo()
 {
     for (auto iter = foregroundApp_.begin(); iter != foregroundApp_.end(); iter++) {
@@ -534,14 +623,34 @@ bool ForegroundAppRecord::EndScene()
     return true;
 }
 
-int ForegroundAppRecord::GetUid()
+int ForegroundAppRecord::GetUid() const
 {
     return uid_;
 }
 
-int ForegroundAppRecord::GetGrpId()
+int ForegroundAppRecord::GetGrpId() const
 {
     return grpId_;
+}
+
+void ForegroundAppRecord::SetRate(int appRate)
+{
+    rate_ = appRate;
+}
+
+int ForegroundAppRecord::GetRate() const
+{
+    return rate_;
+}
+
+void ForegroundAppRecord::SetUiTid(int uiTid)
+{
+    uiTid_ = uiTid;
+}
+
+int ForegroundAppRecord::GetUiTid() const
+{
+    return uiTid_;
 }
 
 bool ForegroundAppRecord::IsValid()
