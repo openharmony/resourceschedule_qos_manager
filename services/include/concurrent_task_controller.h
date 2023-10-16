@@ -38,6 +38,7 @@ public:
     void QueryInterval(int queryItem, IntervalReply& queryRs);
     void Init();
     void Release();
+    int CreateNewRtgGrp(int prioType, int rtNum);
 
 private:
     bool CheckUid(pid_t uid);
