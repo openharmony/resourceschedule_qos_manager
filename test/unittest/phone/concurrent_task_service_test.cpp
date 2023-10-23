@@ -60,5 +60,21 @@ HWTEST_F(ConcurrentTaskServiceTest, QueryIntervalTest, TestSize.Level1)
     ConcurrentTaskService queInt;
     queInt.QueryInterval(queryItem, queryRs);
 }
+
+/**
+ * @tc.name: QueryDeadlineTest
+ * @tc.desc: Test whether the QueryDeadline interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskServiceTest, QueryDeadlineTest, TestSize.Level1)
+{
+    int queryItem = 0;
+    DeadlineReply ddlReply = { false };
+    Json::Value payload;
+    payload["1111"] = "60";
+    payload["2222"] = "90";
+    ConcurrentTaskService queInt;
+    queInt.QueryDeadline(queryItem, ddlReply, payload);
+}
 }
 }

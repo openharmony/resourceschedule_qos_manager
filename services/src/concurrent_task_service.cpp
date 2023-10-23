@@ -27,5 +27,10 @@ void ConcurrentTaskService::QueryInterval(int queryItem, IntervalReply& queryRs)
 {
     TaskController::GetInstance().QueryInterval(queryItem, queryRs);
 }
+
+void ConcurrentTaskService::QueryDeadline(int queryItem, DeadlineReply& queryRs, const Json::Value& payload)
+{
+    TaskController::GetInstance().QueryDeadline(queryItem, queryRs, payload);
+}
 } // namespace ConcurrentTask
 } // namespace OHOS

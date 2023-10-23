@@ -55,6 +55,9 @@ public:
      */
     void QueryInterval(int queryItem, IntervalReply& queryRs);
 
+    void QueryDeadline(int queryItem, DeadlineReply& ddlReply,
+                       const std::unordered_map<pid_t, uint32_t>& mapPayload);
+
     /**
      * @brief Stop remote object and reset ConcurrentTaskClient.
      */

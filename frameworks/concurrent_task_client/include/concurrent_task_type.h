@@ -47,11 +47,19 @@ enum QueryIntervalItem {
     QURRY_TYPE_MAX
 };
 
+enum DeadlineType {
+    DDL_RATE = 0
+};
+
 struct IntervalReply {
     int rtgId;
     int tid;
     int paramA;
     int paramB;
+};
+
+struct DeadlineReply {
+    bool setStatus;
 };
 }
 }

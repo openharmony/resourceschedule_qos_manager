@@ -22,6 +22,7 @@ namespace ConcurrentTask {
 enum class ConcurrentTaskInterfaceCode {
     REPORT_DATA = 1,
     QUERY_INTERVAL = 2,
+    QUERY_DEADLINE = 3,
 };
 } // namespace ConcurrentTask
 } // namespace OHOS
