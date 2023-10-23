@@ -76,5 +76,29 @@ void ConcurrentTaskServiceProxy::QueryInterval(int queryItem, IntervalReply& que
     }
     return;
 }
+
+void ConcurrentTaskServiceProxy::QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload)
+{
+    int32_t error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option = { MessageOption::TF_SYNC };
+
+    if (!data.WriteInterfaceToken(ConcurrentTaskServiceProxy::GetDescriptor())) {
+        CONCUR_LOGE("Write interface token failed in QueryDeadline Proxy");
+        return;
+    }
+    if (!data.WriteInt32(queryItem) || !data.WriteString(payload.toStyledString())) {
+        CONCUR_LOGE("Write info failed in QueryDeadline Proxy");
+        return;
+    }
+    uint32_t code = static_cast<uint32_t>(ConcurrentTaskInterfaceCode::QUERY_DEADLINE);
+    error = Remote()->SendRequest(code, data, reply, option);
+    if (error != NO_ERROR) {
+        CONCUR_LOGE("QueryDeadline error: %{public}d", error);
+        return;
+    }
+    CONCUR_LOGD("ConcurrentTaskServiceProxy::QueryDeadline success.");
+}
 } // namespace ConcurrentTask
 } // namespace OHOS
