@@ -20,15 +20,13 @@
 #include "concurrent_task_service_proxy.h"
 #include "concurrent_task_service.h"
 #include "securec.h"
-#include "concurrent_fuzzer.h"
 #include"qos.h"
 #include"concurrent_task_client.h"
-using namespace OHOS::ConcurrentTask;
-
-namespace OHOS {
-namespace QOS{
+#include "concurrent_fuzzer.h"
 using namespace OHOS::ConcurrentTask;
 using namespace OHOS::QOS;
+
+namespace OHOS {
 const uint8_t *g_baseFuzzData = nullptr;
 size_t g_baseFuzzSize = 0;
 size_t g_baseFuzzPos;
@@ -147,18 +145,18 @@ bool FuzzConcurrentTaskServiceSetThreadQos(const uint8_t* data, size_t size)
     g_baseFuzzPos = 0;
     if (size > sizeof(int) + sizeof(int)) {
         int level = GetData<int>();
-        level = level % 10;
-        if(level == 1){
-            QosController::GetInstance().SetThreadQos(QOS::QosLevel::QOS_BACKGROUND);
+        level = level % 10; // get single digit
+        if (level == 1 || level == 2) { // corresponding to QOS_BACKGROUNG
+            QOS::SetThreadQos(QOS::QosLevel::QOS_BACKGROUND);
         }
-        else if(level == 2){
-            QosController::GetInstance().SetThreadQos(QOS::QosLevel::QOS_UTILITY);
+        else if (level == 3 || level == 4) { // corresponding to QOS_UTILITY
+            QOS::SetThreadQos(QOS::QosLevel::QOS_UTILITY);
         }
-        else if(level == 3){
-            QosController::GetInstance().SetThreadQos(QOS::QosLevel::QOS_DEFAULT);
+        else if (level == 5 || level == 6) { // corresponding to QOS_DEFAULT
+            QOS::SetThreadQos(QOS::QosLevel::QOS_DEFAULT);
         }
-        else if(level == 4){
-            QosController::GetInstance().SetThreadQos(QOS::QosLevel::QOS_USER_INITIATED);
+        else if (level == 7 || level == 8) { // corresponding to QOS_INITIATED
+            QOS::SetThreadQos(QOS::QosLevel::QOS_USER_INITIATED);
         }
     }
     return true;
@@ -172,18 +170,18 @@ bool FuzzConcurrentTaskServiceSetQosForOtherThread(const uint8_t* data, size_t s
     if (size > sizeof(int) + sizeof(int)) {
         int level = GetData<int>();
         int tid = GetData<int>();
-        level = level % 10;
-        if(level == 1){
-            QosController::GetInstance().SetQosForOtherThread(QOS::QosLevel::QOS_BACKGROUND,tid);
+        level = level % 10; // get single digit
+        if (level == 1 || level == 2) { // corresponding to QOS_BACKGROUND
+            QOS::SetQosForOtherThread(QOS::QosLevel::QOS_BACKGROUND, tid);
         }
-        else if(level == 2){
-            QosController::GetInstance().SetQosForOtherThread(QOS::QosLevel::QOS_UTILITY,tid);
+        else if (level == 2) { // corresponding to QOS_UTILITY
+            QOS::SetQosForOtherThread(QOS::QosLevel::QOS_UTILITY, tid);
         }
-        else if(level == 3){
-            QosController::GetInstance().SetQosForOtherThread(QOS::QosLevel::QOS_DEFAULT,tid);
+        else if (level == 3) { // corresponding to QOS_DEFAULT
+            QOS::SetQosForOtherThread(QOS::QosLevel::QOS_DEFAULT, tid);
         }
-        else if(level == 4){
-            QosController::GetInstance().SetQosForOtherThread(QOS::QosLevel::QOS_USER_INITIATED,tid);
+        else if (level == 4) { // corresponding to QOS_INITIATED
+            QOS::SetQosForOtherThread(QOS::QosLevel::QOS_USER_INITIATED, tid);
         }
     }
     return true;
@@ -194,7 +192,7 @@ bool FuzzConcurrentTaskServiceResetThreadQos(const uint8_t* data, size_t size)
     g_baseFuzzData = data;
     g_baseFuzzSize = size;
     g_baseFuzzPos = 0;
-    QosController::GetInstance().ResetThreadQos();
+    QOS::ResetThreadQos();
     return true;
 }
 
@@ -205,12 +203,11 @@ bool FuzzConcurrentTaskServiceResetQosForOtherThread(const uint8_t* data, size_t
     g_baseFuzzPos = 0;
     if (size > sizeof(int) + sizeof(int)) {
         int tid = GetData<int>();
-        QosController::GetInstance().ResetQosForOtherThread(tid);
+        QOS::ResetQosForOtherThread(tid);
     }
     return true;
 }
 } // namespace OHOS
-} // namespace QOS
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
@@ -219,5 +216,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::FuzzConcurrentTaskTryConnect(data, size);
     OHOS::FuzzConcurrentTaskServiceReportData(data, size);
     OHOS::FuzzConcurrentTaskServiceQueryInterval(data, size);
+    OHOS::FuzzConcurrentTaskServiceStopRemoteObject(data, size);
+    OHOS::FuzzConcurrentTaskServiceSetThreadQos(data, size);
+    OHOS::FuzzConcurrentTaskServiceSetQosForOtherThread(data, size);
+    OHOS::FuzzConcurrentTaskServiceResetThreadQos(data, size);
+    OHOS::FuzzConcurrentTaskServiceResetQosForOtherThread(data, size);
     return 0;
 }
