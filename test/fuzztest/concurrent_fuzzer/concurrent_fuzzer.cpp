@@ -21,7 +21,8 @@
 #include "concurrent_task_service.h"
 #include "securec.h"
 #include "concurrent_fuzzer.h"
-
+#include"qos.h"
+#include"concurrent_task_client.h"
 using namespace OHOS::ConcurrentTask;
 
 namespace OHOS {
