@@ -156,14 +156,14 @@ bool FuzzConcurrentTaskServiceSetThreadQos(const uint8_t* data, size_t size)
     g_baseFuzzPos = 0;
     if (size > sizeof(int) + sizeof(int)) {
         int level = GetData<int>();
-        level = level % TEST_DATA_TENTH; 
-        if (level == TEST_DATA_FIFTH || level == TEST_DATA_SECOND) { 
+        level = level % TEST_DATA_TENTH;
+        if (level == TEST_DATA_FIFTH || level == TEST_DATA_SECOND) {
             QOS::SetThreadQos(QOS::QosLevel::QOS_BACKGROUND);
-        } else if (level == TEST_DATA_THIRD || level == TEST_DATA_FOURTH) { 
+        } else if (level == TEST_DATA_THIRD || level == TEST_DATA_FOURTH) {
             QOS::SetThreadQos(QOS::QosLevel::QOS_UTILITY);
         } else if (level == TEST_DATA_FIFTH || level == TEST_DATA_SIXTH) {
             QOS::SetThreadQos(QOS::QosLevel::QOS_DEFAULT);
-        } else if (level == TEST_DATA_SEVENTH || level == TEST_DATA_EIGHTH) { 
+        } else if (level == TEST_DATA_SEVENTH || level == TEST_DATA_EIGHTH) {
             QOS::SetThreadQos(QOS::QosLevel::QOS_USER_INITIATED);
         }
     }
@@ -178,12 +178,12 @@ bool FuzzConcurrentTaskServiceSetQosForOtherThread(const uint8_t* data, size_t s
     if (size > sizeof(int) + sizeof(int)) {
         int level = GetData<int>();
         int tid = GetData<int>();
-        level = level % TEST_DATA_TENTH; 
-        if (level == TEST_DATA_FIRST || level == TEST_DATA_SECOND) { 
+        level = level % TEST_DATA_TENTH;
+        if (level == TEST_DATA_FIRST || level == TEST_DATA_SECOND) {
             QOS::SetQosForOtherThread(QOS::QosLevel::QOS_BACKGROUND, tid);
-        } else if (level == TEST_DATA_THIRD || level == TEST_DATA_FOURTH) { 
+        } else if (level == TEST_DATA_THIRD || level == TEST_DATA_FOURTH) {
             QOS::SetQosForOtherThread(QOS::QosLevel::QOS_UTILITY, tid);
-        } else if (level == TEST_DATA_FIFTH || level == TEST_DATA_SIXTH) { 
+        } else if (level == TEST_DATA_FIFTH || level == TEST_DATA_SIXTH) {
             QOS::SetQosForOtherThread(QOS::QosLevel::QOS_DEFAULT, tid);
         } else if (level == TEST_DATA_SEVENTH || level == TEST_DATA_EIGHTH) {
             QOS::SetQosForOtherThread(QOS::QosLevel::QOS_USER_INITIATED, tid);
