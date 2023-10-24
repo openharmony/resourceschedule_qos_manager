@@ -143,7 +143,7 @@ bool FuzzConcurrentTaskServiceSetThreadQos(const uint8_t* data, size_t size)
     g_baseFuzzPos = 0;
     if (size > sizeof(int) + sizeof(int)) {
         int level = GetData<int>();
-        level = level % 5;
+        level = (level % 4) + 1;
         level = level < 0 ? (-1) * level : level;
         QOS::Qos_Level T ;
         T = static_cast<QOS::QosLevel>(level);
@@ -161,7 +161,7 @@ bool FuzzConcurrentTaskServiceSetQosForOtherThread(const uint8_t* data, size_t s
         int level = GetData<int>();
         int tid = GetData<int>();
         QOS::Qos_Level T ;
-        level = level % 5;
+        level = (level % 4) + 1;
         level = level < 0 ? (-1) * level : level;
         T = static_cast<QOS::QosLevel>(level);
         QOS::SetQosForOtherThread(T, tid);
