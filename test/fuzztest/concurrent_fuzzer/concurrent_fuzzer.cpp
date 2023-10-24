@@ -20,8 +20,8 @@
 #include "concurrent_task_service_proxy.h"
 #include "concurrent_task_service.h"
 #include "securec.h"
-#include"qos.h"
-#include"concurrent_task_client.h"
+#include "qos.h"
+#include "concurrent_task_client.h"
 #include "concurrent_fuzzer.h"
 using namespace OHOS::ConcurrentTask;
 using namespace OHOS::QOS;
