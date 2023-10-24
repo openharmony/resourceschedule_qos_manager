@@ -126,6 +126,69 @@ bool FuzzConcurrentTaskServiceQueryDeadline(const uint8_t* data, size_t size)
     }
     return true;
 }
+
+bool FuzzConcurrentTaskServiceStopRemoteObject(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    QOS::StopRemoteObject();
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceSetThreadQos(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        int level = GetData<int>();
+        level = level % 5;
+        level = level < 0 ? (-1) * level : level;
+        QOS::Qos_Level T ;
+        T = static_cast<QOS::QosLevel>(level);
+        QOS::SetThreadQos(T);
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceSetQosForOtherThread(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        int level = GetData<int>();
+        int tid = GetData<int>();
+        QOS::Qos_Level T ;
+        level = level % 5;
+        level = level < 0 ? (-1) * level : level;
+        T = static_cast<QOS::QosLevel>(level);
+        QOS::SetQosForOtherThread(T, tid);
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceResetThreadQos(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    QOS::ResetThreadQos();
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceResetQosForOtherThread(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        int tid = GetData<int>();
+        QOS::ResetQosForOtherThread(tid);
+    }
+    return true;
+}
 } // namespace OHOS
 
 /* Fuzzer entry point */
