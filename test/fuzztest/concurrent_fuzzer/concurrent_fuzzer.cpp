@@ -31,6 +31,17 @@ const uint8_t *g_baseFuzzData = nullptr;
 size_t g_baseFuzzSize = 0;
 size_t g_baseFuzzPos;
 
+namespace {
+    constexpr int TEST_DATA_FIRST = 1;
+    constexpr int TEST_DATA_SECOND = 2;
+    constexpr int TEST_DATA_THIRD = 3;
+    constexpr int TEST_DATA_FOURTH = 4;
+    constexpr int TEST_DATA_FIFTH = 5;
+    constexpr int TEST_DATA_SIXTH = 6;
+    constexpr int TEST_DATA_SEVENTH = 7;
+    constexpr int TEST_DATA_EIGHTH = 8;
+    constexpr int TEST_DATA_TENTH = 10;
+}
 template <class T> T GetData()
 {
     T object{};
@@ -145,17 +156,14 @@ bool FuzzConcurrentTaskServiceSetThreadQos(const uint8_t* data, size_t size)
     g_baseFuzzPos = 0;
     if (size > sizeof(int) + sizeof(int)) {
         int level = GetData<int>();
-        level = level % 10; // get single digit
-        if (level == 1 || level == 2) { // corresponding to QOS_BACKGROUNG
+        level = level % TEST_DATA_TENTH; 
+        if (level == TEST_DATA_FIFTH || level == TEST_DATA_SECOND) { 
             QOS::SetThreadQos(QOS::QosLevel::QOS_BACKGROUND);
-        }
-        else if (level == 3 || level == 4) { // corresponding to QOS_UTILITY
+        } else if (level == TEST_DATA_THIRD || level == TEST_DATA_FOURTH) { 
             QOS::SetThreadQos(QOS::QosLevel::QOS_UTILITY);
-        }
-        else if (level == 5 || level == 6) { // corresponding to QOS_DEFAULT
+        } else if (level == TEST_DATA_FIFTH || level == TEST_DATA_SIXTH) {
             QOS::SetThreadQos(QOS::QosLevel::QOS_DEFAULT);
-        }
-        else if (level == 7 || level == 8) { // corresponding to QOS_INITIATED
+        } else if (level == TEST_DATA_SEVENTH || level == TEST_DATA_EIGHTH) { 
             QOS::SetThreadQos(QOS::QosLevel::QOS_USER_INITIATED);
         }
     }
@@ -170,17 +178,14 @@ bool FuzzConcurrentTaskServiceSetQosForOtherThread(const uint8_t* data, size_t s
     if (size > sizeof(int) + sizeof(int)) {
         int level = GetData<int>();
         int tid = GetData<int>();
-        level = level % 10; // get single digit
-        if (level == 1 || level == 2) { // corresponding to QOS_BACKGROUND
+        level = level % TEST_DATA_TENTH; 
+        if (level == TEST_DATA_FIRST || level == TEST_DATA_SECOND) { 
             QOS::SetQosForOtherThread(QOS::QosLevel::QOS_BACKGROUND, tid);
-        }
-        else if (level == 2) { // corresponding to QOS_UTILITY
+        } else if (level == TEST_DATA_THIRD || level == TEST_DATA_FOURTH) { 
             QOS::SetQosForOtherThread(QOS::QosLevel::QOS_UTILITY, tid);
-        }
-        else if (level == 3) { // corresponding to QOS_DEFAULT
+        } else if (level == TEST_DATA_FIFTH || level == TEST_DATA_SIXTH) { 
             QOS::SetQosForOtherThread(QOS::QosLevel::QOS_DEFAULT, tid);
-        }
-        else if (level == 4) { // corresponding to QOS_INITIATED
+        } else if (level == TEST_DATA_SEVENTH || level == TEST_DATA_EIGHTH) {
             QOS::SetQosForOtherThread(QOS::QosLevel::QOS_USER_INITIATED, tid);
         }
     }
@@ -221,5 +226,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::FuzzConcurrentTaskServiceSetQosForOtherThread(data, size);
     OHOS::FuzzConcurrentTaskServiceResetThreadQos(data, size);
     OHOS::FuzzConcurrentTaskServiceResetQosForOtherThread(data, size);
+    OHOS::FuzzConcurrentTaskServiceQueryDeadline(data, size);
     return 0;
 }
