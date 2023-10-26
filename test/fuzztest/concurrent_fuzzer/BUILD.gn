@@ -33,6 +33,7 @@ ohos_fuzztest("ConcurrentFuzzTest") {
   defines = []
   deps = [
     "../../../frameworks/concurrent_task_client:concurrent_task_client",
+    "../../../qos:qos",
     "../../../services:concurrentsvc",
   ]
   external_deps = [
