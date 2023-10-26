@@ -39,7 +39,6 @@ public:
     void QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload);
     void Init();
     void Release();
-    int CreateNewRtgGrp(int prioType, int rtNum);
 
 private:
     bool CheckUid(pid_t uid);
