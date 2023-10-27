@@ -220,6 +220,24 @@ int AuthGet(unsigned int uid, unsigned int *uaFlag, unsigned int *status)
     return ret;
 }
 
+int AuthEnhance(unsigned int uid, bool enhance_status)
+{
+    int ret = 0;
+#ifdef QOS_EXT_ENABLE
+    struct AuthCtrlData data;
+    int fd = TrivalOpenAuthCtrlNode();
+    if (fd < 0) {
+        return fd;
+    }
+
+    data.uid = uid;
+    data.enhance_status = enhance_status;
+    ret = ioctl(fd, ENHANCE_AUTH_CTRL_OPERATION, &data);
+    close(fd);
+#endif
+    return ret;
+}
+
 int QosApply(unsigned int level)
 {
     int tid = gettid();
