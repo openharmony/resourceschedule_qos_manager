@@ -57,6 +57,7 @@ private:
     void NewBackground(int uid, int pid);
     void NewAppStart(int uid, int pid);
     void AppKilled(int uid, int pid);
+    void ContinuousTaskProcess(int uid, int pid, int status);
     bool ModifySystemRate(const Json::Value& payload);
     void SetAppRate(const Json::Value& payload);
     int FindRateFromInfo(int uiTid, const Json::Value& payload);

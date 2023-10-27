@@ -28,6 +28,7 @@ static struct QosPolicyDatas g_defaultQosPolicy = {
         {0, 0, 0, 1024, 0},
         {0, 0, 0, 1024, 0},
         {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0},
     }
 };
 
@@ -48,6 +49,7 @@ static struct QosPolicyDatas g_foregroundQosPolicy = {
         {0, 0, 0, 1024, 0},
         {0, 0, 0, 1024, 0},
 #endif
+        {0, 0, 0, 1024, 0},
     }
 };
 
@@ -67,6 +69,7 @@ static struct QosPolicyDatas g_backgroundQosPolicy = {
         {0, 0, 0, 1024, 0},
         {0, 0, 0, 1024, 0},
 #endif
+        {0, 0, 0, 1024, 0},
     }
 };
 
@@ -87,6 +90,7 @@ static struct QosPolicyDatas g_systemServerQosPolicy = {
         {0, 0, 0, 1024, 0},
         {0, 0, 0, 1024, 0},
 #endif
+        {0, 0, 0, 1024, 0},
     }
 };
 

@@ -153,6 +153,22 @@ HWTEST_F(QosInterfaceTest, AuthGetTest, TestSize.Level1)
 }
 
 /**
+ * @tc.name: AuthEnhanceTest
+ * @tc.desc: Test whether the AuthEnhance interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QosInterfaceTest, AuthEnhanceTest, TestSize.Level1)
+{
+    unsigned int uid = 1000;
+    bool enhance_status = false;
+    int ret = AuthEnhance(uid, enhance_status);
+    EXPECT_EQ(ret, 0);
+    enhance_status = false;
+    ret = AuthEnhance(uid, enhance_status);
+    EXPECT_EQ(ret, 0);
+}
+
+/**
  * @tc.name: QosApplyForOtherTest
  * @tc.desc: Test whether the QosApplyForOther interface are normal.
  * @tc.type: FUNC
@@ -215,6 +231,7 @@ static struct QosPolicyDatas g_defaultQosPolicy = {
     .policyType = QOS_POLICY_DEFAULT,
     .policyFlag = QOS_FLAG_ALL,
     .policys = {
+        {0, 0, 0, 1024, 0},
         {0, 0, 0, 1024, 0},
         {0, 0, 0, 1024, 0},
         {0, 0, 0, 1024, 0},

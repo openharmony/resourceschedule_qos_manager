@@ -25,7 +25,7 @@ extern "C" {
  */
 constexpr int SYSTEM_UID = 1000;
 constexpr int ROOT_UID = 0;
-constexpr int NR_QOS = 6;
+constexpr int NR_QOS = 7;
 constexpr unsigned int SET_RTG_ENABLE = 1;
 constexpr unsigned int QOS_CTRL_IPC_MAGIC = 0xCC;
 constexpr unsigned int AUTH_CTRL_IPC_MAGIC = 0xCD;
@@ -40,6 +40,9 @@ struct AuthCtrlData {
     unsigned int rtgUaFlag;
     unsigned int qosUaFlag;
     unsigned int status;
+#ifdef QOS_EXT_ENABLE
+    bool enhance_status;
+#endif
 };
 
 enum class AuthManipulateType {
@@ -63,11 +66,19 @@ enum class AuthStatus {
 
 enum AuthCtrlCmdid {
     BASIC_AUTH_CTRL = 1,
+#ifdef QOS_EXT_ENABLE
+    ENHANCE_AUTH_CTRL = 2,
+#endif
     AUTH_CTRL_MAX_NR
 };
 
 #define BASIC_AUTH_CTRL_OPERATION \
     _IOWR(AUTH_CTRL_IPC_MAGIC, BASIC_AUTH_CTRL, struct AuthCtrlData)
+
+#ifdef QOS_EXT_ENABLE
+#define ENHANCE_AUTH_CTRL_OPERATION \
+    _IOWR(AUTH_CTRL_IPC_MAGIC, ENHANCE_AUTH_CTRL, struct AuthCtrlData)
+#endif
 
 /*
  * qos ctrl
@@ -163,6 +174,7 @@ int AuthPause(unsigned int uid);
 int AuthDelete(unsigned int uid);
 int AuthGet(unsigned int uid, unsigned int *uaFlag, unsigned int *status);
 int AuthSwitch(unsigned int uid, unsigned int rtgFlag, unsigned int qosFlag, unsigned int status);
+int AuthEnhance(unsigned int uid, bool enhance_status);
 int QosApply(unsigned int level);
 int QosApplyForOther(unsigned int level, int tid);
 int QosLeave(void);
