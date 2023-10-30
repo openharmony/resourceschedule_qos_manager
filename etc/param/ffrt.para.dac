@@ -16,3 +16,5 @@ ffrt.interval.renderthread = system:system:0664
 ffrt.interval.renderservice = system:system:0664
 ffrt.interval.slide = system:system:0664
 ffrt.interval.limit = system:system:0664
+persist.ffrt.interval.appRate = system:system:0664
+persist.ffrt.interval.rsRate = system:system:0664
