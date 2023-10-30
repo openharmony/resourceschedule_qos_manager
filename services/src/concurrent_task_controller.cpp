@@ -13,14 +13,16 @@
  * limitations under the License.
  */
 
-#include <unistd.h>
-#include <cinttypes>
+#include <fcntl.h>
+#include <securec.h>
+#include <sys/ioctl.h>
 #include <sys/resource.h>
-#include <sched.h>
+#include <unistd.h>
 #include <linux/sched.h>
+
+#include "concurrent_task_log.h"
 #include "rtg_interface.h"
 #include "ipc_skeleton.h"
-#include "concurrent_task_log.h"
 #include "parameters.h"
 #include "concurrent_task_controller.h"
 
@@ -29,9 +31,16 @@ using namespace OHOS::RME;
 
 namespace OHOS {
 namespace ConcurrentTask {
-const std::string INTERVAL_DDL = "ffrt.interval.renderthread";
-constexpr int CURRENT_RATE = 90;
-constexpr int PARAM_TYPE = 1;
+namespace {
+    const std::string INTERVAL_DDL = "ffrt.interval.renderthread";
+    constexpr int CURRENT_RATE = 90;
+    constexpr int PARAM_TYPE = 1;
+    const char RTG_SCHED_IPC_MAGIC = 0xAB;
+    constexpr int RTG_TYPE_MAX = 3;
+}
+
+#define CMD_ID_SET_RTG \
+    _IOWR(RTG_SCHED_IPC_MAGIC, SET_RTG, struct rtg_str_data)
 
 TaskController& TaskController::GetInstance()
 {
@@ -576,12 +585,40 @@ void TaskController::PrintInfo()
     }
 }
 
+int TaskController::CreateNewRtgGrp(int prioType, int rtNum)
+{
+    struct rtg_grp_data grp_data;
+    int ret;
+    char fileName[] = "/proc/self/sched_rtg_ctrl";
+    int fd = open(fileName, O_RDWR);
+    if (fd < 0) {
+        CONCUR_LOGE("Open file /proc/self/sched_rth_ctrl, errno = %{public}d", errno);
+        return fd;
+    }
+    (void)memset_s(&grp_data, sizeof(struct rtg_grp_data), 0, sizeof(struct rtg_grp_data));
+    if ((prioType > 0) && (prioType < RTG_TYPE_MAX)) {
+        grp_data.prio_type = prioType;
+    }
+    if (rtNum > 0) {
+        grp_data.rt_cnt = rtNum;
+    }
+    grp_data.rtg_cmd = CMD_CREATE_RTG_GRP;
+    ret = ioctl(fd, CMD_ID_SET_RTG, &grp_data);
+    if (ret < 0) {
+        CONCUR_LOGE("create rtg grp failed, errno = %{public}d (%{public}s)", errno, strerror(errno));
+    } else {
+        CONCUR_LOGI("create rtg grp success, get rtg id %{public}d.", ret);
+    }
+    close(fd);
+    return ret;
+}
+
 ForegroundAppRecord::ForegroundAppRecord(int uid, int uiTid)
 {
     uid_ = uid;
     uiTid_ = uiTid;
     if (OHOS::system::GetBoolParameter(INTERVAL_DDL, false)) {
-        grpId_ = CreateNewRtgGrp(PRIO_RT, MAX_KEY_THREADS);
+        grpId_ = TaskController::GetInstance().CreateNewRtgGrp(PRIO_RT, MAX_KEY_THREADS);
     } else {
         grpId_ = -1;
     }
