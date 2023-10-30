@@ -91,6 +91,7 @@ ohos_unittest("concurrent_task_controller_test") {
 
   sources = [ "unittest/phone/concurrent_task_controller_test.cpp" ]
   deps = [
+    "../etc/param:ffrt_etc",
     "../frameworks/concurrent_task_client:concurrent_task_client",
     "../services:concurrentsvc",
     "//third_party/jsoncpp:jsoncpp",
@@ -99,6 +100,7 @@ ohos_unittest("concurrent_task_controller_test") {
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
+    "init:libbegetutil",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]

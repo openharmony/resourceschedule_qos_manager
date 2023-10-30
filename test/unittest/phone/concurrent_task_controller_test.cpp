@@ -18,6 +18,7 @@
 #include <sched.h>
 #include <linux/sched.h>
 #include "gtest/gtest.h"
+#include "parameters.h"
 #define private public
 #include "concurrent_task_controller.h"
 #include "rtg_interface.h"
@@ -382,6 +383,7 @@ HWTEST_F(ConcurrentTaskControllerTest, SetAppRateTest, TestSize.Level1)
     TaskController::GetInstance().SetAppRate(payload);
     int curAppRate = TaskController::GetInstance().foregroundApp_.begin()->GetRate();
     EXPECT_EQ(curAppRate, 120);
+    EXPECT_EQ(OHOS::system::GetIntParameter("persist.ffrt.interval.appRate", 0), 120);
 }
 
 /**
@@ -414,6 +416,7 @@ HWTEST_F(ConcurrentTaskControllerTest, SetRenderServiceRateTest, TestSize.Level1
     TaskController::GetInstance().systemRate_ = 0;
     TaskController::GetInstance().SetRenderServiceRate(payload);
     EXPECT_EQ(TaskController::GetInstance().systemRate_, 120);
+    EXPECT_EQ(OHOS::system::GetIntParameter("persist.ffrt.interval.rsRate", 0), 120);
 }
 
 /**
