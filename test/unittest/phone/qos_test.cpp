@@ -63,6 +63,14 @@ HWTEST_F(QosTest, SetThreadQosTest1, TestSize.Level1)
     EXPECT_EQ(ret, 0);
     ret = SetThreadQos(QosLevel::QOS_BACKGROUND);
     EXPECT_EQ(ret, 0);
+    ret = SetThreadQos(QosLevel::QOS_DEADLINE_REQUEST);
+    EXPECT_EQ(ret, 0);
+    ret = SetThreadQos(QosLevel::QOS_USER_INTERACTIVE);
+    EXPECT_EQ(ret, 0);
+    ret = SetThreadQos(QosLevel::QOS_KEY_BACKGROUND);
+    EXPECT_EQ(ret, 0);
+    ret = SetThreadQos(QosLevel::QOS_MAX);
+    EXPECT_EQ(ret, -1);
 }
 
 HWTEST_F(QosTest, SetThreadQosTest2, TestSize.Level1)

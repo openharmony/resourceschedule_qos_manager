@@ -213,6 +213,8 @@ void TaskController::TypeMapInit()
     msgType_.insert(pair<std::string, int>("background", MSG_BACKGROUND));
     msgType_.insert(pair<std::string, int>("appStart", MSG_APP_START));
     msgType_.insert(pair<std::string, int>("appKilled", MSG_APP_KILLED));
+    msgType_.insert(pair<std::string, int>("continuousStart", MSG_CONTINUOUS_TASK_START));
+    msgType_.insert(pair<std::string, int>("continuousEnd", MSG_CONTINUOUS_TASK_END));
 }
 
 void TaskController::TryCreateRsGroup()
@@ -288,6 +290,10 @@ void TaskController::DealSystemRequest(int requestType, const Json::Value& paylo
             break;
         case MSG_APP_KILLED:
             AppKilled(uid, pid);
+            break;
+        case MSG_CONTINUOUS_TASK_START:
+        case MSG_CONTINUOUS_TASK_END:
+            ContinuousTaskProcess(uid, pid, requestType);
             break;
         default:
             CONCUR_LOGE("Unknown system request");
@@ -451,6 +457,20 @@ void TaskController::AppKilled(int uid, int pid)
             foregroundApp_.erase(iter++);
             break;
         }
+    }
+}
+
+void TaskController::ContinuousTaskProcess(int uid, int pid, int status)
+{
+    int ret = -1;
+    if (status == static_cast<int>(MSG_CONTINUOUS_TASK_START)) {
+        ret = AuthEnhance(uid, true);
+        CONCUR_LOGI("auth_enhance uid %{public}d start, ret %{public}d", uid, ret);
+    } else if (status == static_cast<int>(MSG_CONTINUOUS_TASK_END)) {
+        ret = AuthEnhance(uid, false);
+        CONCUR_LOGI("auth_enhance uid %{public}d end, ret %{public}d", uid, ret);
+    } else {
+        CONCUR_LOGE("Invalid auth_enhance status %{public}d", status);
     }
 }
 
