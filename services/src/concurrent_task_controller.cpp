@@ -18,6 +18,7 @@
 #include <sys/ioctl.h>
 #include <sys/resource.h>
 #include <unistd.h>
+#include <hitrace_meter.h>
 #include <linux/sched.h>
 
 #include "concurrent_task_log.h"
@@ -33,6 +34,8 @@ namespace OHOS {
 namespace ConcurrentTask {
 namespace {
     const std::string INTERVAL_DDL = "ffrt.interval.renderthread";
+    const std::string INTERVAL_APP_RATE = "persist.ffrt.interval.appRate";
+    const std::string INTERVAL_RS_RATE = "persist.ffrt.interval.rsRate";
     constexpr int CURRENT_RATE = 90;
     constexpr int PARAM_TYPE = 1;
     const char RTG_SCHED_IPC_MAGIC = 0xAB;
@@ -518,6 +521,7 @@ void TaskController::SetAppRate(const Json::Value& payload)
     int rtgId = 0;
     int uiTid = 0;
     int appRate = 0;
+    int curAppRate = 0;
     for (auto iter = foregroundApp_.begin(); iter != foregroundApp_.end(); iter++) {
         uiTid = iter->GetUiTid();
         rtgId = iter->GetGrpId();
@@ -527,8 +531,18 @@ void TaskController::SetAppRate(const Json::Value& payload)
                 CONCUR_LOGI("set app rate %{public}d rtgId is %{public}d", appRate, rtgId);
                 SetFrameRate(rtgId, appRate);
                 iter->SetRate(appRate);
+                curAppRate = appRate;
             }
         }
+    }
+    if (curAppRate != 0) {
+        bool ret = OHOS::system::SetParameter(INTERVAL_APP_RATE, std::to_string(curAppRate));
+        if (ret == false) {
+            CONCUR_LOGI("set app rate param failed");
+        }
+        StartTrace(HITRACE_TAG_ACE,
+            "SetAppRate:" + std::to_string(curAppRate) + " ret:" + std::to_string(ret));
+        FinishTrace(HITRACE_TAG_ACE);
     }
 }
 
@@ -554,6 +568,13 @@ void TaskController::SetRenderServiceRate(const Json::Value& payload)
         CONCUR_LOGI("set rs rate %{public}d rtgId is %{public}d", rsRate, renderServiceGrpId_);
         SetFrameRate(renderServiceGrpId_, rsRate);
         systemRate_ = rsRate;
+        bool ret = OHOS::system::SetParameter(INTERVAL_RS_RATE, std::to_string(rsRate));
+        if (ret == false) {
+            CONCUR_LOGI("set rs rate param failed");
+        }
+        StartTrace(HITRACE_TAG_ACE,
+            "SetRSRate:" + std::to_string(rsRate) + " ret:" + std::to_string(ret));
+        FinishTrace(HITRACE_TAG_ACE);
     }
 }
 
