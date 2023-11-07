@@ -36,7 +36,7 @@ namespace {
     const std::string INTERVAL_DDL = "ffrt.interval.renderthread";
     const std::string INTERVAL_APP_RATE = "persist.ffrt.interval.appRate";
     const std::string INTERVAL_RS_RATE = "persist.ffrt.interval.rsRate";
-    constexpr int CURRENT_RATE = 90;
+    constexpr int CURRENT_RATE = 120;
     constexpr int PARAM_TYPE = 1;
     const char RTG_SCHED_IPC_MAGIC = 0xAB;
     constexpr int RTG_TYPE_MAX = 3;
