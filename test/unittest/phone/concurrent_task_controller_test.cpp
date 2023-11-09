@@ -108,18 +108,6 @@ HWTEST_F(ConcurrentTaskControllerTest, InitTest, TestSize.Level1)
  * @tc.desc: Test whether the PushTask interface are normal.
  * @tc.type: FUNC
  */
-HWTEST_F(ConcurrentTaskControllerTest, AuthSystemTest, TestSize.Level1)
-{
-    TaskController::GetInstance().SetSystemAuth(3039, true);
-    TaskController::GetInstance().SetSystemAuth(3039, false);
-    TaskController::GetInstance().SetSystemAuth(3039, true);
-}
-
-/**
- * @tc.name: PushTaskTest
- * @tc.desc: Test whether the PushTask interface are normal.
- * @tc.type: FUNC
- */
 HWTEST_F(ConcurrentTaskControllerTest, CheckUidTest, TestSize.Level1)
 {
     int uid = SYSTEM_UID;
@@ -210,12 +198,12 @@ HWTEST_F(ConcurrentTaskControllerTest, NewForegroundTest, TestSize.Level1)
     fore.NewBackground(uid, tid);
     fore.ContinuousTaskProcess(uid, tid, static_cast<int>(MSG_CONTINUOUS_TASK_START));
     fore.AppKilled(uid, tid);
-    uid = 574;
-    fore.foregroundApp_.push_back(ForegroundAppRecord(574, 0));
+    tid = 574;
+    fore.foregroundApp_.push_back(ForegroundAppRecord(tid, 0));
     fore.foregroundApp_.push_back(ForegroundAppRecord(1, 0));
     fore.foregroundApp_.push_back(ForegroundAppRecord(3, 0));
     auto iter = fore.foregroundApp_.begin();
-    EXPECT_EQ(iter->GetUid(), uid);
+    EXPECT_EQ(iter->GetPid(), tid);
     fore.NewForeground(uid, tid);
     fore.NewBackground(uid, tid);
     fore.NewAppStart(uid, tid);
@@ -255,7 +243,7 @@ HWTEST_F(ConcurrentTaskControllerTest, AddKeyThreadTest, TestSize.Level1)
     int tid4 = 48;
     int tid5 = 49;
     int prio = PRIO_NORMAL;
-    ForegroundAppRecord foregroundapprecord = ForegroundAppRecord(uid, 0);
+    ForegroundAppRecord foregroundapprecord = ForegroundAppRecord(tid, 0);
     foregroundapprecord.AddKeyThread(tid, prio);
     foregroundapprecord.keyThreads_.insert(tid);
     foregroundapprecord.AddKeyThread(tid, prio);
@@ -284,8 +272,8 @@ HWTEST_F(ConcurrentTaskControllerTest, AddKeyThreadTest, TestSize.Level1)
  */
 HWTEST_F(ConcurrentTaskControllerTest, BeginSceneTest, TestSize.Level1)
 {
-    int uid = 758;
-    ForegroundAppRecord foregroundapprecord = ForegroundAppRecord(uid, 0);
+    int pid = 758;
+    ForegroundAppRecord foregroundapprecord = ForegroundAppRecord(pid, 0);
     foregroundapprecord.BeginScene();
     foregroundapprecord.EndScene();
     foregroundapprecord.grpId_ = -1;
@@ -303,20 +291,20 @@ HWTEST_F(ConcurrentTaskControllerTest, BeginSceneTest, TestSize.Level1)
  */
 HWTEST_F(ConcurrentTaskControllerTest, IsValidTest, TestSize.Level1)
 {
-    int uid = 758;
-    ForegroundAppRecord foregroundapprecord = ForegroundAppRecord(uid, 0);
-    EXPECT_EQ(foregroundapprecord.GetUid(), foregroundapprecord.uid_);
+    int pid = 758;
+    ForegroundAppRecord foregroundapprecord = ForegroundAppRecord(pid, 0);
+    EXPECT_EQ(foregroundapprecord.GetPid(), foregroundapprecord.pid_);
     EXPECT_EQ(foregroundapprecord.GetGrpId(), foregroundapprecord.grpId_);
-    foregroundapprecord.uid_ = -1;
+    foregroundapprecord.pid_ = -1;
     foregroundapprecord.grpId_ = 1;
     EXPECT_EQ(foregroundapprecord.IsValid(), false);
-    foregroundapprecord.uid_ = -1;
+    foregroundapprecord.pid_ = -1;
     foregroundapprecord.grpId_ = -1;
     EXPECT_EQ(foregroundapprecord.IsValid(), false);
-    foregroundapprecord.uid_ = 1;
+    foregroundapprecord.pid_ = 1;
     foregroundapprecord.grpId_ = -1;
     EXPECT_EQ(foregroundapprecord.IsValid(), true);
-    foregroundapprecord.uid_ = 1;
+    foregroundapprecord.pid_ = 1;
     foregroundapprecord.grpId_ = 1;
     EXPECT_EQ(foregroundapprecord.IsValid(), true);
 }
@@ -328,8 +316,8 @@ HWTEST_F(ConcurrentTaskControllerTest, IsValidTest, TestSize.Level1)
  */
 HWTEST_F(ConcurrentTaskControllerTest, PrintKeyThreadsTest, TestSize.Level1)
 {
-    int uid = 758;
-    ForegroundAppRecord foregroundapprecord = ForegroundAppRecord(uid, 0);
+    int pid = 758;
+    ForegroundAppRecord foregroundapprecord = ForegroundAppRecord(pid, 0);
     foregroundapprecord.keyThreads_.insert(1);
     foregroundapprecord.keyThreads_.insert(3);
     foregroundapprecord.keyThreads_.insert(5);
@@ -431,14 +419,14 @@ HWTEST_F(ConcurrentTaskControllerTest, SetFrameRateTest, TestSize.Level1)
 }
 
 /**
- * @tc.name: GetUid
- * @tc.desc: Test whether the GetUid interface are normal.
+ * @tc.name: GetPid
+ * @tc.desc: Test whether the GetPid interface are normal.
  * @tc.type: FUNC
  */
-HWTEST_F(ConcurrentTaskControllerTest, GetUidTest, TestSize.Level1)
+HWTEST_F(ConcurrentTaskControllerTest, GetPidTest, TestSize.Level1)
 {
     ForegroundAppRecord foreApp = ForegroundAppRecord(758, 0);
-    EXPECT_EQ(foreApp.GetUid(), 758);
+    EXPECT_EQ(foreApp.GetPid(), 758);
 }
 
 /**
