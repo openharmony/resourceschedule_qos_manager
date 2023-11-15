@@ -87,7 +87,7 @@ int EnableRtg(bool flag)
     return 0;
 };
 
-int AuthEnable(unsigned int uid, unsigned int uaFlag, unsigned int status)
+int AuthEnable(unsigned int pid, unsigned int uaFlag, unsigned int status)
 {
     struct AuthCtrlData data;
     int fd;
@@ -98,7 +98,7 @@ int AuthEnable(unsigned int uid, unsigned int uaFlag, unsigned int status)
         return fd;
     }
 
-    data.uid = uid;
+    data.pid = pid;
     data.rtgUaFlag = uaFlag;
     data.qosUaFlag = AF_QOS_ALL;
     data.status = status;
@@ -107,14 +107,14 @@ int AuthEnable(unsigned int uid, unsigned int uaFlag, unsigned int status)
     ret = ioctl(fd, BASIC_AUTH_CTRL_OPERATION, &data);
 #ifdef QOS_DEBUG
     if (ret < 0) {
-        printf("auth enable failed for uid %u with status %u\n", uid, status);
+        printf("auth enable failed for pid %u with status %u\n", pid, status);
     }
 #endif
     close(fd);
     return ret;
 }
 
-int AuthSwitch(unsigned int uid, unsigned int rtgFlag, unsigned int qosFlag, unsigned int status)
+int AuthSwitch(unsigned int pid, unsigned int rtgFlag, unsigned int qosFlag, unsigned int status)
 {
     struct AuthCtrlData data;
     int fd;
@@ -125,7 +125,7 @@ int AuthSwitch(unsigned int uid, unsigned int rtgFlag, unsigned int qosFlag, uns
         return fd;
     }
 
-    data.uid = uid;
+    data.pid = pid;
     data.rtgUaFlag = rtgFlag;
     data.qosUaFlag = qosFlag;
     data.status = status;
@@ -134,14 +134,14 @@ int AuthSwitch(unsigned int uid, unsigned int rtgFlag, unsigned int qosFlag, uns
     ret = ioctl(fd, BASIC_AUTH_CTRL_OPERATION, &data);
 #ifdef QOS_DEBUG
     if (ret < 0) {
-        printf("auth switch failed for uid %u with status %u\n", uid, status);
+        printf("auth switch failed for pid %u with status %u\n", pid, status);
     }
 #endif
     close(fd);
     return ret;
 }
 
-int AuthDelete(unsigned int uid)
+int AuthDelete(unsigned int pid)
 {
     struct AuthCtrlData data;
     int fd;
@@ -152,20 +152,20 @@ int AuthDelete(unsigned int uid)
         return fd;
     }
 
-    data.uid = uid;
+    data.pid = pid;
     data.type = static_cast<unsigned int>(AuthManipulateType::AUTH_DELETE);
 
     ret = ioctl(fd, BASIC_AUTH_CTRL_OPERATION, &data);
 #ifdef QOS_DEBUG
     if (ret < 0) {
-        printf("auth delete failed for uid %u\n", uid);
+        printf("auth delete failed for pid %u\n", pid);
     }
 #endif
     close(fd);
     return ret;
 }
 
-int AuthPause(unsigned int uid)
+int AuthPause(unsigned int pid)
 {
     struct AuthCtrlData data;
     int fd;
@@ -176,7 +176,7 @@ int AuthPause(unsigned int uid)
         return fd;
     }
 
-    data.uid = uid;
+    data.pid = pid;
     data.type = static_cast<unsigned int>(AuthManipulateType::AUTH_SWITCH);
     data.rtgUaFlag = 0;
     data.qosUaFlag = AF_QOS_DELEGATED;
@@ -185,14 +185,14 @@ int AuthPause(unsigned int uid)
     ret = ioctl(fd, BASIC_AUTH_CTRL_OPERATION, &data);
 #ifdef QOS_DEBUG
     if (ret < 0) {
-        printf("auth pause failed for uid %u\n", uid);
+        printf("auth pause failed for pid %u\n", pid);
     }
 #endif
     close(fd);
     return ret;
 }
 
-int AuthGet(unsigned int uid, unsigned int *uaFlag, unsigned int *status)
+int AuthGet(unsigned int pid, unsigned int *uaFlag, unsigned int *status)
 {
     struct AuthCtrlData data;
     int fd;
@@ -203,13 +203,13 @@ int AuthGet(unsigned int uid, unsigned int *uaFlag, unsigned int *status)
         return fd;
     }
 
-    data.uid = uid;
+    data.pid = pid;
     data.type = static_cast<unsigned int>(AuthManipulateType::AUTH_GET);
 
     ret = ioctl(fd, BASIC_AUTH_CTRL_OPERATION, &data);
 #ifdef QOS_DEBUG
     if (ret < 0) {
-        printf("auth get failed for uid %u\n", uid);
+        printf("auth get failed for pid %u\n", pid);
     }
 #endif
     close(fd);
@@ -220,7 +220,7 @@ int AuthGet(unsigned int uid, unsigned int *uaFlag, unsigned int *status)
     return ret;
 }
 
-int AuthEnhance(unsigned int uid, bool enhance_status)
+int AuthEnhance(unsigned int pid, bool enhanceStatus)
 {
     int ret = 0;
 #ifdef QOS_EXT_ENABLE
@@ -230,8 +230,8 @@ int AuthEnhance(unsigned int uid, bool enhance_status)
         return fd;
     }
 
-    data.uid = uid;
-    data.enhance_status = enhance_status;
+    data.pid = pid;
+    data.enhanceStatus = enhanceStatus;
     ret = ioctl(fd, ENHANCE_AUTH_CTRL_OPERATION, &data);
     close(fd);
 #endif

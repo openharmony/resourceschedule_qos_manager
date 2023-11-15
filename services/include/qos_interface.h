@@ -35,13 +35,13 @@ constexpr unsigned int RTG_SCHED_IPC_MAGIC = 0xAB;
  * auth_ctrl
  */
 struct AuthCtrlData {
-    unsigned int uid;
+    unsigned int pid;
     unsigned int type;
     unsigned int rtgUaFlag;
     unsigned int qosUaFlag;
     unsigned int status;
 #ifdef QOS_EXT_ENABLE
-    bool enhance_status;
+    bool enhanceStatus;
 #endif
 };
 
@@ -169,12 +169,12 @@ struct RtgEnableData {
  * interface
  */
 int EnableRtg(bool flag);
-int AuthEnable(unsigned int uid, unsigned int uaFlag, unsigned int status);
-int AuthPause(unsigned int uid);
-int AuthDelete(unsigned int uid);
-int AuthGet(unsigned int uid, unsigned int *uaFlag, unsigned int *status);
-int AuthSwitch(unsigned int uid, unsigned int rtgFlag, unsigned int qosFlag, unsigned int status);
-int AuthEnhance(unsigned int uid, bool enhance_status);
+int AuthEnable(unsigned int pid, unsigned int uaFlag, unsigned int status);
+int AuthPause(unsigned int pid);
+int AuthDelete(unsigned int pid);
+int AuthGet(unsigned int pid, unsigned int *uaFlag, unsigned int *status);
+int AuthSwitch(unsigned int pid, unsigned int rtgFlag, unsigned int qosFlag, unsigned int status);
+int AuthEnhance(unsigned int pid, bool enhanceStatus);
 int QosApply(unsigned int level);
 int QosApplyForOther(unsigned int level, int tid);
 int QosLeave(void);

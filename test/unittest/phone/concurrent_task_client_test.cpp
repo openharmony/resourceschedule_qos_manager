@@ -58,6 +58,7 @@ HWTEST_F(ConcurrentTaskClientTest, ReportDataTest, TestSize.Level1)
     int64_t value = 3587;
     std::unordered_map<std::string, std::string> payload;
     payload["uid"] = "3587";
+    payload["pid"] = "12345";
     payload["type"] = "appStart";
     ConcurrentTaskClient::GetInstance().ReportData(resType, value, payload);
 }
