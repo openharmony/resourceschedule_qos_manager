@@ -45,7 +45,6 @@ private:
     bool CheckUid(pid_t uid);
     void TypeMapInit();
     void QosApplyInit();
-    void SetSystemAuth(int uid, bool status);
     void TryCreateRsGroup();
     void QueryUi(pid_t uid, IntervalReply& queryRs);
     void QueryRender(pid_t uid, IntervalReply& queryRs);
@@ -53,19 +52,19 @@ private:
     void QueryHwc(pid_t uid, IntervalReply& queryRs);
     int GetRequestType(std::string strRequstType);
     void DealSystemRequest(int requestType, const Json::Value& payload);
-    void DealAppRequest(int requestType, const Json::Value& payload, pid_t uid);
     void NewForeground(int uid, int pid);
     void NewBackground(int uid, int pid);
     void NewAppStart(int uid, int pid);
     void AppKilled(int uid, int pid);
     void ContinuousTaskProcess(int uid, int pid, int status);
+    void AuthRequestProcess(int uid, int pid);
     bool ModifySystemRate(const Json::Value& payload);
     void SetAppRate(const Json::Value& payload);
     int FindRateFromInfo(int uiTid, const Json::Value& payload);
     void SetRenderServiceRate(const Json::Value& payload);
     bool CheckJsonValid(const Json::Value& payload);
     void SetFrameRate(int rtgId, int rate);
-    std::list<ForegroundAppRecord>::iterator GetRecordOfUid(int uid);
+    std::list<ForegroundAppRecord>::iterator GetRecordOfPid(int pid);
     void PrintInfo();
     bool ParsePayload(const Json::Value& payload, int& uid, int& pid);
 
@@ -73,7 +72,7 @@ private:
     std::list<ForegroundAppRecord> foregroundApp_ = {};
     std::unordered_map<std::string, int> msgType_ = {};
     QosPolicy qosPolicy_;
-    std::map<int, std::unordered_set<int>> authApps_;
+    std::vector<int> authApps_;
     int renderServiceGrpId_ = -1;
     int rsTid_ = -1;
     int systemRate_ = 0;
@@ -82,13 +81,13 @@ private:
 
 class ForegroundAppRecord {
 public:
-    explicit ForegroundAppRecord(int uid, int uiTid);
+    explicit ForegroundAppRecord(int pid, int uiTid);
     ~ForegroundAppRecord();
 
     void AddKeyThread(int tid, int prio = PRIO_NORMAL);
     bool BeginScene();
     bool EndScene();
-    int GetUid() const;
+    int GetPid() const;
     int GetGrpId() const;
     int GetRate() const;
     void SetRate(int appRate);
@@ -98,7 +97,7 @@ public:
     void PrintKeyThreads();
 
 private:
-    int uid_ = 0;
+    int pid_ = 0;
     int grpId_ = 0;
     int rate_ = 0;
     int uiTid_ = 0;

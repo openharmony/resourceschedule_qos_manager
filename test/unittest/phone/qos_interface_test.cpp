@@ -23,7 +23,7 @@ using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::FFRT_TEST;
 using namespace std;
-
+constexpr unsigned int AF_QOS_ALL = 0x0003;
 
 class QosInterfaceTest : public testing::Test {
 public:
@@ -69,10 +69,10 @@ HWTEST_F(QosInterfaceTest, EnableRtgTest, TestSize.Level1)
  */
 HWTEST_F(QosInterfaceTest, AuthEnableTest, TestSize.Level1)
 {
-    unsigned int uid = 1;
-    unsigned int uaFlag = 1;
-    unsigned int status = 1;
-    int ret = AuthEnable(uid, uaFlag, status);
+    unsigned int pid = getpid();
+    unsigned int uaFlag = AF_RTG_ALL;
+    unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_BACKGROUND);
+    int ret = AuthEnable(pid, uaFlag, status);
     EXPECT_EQ(ret, 0);
 }
 
@@ -83,11 +83,13 @@ HWTEST_F(QosInterfaceTest, AuthEnableTest, TestSize.Level1)
  */
 HWTEST_F(QosInterfaceTest, AuthSwitchTest, TestSize.Level1)
 {
-    unsigned int uid = 1;
-    unsigned int rtgFlag = 1;
-    unsigned int qosFlag = 1;
-    unsigned int status = 1;
-    int ret = AuthSwitch(uid, rtgFlag, qosFlag, status);
+    unsigned int pid = getpid();
+    unsigned int rtgFlag = AF_RTG_ALL;
+    unsigned int qosFlag = AF_QOS_ALL;
+    unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_BACKGROUND);
+    AuthEnable(pid, rtgFlag, status);
+    status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOREGROUND);
+    int ret = AuthSwitch(pid, rtgFlag, qosFlag, status);
     EXPECT_EQ(ret, 0);
 }
 
@@ -98,9 +100,13 @@ HWTEST_F(QosInterfaceTest, AuthSwitchTest, TestSize.Level1)
  */
 HWTEST_F(QosInterfaceTest, AuthDeleteTest, TestSize.Level1)
 {
-    unsigned int uid = 1;
-    int ret = AuthDelete(uid);
+    unsigned int pid = getpid();
+    unsigned int uaFlag = AF_RTG_ALL;
+    unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_BACKGROUND);
+    AuthEnable(pid, uaFlag, status);
+    int ret = AuthDelete(pid);
     EXPECT_EQ(ret, 0);
+    AuthEnable(pid, uaFlag, status);
 }
 
 /**
@@ -110,10 +116,13 @@ HWTEST_F(QosInterfaceTest, AuthDeleteTest, TestSize.Level1)
  */
 HWTEST_F(QosInterfaceTest, AuthPauseTest, TestSize.Level1)
 {
-    unsigned int uid = 1;
-    int ret = -1;
-    ret = AuthPause(uid);
-    EXPECT_EQ(ret, -1);
+    unsigned int pid = getpid();
+    unsigned int uaFlag = AF_RTG_ALL;
+    unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_BACKGROUND);
+    AuthEnable(pid, uaFlag, status);
+    int ret = AuthPause(pid);
+    EXPECT_EQ(ret, 0);
+    AuthEnable(pid, uaFlag, status);
 }
 
 /**
@@ -140,15 +149,15 @@ HWTEST_F(QosInterfaceTest, QosApplyTest, TestSize.Level1)
  */
 HWTEST_F(QosInterfaceTest, AuthGetTest, TestSize.Level1)
 {
-    unsigned int uid = 1000;
+    unsigned int pid = getpid();
     unsigned int uaFlag1 = 0;
     unsigned int *uaFlag = &uaFlag1;
     unsigned int status1 = 0;
     unsigned int *status = &status1;
-    int ret = AuthGet(uid, uaFlag, status);
+    int ret = AuthGet(pid, uaFlag, status);
     EXPECT_GE(ret, 0);
-    uid = -1;
-    ret = AuthGet(uid, uaFlag, status);
+    pid = -1;
+    ret = AuthGet(pid, uaFlag, status);
     EXPECT_EQ(ret, -1);
 }
 
@@ -159,12 +168,12 @@ HWTEST_F(QosInterfaceTest, AuthGetTest, TestSize.Level1)
  */
 HWTEST_F(QosInterfaceTest, AuthEnhanceTest, TestSize.Level1)
 {
-    unsigned int uid = 1000;
-    bool enhance_status = false;
-    int ret = AuthEnhance(uid, enhance_status);
+    unsigned int pid = getpid();
+    bool enhanceStatus = false;
+    int ret = AuthEnhance(pid, enhanceStatus);
     EXPECT_EQ(ret, 0);
-    enhance_status = false;
-    ret = AuthEnhance(uid, enhance_status);
+    enhanceStatus = false;
+    ret = AuthEnhance(pid, enhanceStatus);
     EXPECT_EQ(ret, 0);
 }
 
