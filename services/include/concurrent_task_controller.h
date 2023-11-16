@@ -57,6 +57,7 @@ private:
     void NewAppStart(int uid, int pid);
     void AppKilled(int uid, int pid);
     void ContinuousTaskProcess(int uid, int pid, int status);
+    void FocusStatusProcess(int uid, int pid, int status);
     void AuthRequestProcess(int uid, int pid);
     bool ModifySystemRate(const Json::Value& payload);
     void SetAppRate(const Json::Value& payload);
