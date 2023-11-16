@@ -197,6 +197,8 @@ HWTEST_F(ConcurrentTaskControllerTest, NewForegroundTest, TestSize.Level1)
     fore.NewForeground(uid, tid);
     fore.NewBackground(uid, tid);
     fore.ContinuousTaskProcess(uid, tid, static_cast<int>(MSG_CONTINUOUS_TASK_START));
+    fore.FocusStatusProcess(uid, tid, static_cast<int>(MSG_GET_FOCUS));
+    fore.FocusStatusProcess(uid, tid, static_cast<int>(MSG_LOSE_FOCUS));
     fore.AppKilled(uid, tid);
     tid = 574;
     fore.foregroundApp_.push_back(ForegroundAppRecord(tid, 0));

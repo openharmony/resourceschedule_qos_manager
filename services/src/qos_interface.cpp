@@ -24,9 +24,6 @@
 
 #include "../include/qos_interface.h"
 
-constexpr unsigned int AF_QOS_ALL = 0x0003;
-constexpr unsigned int AF_QOS_DELEGATED = 0x0001;
-
 static int TrivalOpenRtgNode(void)
 {
     char fileName[] = "/proc/self/sched_rtg_ctrl";
@@ -192,7 +189,7 @@ int AuthPause(unsigned int pid)
     return ret;
 }
 
-int AuthGet(unsigned int pid, unsigned int *uaFlag, unsigned int *status)
+int AuthGet(unsigned int pid)
 {
     struct AuthCtrlData data;
     int fd;
@@ -207,17 +204,12 @@ int AuthGet(unsigned int pid, unsigned int *uaFlag, unsigned int *status)
     data.type = static_cast<unsigned int>(AuthManipulateType::AUTH_GET);
 
     ret = ioctl(fd, BASIC_AUTH_CTRL_OPERATION, &data);
-#ifdef QOS_DEBUG
     if (ret < 0) {
-        printf("auth get failed for pid %u\n", pid);
+        return ret;
     }
-#endif
     close(fd);
 
-    *uaFlag = data.rtgUaFlag;
-    *status = data.status;
-
-    return ret;
+    return static_cast<int>(data.status);
 }
 
 int AuthEnhance(unsigned int pid, bool enhanceStatus)
