@@ -43,7 +43,7 @@ static struct QosPolicyDatas g_foregroundQosPolicy = {
 #ifdef QOS_EXT_ENABLE
         {-10, 0, 300, 1024, 0},
         {-10, -10, 500, 1024, 0},
-        {-10, -10, 500, 1024, 2},
+        {-10, -10, 500, 1024, 0},
 #else
         {0, 0, 0, 1024, 0},
         {0, 0, 0, 1024, 0},
@@ -64,7 +64,7 @@ static struct QosPolicyDatas g_backgroundQosPolicy = {
         {0, 0, 0, 300, 0},
 #ifdef QOS_EXT_ENABLE
         {-5, -5, 0, 350, 0},
-        {-5, -5, 0, 350, 3},
+        {-5, -5, 0, 350, 0},
 #else
         {0, 0, 0, 1024, 0},
         {0, 0, 0, 1024, 0},
@@ -84,7 +84,28 @@ static struct QosPolicyDatas g_systemServerQosPolicy = {
 #ifdef QOS_EXT_ENABLE
         {-10, 0, 300, 1024, 0},
         {-10, -10, 500, 1024, 0},
-        {-10, -10, 500, 1024, 2},
+        {-10, -10, 500, 1024, 1},
+#else
+        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0},
+#endif
+        {0, 0, 0, 1024, 0},
+    }
+};
+
+static struct QosPolicyDatas g_focusQosPolicy = {
+    .policyType = QOS_POLICY_FOCUS,
+    .policyFlag = QOS_FLAG_ALL,
+    .policys = {
+        {0, 0, 0, 1024, 0},
+        {10, 10, 0, 200, 0},
+        {5, 5, 0, 250, 0},
+        {0, 0, 0, 1024, 0},
+#ifdef QOS_EXT_ENABLE
+        {-10, 0, 300, 1024, 0},
+        {-10, -10, 500, 1024, 0},
+        {-10, -10, 500, 1024, 1},
 #else
         {0, 0, 0, 1024, 0},
         {0, 0, 0, 1024, 0},
@@ -124,6 +145,12 @@ void QosPolicy::Init()
     if (ret) {
         CONCUR_LOGE("%{public}d set g_systemServerQosPolicy failed", getuid());
     }
+
+    ret = SetQosPolicy(&g_focusQosPolicy);
+    if (ret) {
+        CONCUR_LOGE("%{public}d set g_focusQosPolicy failed", getuid());
+    }
+
     CONCUR_LOGI("set qos policy finish");
 }
 }

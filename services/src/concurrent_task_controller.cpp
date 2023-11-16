@@ -210,6 +210,8 @@ void TaskController::TypeMapInit()
     msgType_.insert(pair<std::string, int>("continuousStart", MSG_CONTINUOUS_TASK_START));
     msgType_.insert(pair<std::string, int>("continuousEnd", MSG_CONTINUOUS_TASK_END));
     msgType_.insert(pair<std::string, int>("authRequest", MSG_AUTH_REQUEST));
+    msgType_.insert(pair<std::string, int>("getFocus", MSG_GET_FOCUS));
+    msgType_.insert(pair<std::string, int>("loseFocus", MSG_LOSE_FOCUS));
 }
 
 void TaskController::TryCreateRsGroup()
@@ -289,6 +291,10 @@ void TaskController::DealSystemRequest(int requestType, const Json::Value& paylo
         case MSG_CONTINUOUS_TASK_END:
             ContinuousTaskProcess(uid, pid, requestType);
             break;
+        case MSG_GET_FOCUS:
+        case MSG_LOSE_FOCUS:
+            FocusStatusProcess(uid, pid, requestType);
+            break;
         case MSG_AUTH_REQUEST:
             AuthRequestProcess(uid, pid);
             break;
@@ -316,14 +322,20 @@ void TaskController::NewForeground(int uid, int pid)
         CONCUR_LOGI("un-authed pid %{public}d", pid);
         return;
     }
-    unsigned int pidParam = static_cast<unsigned int>(pid);
-    unsigned int uaFlag = AF_RTG_ALL;
-    unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOREGROUND);
-    int ret = AuthEnable(pidParam, uaFlag, status);
-    if (ret == 0) {
-        CONCUR_LOGI("auth_enable %{public}d success", pid);
+    int ret = AuthGet(pid);
+    if (ret != static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOCUS)) {
+        unsigned int pidParam = static_cast<unsigned int>(pid);
+        unsigned int uaFlag = AF_RTG_ALL;
+        unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOREGROUND);
+        int ret = AuthEnable(pidParam, uaFlag, status);
+        if (ret == 0) {
+            CONCUR_LOGI("auth_enable %{public}d success", pid);
+        } else {
+            CONCUR_LOGE("auth_enable %{public}d fail with ret %{public}d", pid, ret);
+        }
+        CONCUR_LOGI("pid %{public}d change to foreground.", pid);
     } else {
-        CONCUR_LOGE("auth_enable %{public}d fail with ret %{public}d", pid, ret);
+        CONCUR_LOGI("pid %{public}d is already focus", pid);
     }
     bool found = false;
     bool ddlEnabled = OHOS::system::GetBoolParameter(INTERVAL_DDL, false);
@@ -336,7 +348,6 @@ void TaskController::NewForeground(int uid, int pid)
             iter->BeginScene();
         }
     }
-    CONCUR_LOGI("pid %{public}d change to foreground.", pid);
     if (!found) {
         ForegroundAppRecord *tempRecord = new ForegroundAppRecord(pid, uiTid);
         if (tempRecord->IsValid()) {
@@ -444,6 +455,22 @@ void TaskController::ContinuousTaskProcess(int uid, int pid, int status)
         CONCUR_LOGI("auth_enhance pid %{public}d end, ret %{public}d", pid, ret);
     } else {
         CONCUR_LOGE("Invalid auth_enhance status %{public}d", status);
+    }
+}
+
+void TaskController::FocusStatusProcess(int uid, int pid, int status)
+{
+    int ret = -1;
+    unsigned int rtgFlag = AF_RTG_ALL;
+    unsigned int qosFlag = AF_QOS_ALL;
+    if (status == static_cast<int>(MSG_GET_FOCUS)) {
+        ret = AuthSwitch(pid, rtgFlag, qosFlag, static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOCUS));
+        CONCUR_LOGI("pid %{public}d get focus. ret %{public}d", pid, ret);
+    } else if (status == static_cast<int>(MSG_LOSE_FOCUS)) {
+        ret = AuthSwitch(pid, rtgFlag, qosFlag, static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOREGROUND));
+        CONCUR_LOGI("pid %{public}d lose focus. ret %{public}d", pid, ret);
+    } else {
+        CONCUR_LOGE("Invalid focus status %{public}d", status);
     }
 }
 
