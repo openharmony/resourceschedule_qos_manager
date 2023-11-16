@@ -154,10 +154,10 @@ HWTEST_F(QosInterfaceTest, AuthGetTest, TestSize.Level1)
     unsigned int *uaFlag = &uaFlag1;
     unsigned int status1 = 0;
     unsigned int *status = &status1;
-    int ret = AuthGet(pid, uaFlag, status);
+    int ret = AuthGet(pid);
     EXPECT_GE(ret, 0);
     pid = -1;
-    ret = AuthGet(pid, uaFlag, status);
+    ret = AuthGet(pid);
     EXPECT_EQ(ret, -1);
 }
 

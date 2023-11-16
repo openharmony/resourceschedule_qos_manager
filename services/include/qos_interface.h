@@ -31,6 +31,9 @@ constexpr unsigned int QOS_CTRL_IPC_MAGIC = 0xCC;
 constexpr unsigned int AUTH_CTRL_IPC_MAGIC = 0xCD;
 constexpr unsigned int RTG_SCHED_IPC_MAGIC = 0xAB;
 
+constexpr unsigned int AF_QOS_ALL = 0x0003;
+constexpr unsigned int AF_QOS_DELEGATED = 0x0001;
+
 /*
  * auth_ctrl
  */
@@ -58,9 +61,7 @@ enum class AuthStatus {
     AUTH_STATUS_SYSTEM_SERVER = 2,
     AUTH_STATUS_FOREGROUND = 3,
     AUTH_STATUS_BACKGROUND = 4,
-#ifdef QOS_EXT_ENABLE
     AUTH_STATUS_FOCUS = 5,
-#endif
     AUTH_STATUS_DEAD,
 };
 
@@ -117,9 +118,7 @@ enum QosPolicyType {
     QOS_POLICY_SYSTEM_SERVER = 2,
     QOS_POLICY_FRONT = 3,
     QOS_POLICY_BACK = 4,
-#ifdef QOS_EXT_ENABLE
     QOS_POLICY_FOCUS = 5,
-#endif
     QOS_POLICY_MAX_NR,
 };
 
@@ -172,7 +171,7 @@ int EnableRtg(bool flag);
 int AuthEnable(unsigned int pid, unsigned int uaFlag, unsigned int status);
 int AuthPause(unsigned int pid);
 int AuthDelete(unsigned int pid);
-int AuthGet(unsigned int pid, unsigned int *uaFlag, unsigned int *status);
+int AuthGet(unsigned int pid);
 int AuthSwitch(unsigned int pid, unsigned int rtgFlag, unsigned int qosFlag, unsigned int status);
 int AuthEnhance(unsigned int pid, bool enhanceStatus);
 int QosApply(unsigned int level);
