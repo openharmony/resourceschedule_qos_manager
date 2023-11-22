@@ -48,7 +48,6 @@ ohos_unittest("concurrent_svc_intf_test") {
   deps = [ "../frameworks/concurrent_task_client:concurrent_task_client" ]
   external_deps = [
     "c_utils:utils",
-    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_single",
     "safwk:system_ability_fwk",
