@@ -42,13 +42,12 @@ public:
     int CreateNewRtgGrp(int prioType, int rtNum);
 
 private:
-    bool CheckUid(pid_t uid);
     void TypeMapInit();
     void QosApplyInit();
     void TryCreateRsGroup();
     void QueryUi(pid_t uid, IntervalReply& queryRs);
     void QueryRender(pid_t uid, IntervalReply& queryRs);
-    void QueryRenderService(pid_t uid, IntervalReply& queryRs);
+    void QueryRenderService(pid_t uid, pid_t pid, IntervalReply& queryRs);
     void QueryHwc(pid_t uid, IntervalReply& queryRs);
     int GetRequestType(std::string strRequstType);
     void DealSystemRequest(int requestType, const Json::Value& payload);
@@ -58,7 +57,7 @@ private:
     void AppKilled(int uid, int pid);
     void ContinuousTaskProcess(int uid, int pid, int status);
     void FocusStatusProcess(int uid, int pid, int status);
-    void AuthRequestProcess(int uid, int pid);
+    int AuthSystemProcess(int pid);
     bool ModifySystemRate(const Json::Value& payload);
     void SetAppRate(const Json::Value& payload);
     int FindRateFromInfo(int uiTid, const Json::Value& payload);
@@ -68,6 +67,7 @@ private:
     std::list<ForegroundAppRecord>::iterator GetRecordOfPid(int pid);
     void PrintInfo();
     bool ParsePayload(const Json::Value& payload, int& uid, int& pid);
+    std::string GetProcessNameByToken();
 
     std::mutex appInfoLock_;
     std::list<ForegroundAppRecord> foregroundApp_ = {};
@@ -78,6 +78,10 @@ private:
     int rsTid_ = -1;
     int systemRate_ = 0;
     bool rtgEnabled_ = false;
+    bool rsAuthed_ = false;
+
+    const std::string RENDER_SERVICE_PROCESS_NAME = "render_service";
+    const std::string RESOURCE_SCHEDULE_PROCESS_NAME = "resource_schedule_service";
 };
 
 class ForegroundAppRecord {
