@@ -20,15 +20,15 @@
 #include <unistd.h>
 #include <hitrace_meter.h>
 #include <linux/sched.h>
-
+#include "accesstoken_kit.h"
 #include "concurrent_task_log.h"
 #include "rtg_interface.h"
 #include "ipc_skeleton.h"
 #include "parameters.h"
 #include "concurrent_task_controller.h"
 
-constexpr int RS_UID = 1003;
 using namespace OHOS::RME;
+using namespace OHOS::Security::AccessToken;
 
 namespace OHOS {
 namespace ConcurrentTask {
@@ -54,8 +54,8 @@ TaskController& TaskController::GetInstance()
 void TaskController::ReportData(uint32_t resType, int64_t value, const Json::Value& payload)
 {
     pid_t uid = IPCSkeleton::GetInstance().GetCallingUid();
-    if (!CheckUid(uid)) {
-        CONCUR_LOGE("only system call can be allowed");
+    if (GetProcessNameByToken() != RESOURCE_SCHEDULE_PROCESS_NAME) {
+        CONCUR_LOGE("Invalid uid %{public}d, only RSS can call ReportData", uid);
         return;
     }
     if (!CheckJsonValid(payload)) {
@@ -80,10 +80,7 @@ void TaskController::ReportData(uint32_t resType, int64_t value, const Json::Val
 void TaskController::QueryInterval(int queryItem, IntervalReply& queryRs)
 {
     pid_t uid = IPCSkeleton::GetInstance().GetCallingUid();
-    if (uid == 0) {
-        CONCUR_LOGE("Uid is 0, error query");
-        return;
-    }
+    pid_t pid = IPCSkeleton::GetInstance().GetCallingPid();
     switch (queryItem) {
         case QUERY_UI:
             QueryUi(uid, queryRs);
@@ -92,7 +89,7 @@ void TaskController::QueryInterval(int queryItem, IntervalReply& queryRs)
             QueryRender(uid, queryRs);
             break;
         case QUERY_RENDER_SERVICE:
-            QueryRenderService(uid, queryRs);
+            QueryRenderService(uid, pid, queryRs);
             break;
         case QUERY_COMPOSER:
             QueryHwc(uid, queryRs);
@@ -102,11 +99,18 @@ void TaskController::QueryInterval(int queryItem, IntervalReply& queryRs)
     }
 }
 
+std::string TaskController::GetProcessNameByToken()
+{
+    AccessTokenID tokenID = IPCSkeleton::GetInstance().GetCallingTokenID();
+    NativeTokenInfo tokenInfo;
+    if (AccessTokenKit::GetNativeTokenInfo(tokenID, tokenInfo) != AccessTokenKitRet::RET_SUCCESS) {
+        return "";
+    }
+    return tokenInfo.processName;
+}
+
 void TaskController::QueryUi(int uid, IntervalReply& queryRs)
 {
-    if (uid == SYSTEM_UID) {
-        return;
-    }
     pid_t pid = IPCSkeleton::GetInstance().GetCallingPid();
     auto iter = GetRecordOfPid(pid);
     if (iter == foregroundApp_.end()) {
@@ -124,9 +128,6 @@ void TaskController::QueryUi(int uid, IntervalReply& queryRs)
 
 void TaskController::QueryRender(int uid, IntervalReply& queryRs)
 {
-    if (uid == SYSTEM_UID) {
-        return;
-    }
     pid_t pid = IPCSkeleton::GetInstance().GetCallingPid();
     auto iter = GetRecordOfPid(pid);
     if (iter == foregroundApp_.end()) {
@@ -142,8 +143,18 @@ void TaskController::QueryRender(int uid, IntervalReply& queryRs)
     }
 }
 
-void TaskController::QueryRenderService(int uid, IntervalReply& queryRs)
+void TaskController::QueryRenderService(int uid, int pid, IntervalReply& queryRs)
 {
+    if (GetProcessNameByToken() != RENDER_SERVICE_PROCESS_NAME) {
+        return;
+    }
+
+    if (!rsAuthed_) {
+        if (AuthSystemProcess(pid) != 0) {
+            return;
+        }
+        rsAuthed_ = true;
+    }
     if (renderServiceGrpId_ <= 0) {
         TryCreateRsGroup();
         CONCUR_LOGI("uid %{public}d query rs group failed and create %{public}d.", uid, renderServiceGrpId_);
@@ -165,9 +176,6 @@ void TaskController::QueryRenderService(int uid, IntervalReply& queryRs)
 
 void TaskController::QueryHwc(int uid, IntervalReply& queryRs)
 {
-    if (uid == SYSTEM_UID) {
-        return;
-    }
     pid_t pid = IPCSkeleton::GetInstance().GetCallingPid();
     auto iter = GetRecordOfPid(pid);
     if (iter == foregroundApp_.end()) {
@@ -209,7 +217,6 @@ void TaskController::TypeMapInit()
     msgType_.insert(pair<std::string, int>("appKilled", MSG_APP_KILLED));
     msgType_.insert(pair<std::string, int>("continuousStart", MSG_CONTINUOUS_TASK_START));
     msgType_.insert(pair<std::string, int>("continuousEnd", MSG_CONTINUOUS_TASK_END));
-    msgType_.insert(pair<std::string, int>("authRequest", MSG_AUTH_REQUEST));
     msgType_.insert(pair<std::string, int>("getFocus", MSG_GET_FOCUS));
     msgType_.insert(pair<std::string, int>("loseFocus", MSG_LOSE_FOCUS));
 }
@@ -242,14 +249,6 @@ int TaskController::GetRequestType(std::string strRequstType)
         return MSG_TYPE_MAX;
     }
     return msgType_[strRequstType];
-}
-
-bool TaskController::CheckUid(pid_t uid)
-{
-    if ((uid != SYSTEM_UID) && (uid != 0) && (uid != RS_UID)) {
-        return false;
-    }
-    return true;
 }
 
 bool TaskController::ParsePayload(const Json::Value& payload, int& uid, int& pid)
@@ -294,9 +293,6 @@ void TaskController::DealSystemRequest(int requestType, const Json::Value& paylo
         case MSG_GET_FOCUS:
         case MSG_LOSE_FOCUS:
             FocusStatusProcess(uid, pid, requestType);
-            break;
-        case MSG_AUTH_REQUEST:
-            AuthRequestProcess(uid, pid);
             break;
         default:
             CONCUR_LOGE("Unknown system request");
@@ -428,12 +424,8 @@ void TaskController::AppKilled(int uid, int pid)
     }
 }
 
-void TaskController::AuthRequestProcess(int uid, int pid)
+int TaskController::AuthSystemProcess(int pid)
 {
-    if (uid != RS_UID) {
-        CONCUR_LOGE("uid %{public}d cannot request auth", uid);
-        return;
-    }
     unsigned int uaFlag = AF_RTG_ALL;
     unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_SYSTEM_SERVER);
     int ret = AuthEnable(pid, uaFlag, status);
@@ -442,6 +434,7 @@ void TaskController::AuthRequestProcess(int uid, int pid)
     } else {
         CONCUR_LOGI("auth process %{public}d failed, ret %{public}d", pid, ret);
     }
+    return ret;
 }
 
 void TaskController::ContinuousTaskProcess(int uid, int pid, int status)
@@ -477,8 +470,8 @@ void TaskController::FocusStatusProcess(int uid, int pid, int status)
 void TaskController::QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload)
 {
     pid_t uid = IPCSkeleton::GetInstance().GetCallingUid();
-    if ((uid != RS_UID) && (uid != ROOT_UID)) {
-        CONCUR_LOGE("only render service call can be allowed, but uid is %{public}d", uid);
+    if (GetProcessNameByToken() != RENDER_SERVICE_PROCESS_NAME) {
+        CONCUR_LOGE("Invalid uid %{public}d, only render service can call QueryDeadline", uid);
         return;
     }
     switch (queryItem) {

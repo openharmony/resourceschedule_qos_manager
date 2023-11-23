@@ -23,8 +23,8 @@
             "components": [
                 "ability_base",
                 "ability_runtime",
+                "access_token",
                 "c_utils",
-                "eventhandler",
                 "frame_aware_sched",
                 "hilog",
                 "hitrace",
