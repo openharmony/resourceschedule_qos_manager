@@ -247,7 +247,6 @@ static struct QosPolicyDatas g_defaultQosPolicy = {
         {0, 0, 0, 1024, 0},
         {0, 0, 0, 1024, 0},
         {0, 0, 0, 1024, 0},
-        {0, 0, 0, 1024, 0},
     }
 };
 

@@ -19,7 +19,7 @@
 namespace OHOS {
 namespace QOS {
 enum class QosLevel {
-    QOS_BACKGROUND = 1,
+    QOS_BACKGROUND,
     QOS_UTILITY,
     QOS_DEFAULT,
     QOS_USER_INITIATED,
