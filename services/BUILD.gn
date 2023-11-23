@@ -60,8 +60,8 @@ ohos_shared_library("concurrentsvc") {
   }
 
   external_deps = [
+    "access_token:libaccesstoken_sdk",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
     "frame_aware_sched:rtg_interface",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
