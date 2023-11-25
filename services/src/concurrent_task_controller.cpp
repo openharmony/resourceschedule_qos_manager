@@ -38,6 +38,7 @@ namespace {
     const std::string INTERVAL_RS_RATE = "persist.ffrt.interval.rsRate";
     constexpr int CURRENT_RATE = 120;
     constexpr int PARAM_TYPE = 1;
+    constexpr int UNI_APP_RATE_ID = -1;
     const char RTG_SCHED_IPC_MAGIC = 0xAB;
     constexpr int RTG_TYPE_MAX = 3;
 }
@@ -502,29 +503,33 @@ void TaskController::SetAppRate(const Json::Value& payload)
     int rtgId = 0;
     int uiTid = 0;
     int appRate = 0;
-    int curAppRate = 0;
-    for (auto iter = foregroundApp_.begin(); iter != foregroundApp_.end(); iter++) {
-        uiTid = iter->GetUiTid();
-        rtgId = iter->GetGrpId();
-        if (uiTid > 0 && rtgId > 0) {
-            appRate = FindRateFromInfo(uiTid, payload);
-            if (appRate > 0 && appRate != iter->GetRate()) {
-                CONCUR_LOGI("set app rate %{public}d rtgId is %{public}d", appRate, rtgId);
-                SetFrameRate(rtgId, appRate);
-                iter->SetRate(appRate);
-                curAppRate = appRate;
-            }
-        }
-    }
-    if (curAppRate != 0) {
-        bool ret = OHOS::system::SetParameter(INTERVAL_APP_RATE, std::to_string(curAppRate));
+    int uniAppRate = FindRateFromInfo(UNI_APP_RATE_ID, payload);
+    if (uniAppRate > 0) {
+        CONCUR_LOGI("set unified app rate %{public}d", uniAppRate);
+        bool ret = OHOS::system::SetParameter(INTERVAL_APP_RATE, std::to_string(uniAppRate));
         if (ret == false) {
             CONCUR_LOGI("set app rate param failed");
         }
         StartTrace(HITRACE_TAG_ACE,
-            "SetAppRate:" + std::to_string(curAppRate) + " ret:" + std::to_string(ret));
+            "SetAppRate:" + std::to_string(uniAppRate) + " ret:" + std::to_string(ret));
         FinishTrace(HITRACE_TAG_ACE);
+        return;
     }
+    for (auto iter = foregroundApp_.begin(); iter != foregroundApp_.end(); iter++) {
+        uiTid = iter->GetUiTid();
+        rtgId = iter->GetGrpId();
+        if (uiTid <= 0 || rtgId <= 0) {
+            continue;
+        }
+        appRate = FindRateFromInfo(uiTid, payload);
+        if (appRate > 0 && appRate != iter->GetRate()) {
+            CONCUR_LOGI("set app rate %{public}d rtgId is %{public}d, old rate is %{public}d",
+                        appRate, rtgId, iter->GetRate());
+            SetFrameRate(rtgId, appRate);
+            iter->SetRate(appRate);
+        }
+    }
+    return;
 }
 
 int TaskController::FindRateFromInfo(int uiTid, const Json::Value& payload)
@@ -546,7 +551,8 @@ void TaskController::SetRenderServiceRate(const Json::Value& payload)
 {
     int rsRate = FindRateFromInfo(rsTid_, payload);
     if (renderServiceGrpId_ > 0 && rsRate > 0 && rsRate != systemRate_) {
-        CONCUR_LOGI("set rs rate %{public}d rtgId is %{public}d", rsRate, renderServiceGrpId_);
+        CONCUR_LOGI("set rs rate %{public}d rtgId is %{public}d, old rate is %{public}d",
+                    rsRate, renderServiceGrpId_, systemRate_);
         SetFrameRate(renderServiceGrpId_, rsRate);
         systemRate_ = rsRate;
         bool ret = OHOS::system::SetParameter(INTERVAL_RS_RATE, std::to_string(rsRate));
