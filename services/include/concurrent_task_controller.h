@@ -70,6 +70,7 @@ private:
     std::string GetProcessNameByToken();
 
     std::mutex appInfoLock_;
+    std::mutex rateInfoLock_;
     std::list<ForegroundAppRecord> foregroundApp_ = {};
     std::unordered_map<std::string, int> msgType_ = {};
     QosPolicy qosPolicy_;
