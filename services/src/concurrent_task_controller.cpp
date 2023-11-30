@@ -477,8 +477,7 @@ void TaskController::QueryDeadline(int queryItem, DeadlineReply& ddlReply, const
     }
     switch (queryItem) {
         case DDL_RATE: {
-            bool ret = ModifySystemRate(payload);
-            ddlReply.setStatus = ret;
+            ModifySystemRate(payload);
             break;
         }
         default: {
@@ -493,6 +492,7 @@ bool TaskController::ModifySystemRate(const Json::Value& payload)
         CONCUR_LOGI("service receive json invalid");
         return false;
     }
+    std::lock_guard<std::mutex> lock(rateInfoLock_);
     SetAppRate(payload);
     SetRenderServiceRate(payload);
     return true;
