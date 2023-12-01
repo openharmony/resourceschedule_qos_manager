@@ -356,6 +356,8 @@ HWTEST_F(ConcurrentTaskControllerTest, SetAppRateTest, TestSize.Level1)
     TaskController::GetInstance().SetAppRate(payload);
     int curAppRate = TaskController::GetInstance().foregroundApp_.begin()->GetRate();
     EXPECT_EQ(curAppRate, 120);
+    payload["-1"] = "120";
+    TaskController::GetInstance().SetAppRate(payload);
     EXPECT_EQ(OHOS::system::GetIntParameter("persist.ffrt.interval.appRate", 0), 120);
 }
 
@@ -387,6 +389,7 @@ HWTEST_F(ConcurrentTaskControllerTest, SetRenderServiceRateTest, TestSize.Level1
     payload["758"] = "120";
     TaskController::GetInstance().rsTid_ = 758;
     TaskController::GetInstance().systemRate_ = 0;
+    TaskController::GetInstance().renderServiceGrpId_ = 1;
     TaskController::GetInstance().SetRenderServiceRate(payload);
     EXPECT_EQ(TaskController::GetInstance().systemRate_, 120);
     EXPECT_EQ(OHOS::system::GetIntParameter("persist.ffrt.interval.rsRate", 0), 120);
