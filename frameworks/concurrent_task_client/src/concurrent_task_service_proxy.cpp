@@ -82,7 +82,7 @@ void ConcurrentTaskServiceProxy::QueryDeadline(int queryItem, DeadlineReply& ddl
     int32_t error;
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option = { MessageOption::TF_SYNC };
+    MessageOption option = { MessageOption::TF_ASYNC };
 
     if (!data.WriteInterfaceToken(ConcurrentTaskServiceProxy::GetDescriptor())) {
         CONCUR_LOGE("Write interface token failed in QueryDeadline Proxy");
