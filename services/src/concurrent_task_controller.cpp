@@ -672,8 +672,8 @@ bool ForegroundAppRecord::BeginScene()
         CONCUR_LOGI("Error begin scene in pid %{public}d", pid_);
         return false;
     }
-    OHOS::RME::BeginFrameFreq(grpId_, 0);
-    OHOS::RME::EndFrameFreq(grpId_);
+    OHOS::RME::BeginFrameFreq(0);
+    OHOS::RME::EndFrameFreq(0);
     return true;
 }
 
