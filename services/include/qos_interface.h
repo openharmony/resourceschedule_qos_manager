@@ -135,7 +135,7 @@ enum QosPolicyType {
 struct QosPolicyDatas {
     int policyType;
     unsigned int policyFlag;
-    struct QosPolicyData policys[NR_QOS + 1];
+    struct QosPolicyData policys[NR_QOS];
 };
 
 enum QosCtrlCmdid {
