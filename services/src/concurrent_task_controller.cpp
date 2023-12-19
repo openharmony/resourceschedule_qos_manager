@@ -52,6 +52,17 @@ TaskController& TaskController::GetInstance()
     return instance;
 }
 
+void TaskController::RequestAuth(const Json::Value& payload)
+{
+    pid_t uid = IPCSkeleton::GetInstance().GetCallingUid();
+    if (GetProcessNameByToken() != MEDIA_SERVICE_PROCESS_NAME) {
+        CONCUR_LOGE("Invalid uid %{public}d, only media service can call RequestAuth", uid);
+        return;
+    }
+    pid_t pid = IPCSkeleton::GetInstance().GetCallingPid();
+    AuthSystemProcess(pid);
+}
+
 void TaskController::ReportData(uint32_t resType, int64_t value, const Json::Value& payload)
 {
     pid_t uid = IPCSkeleton::GetInstance().GetCallingUid();

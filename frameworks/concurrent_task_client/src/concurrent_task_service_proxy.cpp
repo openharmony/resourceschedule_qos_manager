@@ -100,5 +100,28 @@ void ConcurrentTaskServiceProxy::QueryDeadline(int queryItem, DeadlineReply& ddl
     }
     CONCUR_LOGD("ConcurrentTaskServiceProxy::QueryDeadline success.");
 }
+
+void ConcurrentTaskServiceProxy::RequestAuth(const Json::Value& payload)
+{
+    int32_t error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option = { MessageOption::TF_SYNC };
+    if (!data.WriteInterfaceToken(ConcurrentTaskServiceProxy::GetDescriptor())) {
+        CONCUR_LOGE("Write interface token failed in RequestAuth Proxy");
+        return;
+    }
+    if (!data.WriteString(payload.toStyledString())) {
+        CONCUR_LOGE("Write info failed in RequestAuth Proxy");
+        return;
+    }
+    uint32_t code = static_cast<uint32_t>(ConcurrentTaskInterfaceCode::REQUEST_AUTH);
+    error = Remote()->SendRequest(code, data, reply, option);
+    if (error != NO_ERROR) {
+        CONCUR_LOGE("Send request error: %{public}d", error);
+        return;
+    }
+    CONCUR_LOGD("ConcurrentTaskServiceProxy::RequestAuth success.");
+}
 } // namespace ConcurrentTask
 } // namespace OHOS
