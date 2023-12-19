@@ -99,5 +99,18 @@ HWTEST_F(ConcurrentTaskClientTest, QueryDeadlineTest, TestSize.Level1)
     payload[2222] = 90;
     ConcurrentTaskClient::GetInstance().QueryDeadline(queryItem, ddlReply, payload);
 }
+
+/**
+ * @tc.name: RequestAuthTest
+ * @tc.desc: Test whether the RequestAuth interface are normal.
+ * @tc.type: FUNC
+*/
+HWTEST_F(ConcurrentTaskClientTest, RequestAuthTest, TestSize.Level1)
+{
+    std::unordered_map<std::string, std::string> payload;
+    payload["uid"] = "3587";
+    payload["pid"] = "12345";
+    ConcurrentTaskClient::GetInstance().RequestAuth(payload);
+}
 }
 }

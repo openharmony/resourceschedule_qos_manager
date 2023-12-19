@@ -37,6 +37,7 @@ public:
     void ReportData(uint32_t resType, int64_t value, const Json::Value& payload);
     void QueryInterval(int queryItem, IntervalReply& queryRs);
     void QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload);
+    void RequestAuth(const Json::Value& payload);
     void Init();
     void Release();
     int CreateNewRtgGrp(int prioType, int rtNum);
@@ -83,6 +84,7 @@ private:
 
     const std::string RENDER_SERVICE_PROCESS_NAME = "render_service";
     const std::string RESOURCE_SCHEDULE_PROCESS_NAME = "resource_schedule_service";
+    const std::string MEDIA_SERVICE_PROCESS_NAME = "media_service";
 };
 
 class ForegroundAppRecord {
