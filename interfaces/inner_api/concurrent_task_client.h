@@ -55,9 +55,22 @@ public:
      */
     void QueryInterval(int queryItem, IntervalReply& queryRs);
 
+    /**
+     * @brief Query rtg id and other info provided by concurrent task service.
+     *
+     * @param queryItem Information of the corresponding query module.
+     * @param ddlReply Indicates the setStatus of rate.
+     * @param mapPayload Indicates the context info of the frame rate data.
+     */
     void QueryDeadline(int queryItem, DeadlineReply& ddlReply,
                        const std::unordered_map<pid_t, uint32_t>& mapPayload);
 
+    /**
+     * @brief Report auth request data to the concurrent task service.
+     *
+     * @param mapPayload Indicates the context info of the auth request data.
+     */
+    void RequestAuth(const std::unordered_map<std::string, std::string>& mapPayload);
     /**
      * @brief Stop remote object and reset ConcurrentTaskClient.
      */

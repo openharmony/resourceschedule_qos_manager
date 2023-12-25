@@ -32,5 +32,11 @@ void ConcurrentTaskService::QueryDeadline(int queryItem, DeadlineReply& queryRs,
 {
     TaskController::GetInstance().QueryDeadline(queryItem, queryRs, payload);
 }
+
+void ConcurrentTaskService::RequestAuth(const Json::Value& payload)
+{
+    TaskController::GetInstance().RequestAuth(payload);
+}
+
 } // namespace ConcurrentTask
 } // namespace OHOS
