@@ -140,6 +140,30 @@ bool FuzzConcurrentTaskServiceQueryDeadline(const uint8_t* data, size_t size)
     return true;
 }
 
+bool FuzzConcurrentTaskServiceRequestAuth(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        MessageParcel data1;
+        Parcel parcel;
+        sptr<IRemoteObject> iremoteobject = IRemoteObject::Unmarshalling(parcel);
+        int intdata = GetData<int>();
+        void *voiddata = &intdata;
+        size_t size1 = sizeof(int);
+        data1.WriteRemoteObject(iremoteobject);
+        data1.WriteRawData(voiddata, size1);
+        data1.ReadRawData(size1);
+        MessageParcel reply;
+        MessageOption option;
+        uint32_t code = static_cast<uint32_t>(ConcurrentTaskInterfaceCode::REQUEST_AUTH);
+        ConcurrentTaskService s = ConcurrentTaskService();
+        s.OnRemoteRequest(code, data1, reply, option);
+    }
+    return true;
+}
+
 bool FuzzConcurrentTaskServiceStopRemoteObject(const uint8_t* data, size_t size)
 {
     g_baseFuzzData = data;
@@ -220,6 +244,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     /* Run your code on data */
     OHOS::FuzzConcurrentTaskTryConnect(data, size);
     OHOS::FuzzConcurrentTaskServiceReportData(data, size);
+    OHOS::FuzzConcurrentTaskServiceRequestAuth(data, size);
     OHOS::FuzzConcurrentTaskServiceQueryInterval(data, size);
     OHOS::FuzzConcurrentTaskServiceStopRemoteObject(data, size);
     OHOS::FuzzConcurrentTaskServiceSetThreadQos(data, size);

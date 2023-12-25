@@ -67,6 +67,19 @@ void ConcurrentTaskClient::QueryDeadline(int queryItem, DeadlineReply& ddlReply,
     return;
 }
 
+void ConcurrentTaskClient::RequestAuth(const std::unordered_map<std::string, std::string>& mapPayload)
+{
+    if (TryConnect() != ERR_OK) {
+        return;
+    }
+    Json::Value payload;
+    for (auto it = mapPayload.begin(); it != mapPayload.end(); ++it) {
+        payload[it->first] = it->second;
+    }
+    clientService_->RequestAuth(payload);
+    return;
+}
+
 ErrCode ConcurrentTaskClient::TryConnect()
 {
     std::lock_guard<std::mutex> lock(mutex_);
