@@ -679,7 +679,6 @@ bool ForegroundAppRecord::BeginScene()
 
 bool ForegroundAppRecord::EndScene()
 {
-    grpId_ = SearchRtgForTid(uiTid_);
     if (grpId_ <= 0) {
         CONCUR_LOGI("Error end scene loss grpId_ in pid %{public}d", pid_);
         return false;
