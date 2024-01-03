@@ -51,7 +51,8 @@ enum QueryIntervalItem {
 };
 
 enum DeadlineType {
-    DDL_RATE = 0
+    DDL_RATE = 0,
+    MSG_GAME = 1,
 };
 
 struct IntervalReply {
@@ -63,6 +64,15 @@ struct IntervalReply {
 
 struct DeadlineReply {
     bool setStatus;
+};
+
+enum GameStatus {
+    GAME_ENTRY_MSG = 0,
+    GAME_EXIT_MSG,
+    GAME_GTX_MSG,
+    CAMERA_ENTRY_MSG,
+    CAMERA_EXIT_MSG,
+    STATUS_MSG_MAX
 };
 }
 }

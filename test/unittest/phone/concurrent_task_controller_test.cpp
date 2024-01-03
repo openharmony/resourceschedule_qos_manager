@@ -452,5 +452,92 @@ HWTEST_F(ConcurrentTaskControllerTest, SetUiTidTest, TestSize.Level1)
     foreApp.SetUiTid(755);
     EXPECT_EQ(foreApp.GetUiTid(), 755);
 }
+
+/**
+ * @tc.name: SetGrpId
+ * @tc.desc: Test whether the SetGrpId interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, SetGrpId, TestSize.Level1)
+{
+    ForegroundAppRecord foreApp = ForegroundAppRecord(758, 758);
+    foreApp.SetGrpId(-1);
+    EXPECT_EQ(foreApp.GetGrpId(), -1);
+}
+
+/**
+ * @tc.name: GetGameScene
+ * @tc.desc: Test whether the GetGameScene interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, GetGameScene, TestSize.Level1)
+{
+    std::string testMsg = "{\"gamePid\":\"5578\",\"packageName\":\"com.happyelements.OhosAnimal\","
+                          "\"gameScene\":\"1\",\"renderThread\":\"5579\"}";
+    GameStatus status = TaskController::GetInstance().GetGameScene(testMsg);
+    EXPECT_EQ(status, GAME_ENTRY_MSG);
+    testMsg = "{\"gamePid\":\"5578\",\"packageName\":\"com.happyelements.OhosAnimal\",\"gameScene\":\"0\"}";
+    status = TaskController::GetInstance().GetGameScene(testMsg);
+    EXPECT_EQ(status, GAME_EXIT_MSG);
+    testMsg = "{\"gamePid\":\"5578\",\"packageName\":\"com.happyelements.OhosAnimal\",\"gameScene\":\"2\"}";
+    status = TaskController::GetInstance().GetGameScene(testMsg);
+    EXPECT_EQ(status, STATUS_MSG_MAX);
+    testMsg = "{\"gamePid\":\"5578\",\"packageName\":\"com.happyelements.OhosAnimal\",\"cameraScene\":\"1\"}";
+    status = TaskController::GetInstance().GetGameScene(testMsg);
+    EXPECT_EQ(status, CAMERA_ENTRY_MSG);
+    testMsg = "{\"gamePid\":\"5578\",\"packageName\":\"com.happyelements.OhosAnimal\",\"cameraScene\":\"0\"}";
+    status = TaskController::GetInstance().GetGameScene(testMsg);
+    EXPECT_EQ(status, CAMERA_EXIT_MSG);
+}
+
+/**
+ * @tc.name: GetGamePid
+ * @tc.desc: Test whether the GetGamePid interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, GetGamePid, TestSize.Level1)
+{
+    std::string testMsg = "{\"gamePid\":\"5578\",\"packageName\":\"com.happyelements.OhosAnimal\","
+                          "\"gameScene\":\"1\",\"renderThread\":\"5579\"}";
+    int gamePid = TaskController::GetInstance().GetGamePid(testMsg);
+    EXPECT_EQ(gamePid, 5578);
+    testMsg = "{\"gamePid\":\"5578\",\"packageName\":\"com.happyelements.OhosAnimal\",\"gameScene\":\"0\"}";
+    gamePid = TaskController::GetInstance().GetGamePid(testMsg);
+    EXPECT_EQ(gamePid, -1);
+    testMsg = "{\"gamePid\":\"5578\",\"packageName\":\"com.happyelements.OhosAnimal\",\"gameScene\":\"2\"}";
+    gamePid = TaskController::GetInstance().GetGamePid(testMsg);
+    EXPECT_EQ(gamePid, -1);
+}
+
+/**
+ * @tc.name: NewForegroundAppRecord
+ * @tc.desc: Test whether the NewForegroundAppRecord interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, NewForegroundAppRecord, TestSize.Level1)
+{
+    TaskController::GetInstance().curGamePid_ = 756;
+    TaskController::GetInstance().NewForegroundAppRecord(756, 756, true);
+    TaskController::GetInstance().NewForegroundAppRecord(757, 757, true);
+    TaskController::GetInstance().NewForegroundAppRecord(757, 757, false);
+}
+
+/**
+ * @tc.name: ModifyGameState
+ * @tc.desc: Test whether the ModifyGameState interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, ModifyGameState, TestSize.Level1)
+{
+    Json::Value payload;
+    payload["gameMsg"] = "{\"gamePid\":\"5578\",\"packageName\":\"com.happyelements.OhosAnimal\","
+                         "\"gameScene\":\"1\",\"renderThread\":\"5579\"}";
+    TaskController::GetInstance().ModifyGameState(payload);
+    EXPECT_EQ(TaskController::GetInstance().curGamePid_, 5578);
+    payload["gameMsg"] = "{\"gamePid\":\"5578\",\"packageName\":\"com.happyelements.OhosAnimal\","
+                         "\"gameScene\":\"0\"}";
+    TaskController::GetInstance().ModifyGameState(payload);
+    EXPECT_EQ(TaskController::GetInstance().curGamePid_, -1);
+}
 }
 }
