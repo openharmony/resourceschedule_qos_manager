@@ -21,6 +21,7 @@
 #include <mutex>
 #include <unordered_map>
 #include <vector>
+#include <atomic>
 #include "json/json.h"
 #include "concurrent_task_type.h"
 #include "qos_policy.h"
@@ -69,6 +70,10 @@ private:
     void PrintInfo();
     bool ParsePayload(const Json::Value& payload, int& uid, int& pid);
     std::string GetProcessNameByToken();
+    void ModifyGameState(const Json::Value& payload);
+    int GetGamePid(const std::string &gameMsg) const;
+    GameStatus GetGameScene(const std::string &gameMsg) const;
+    void NewForegroundAppRecord(int pid, int uiTid, bool ddlEnabled);
 
     std::mutex appInfoLock_;
     std::mutex rateInfoLock_;
@@ -81,6 +86,7 @@ private:
     int systemRate_ = 0;
     bool rtgEnabled_ = false;
     bool rsAuthed_ = false;
+    std::atomic<int> curGamePid_ = -1;
 
     const std::string RENDER_SERVICE_PROCESS_NAME = "render_service";
     const std::string RESOURCE_SCHEDULE_PROCESS_NAME = "resource_schedule_service";
@@ -89,7 +95,7 @@ private:
 
 class ForegroundAppRecord {
 public:
-    explicit ForegroundAppRecord(int pid, int uiTid);
+    explicit ForegroundAppRecord(int pid, int uiTid, bool createGrp = true);
     ~ForegroundAppRecord();
 
     void AddKeyThread(int tid, int prio = PRIO_NORMAL);
@@ -101,6 +107,7 @@ public:
     void SetRate(int appRate);
     int GetUiTid() const;
     void SetUiTid(int uiTid);
+    void SetGrpId(int grpId);
     bool IsValid();
     void PrintKeyThreads();
 
