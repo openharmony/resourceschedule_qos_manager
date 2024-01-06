@@ -350,23 +350,33 @@ void TaskController::NewForeground(int uid, int pid)
     for (auto iter = foregroundApp_.begin(); iter != foregroundApp_.end(); iter++) {
         if (iter->GetPid() == pid) {
             found = true;
-            if (ddlEnabled) {
+            if (ddlEnabled && pid != curGamePid_) {
                 iter->AddKeyThread(uiTid, PRIO_RT);
             }
             iter->BeginScene();
         }
     }
     if (!found) {
-        ForegroundAppRecord *tempRecord = new ForegroundAppRecord(pid, uiTid);
-        if (tempRecord->IsValid()) {
-            foregroundApp_.push_back(*tempRecord);
-            if (ddlEnabled) {
-                tempRecord->AddKeyThread(uiTid, PRIO_RT);
-            }
-            tempRecord->BeginScene();
-        } else {
-            delete tempRecord;
+        NewForegroundAppRecord(pid, uiTid, ddlEnabled);
+    }
+}
+
+void TaskController::NewForegroundAppRecord(int pid, int uiTid, bool ddlEnabled)
+{
+    ForegroundAppRecord *tempRecord = nullptr;
+    if (pid == curGamePid_) {
+        tempRecord = new ForegroundAppRecord(pid, uiTid, false);
+    } else {
+        tempRecord = new ForegroundAppRecord(pid, uiTid, true);
+    }
+    if (tempRecord->IsValid()) {
+        foregroundApp_.push_back(*tempRecord);
+        if (ddlEnabled && pid != curGamePid_) {
+            tempRecord->AddKeyThread(uiTid, PRIO_RT);
         }
+        tempRecord->BeginScene();
+    } else {
+        delete tempRecord;
     }
 }
 
@@ -482,8 +492,9 @@ void TaskController::FocusStatusProcess(int uid, int pid, int status)
 void TaskController::QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload)
 {
     pid_t uid = IPCSkeleton::GetInstance().GetCallingUid();
-    if (GetProcessNameByToken() != RENDER_SERVICE_PROCESS_NAME) {
-        CONCUR_LOGE("Invalid uid %{public}d, only render service can call QueryDeadline", uid);
+    std::string processName = GetProcessNameByToken();
+    if (processName != RENDER_SERVICE_PROCESS_NAME && processName != RESOURCE_SCHEDULE_PROCESS_NAME) {
+        CONCUR_LOGE("Invalid uid %{public}d, only RS or RSS can call QueryDeadline", uid);
         return;
     }
     switch (queryItem) {
@@ -491,10 +502,85 @@ void TaskController::QueryDeadline(int queryItem, DeadlineReply& ddlReply, const
             ModifySystemRate(payload);
             break;
         }
+        case MSG_GAME: {
+            ModifyGameState(payload);
+            break;
+        }
         default: {
             break;
         }
     }
+}
+
+void TaskController::ModifyGameState(const Json::Value& payload)
+{
+    if (!CheckJsonValid(payload)) {
+        CONCUR_LOGE("[MSG_GAME]receive json invalid");
+        return;
+    }
+    if (payload["gameMsg"].isNull()) {
+        CONCUR_LOGE("[MSG_GAME]message is null");
+        return;
+    }
+    std::string gameMsg = payload["gameMsg"].asString();
+    int oldGamePid = curGamePid_;
+    int newGamePid = GetGamePid(gameMsg);
+    curGamePid_ = newGamePid;
+    CONCUR_LOGI("[MSG_GAME]current game pid is %{public}d, old game pid is %{public}d",
+                newGamePid, oldGamePid);
+    if (curGamePid_ == -1) {
+        return;
+    }
+    for (auto iter = foregroundApp_.begin(); iter != foregroundApp_.end(); iter++) {
+        if (iter->GetPid() == curGamePid_ && iter->GetGrpId() >= 0) {
+            CONCUR_LOGI("[MSG_GAME]destroy rtg grp, pid is %{public}d grpId is %{public}d",
+                        iter->GetPid(), iter->GetGrpId());
+            DestroyRtgGrp(iter->GetGrpId());
+            iter->SetGrpId(-1);
+            break;
+        }
+    }
+    return;
+}
+
+int TaskController::GetGamePid(const std::string &gameMsg) const
+{
+    GameStatus status = GetGameScene(gameMsg);
+    CONCUR_LOGI("[MSG_GAME]gamescene status %{public}d", status);
+    int gamePid = -1;
+    if (status == GAME_ENTRY_MSG) {
+        size_t pos = gameMsg.find(",");
+        if (pos == string::npos) {
+            return -1;
+        }
+        int ret = sscanf_s(gameMsg.substr(0, pos).c_str(), "{\"gamePid\":\"%d\"", &gamePid);
+        if (ret == -1) {
+            CONCUR_LOGE("[MSG_GAME]message parsing failed, ret is %{public}d", ret);
+        } else {
+            CONCUR_LOGI("[MSG_GAME]message parsing success");
+        }
+    }
+    return gamePid;
+}
+
+GameStatus TaskController::GetGameScene(const std::string &gameMsg) const
+{
+    if (gameMsg.find("gameScene\":\"1") != std::string::npos) {
+        return GAME_ENTRY_MSG;
+    }
+    if (gameMsg.find("gameScene\":\"0") != std::string::npos) {
+        return GAME_EXIT_MSG;
+    }
+    if (gameMsg.find("cameraScene\":\"1") != std::string::npos) {
+        return CAMERA_ENTRY_MSG;
+    }
+    if (gameMsg.find("cameraScene\":\"0") != std::string::npos) {
+        return CAMERA_EXIT_MSG;
+    }
+    if (gameMsg.find("GTXGamePid\":") != std::string::npos) {
+        return GAME_GTX_MSG;
+    }
+    return STATUS_MSG_MAX;
 }
 
 bool TaskController::ModifySystemRate(const Json::Value& payload)
@@ -632,11 +718,11 @@ int TaskController::CreateNewRtgGrp(int prioType, int rtNum)
     return ret;
 }
 
-ForegroundAppRecord::ForegroundAppRecord(int pid, int uiTid)
+ForegroundAppRecord::ForegroundAppRecord(int pid, int uiTid, bool createGrp)
 {
     pid_ = pid;
     uiTid_ = uiTid;
-    if (OHOS::system::GetBoolParameter(INTERVAL_DDL, false)) {
+    if (OHOS::system::GetBoolParameter(INTERVAL_DDL, false) && createGrp) {
         grpId_ = TaskController::GetInstance().CreateNewRtgGrp(PRIO_RT, MAX_KEY_THREADS);
     } else {
         grpId_ = -1;
@@ -657,7 +743,7 @@ void ForegroundAppRecord::AddKeyThread(int tid, int prio)
         return;
     }
     if (grpId_ <= 0) {
-        CONCUR_LOGI("Add key thread fail: Grp id not been created success.");
+        CONCUR_LOGI("Add key thread fail: Grp id not been created success, tid is %{public}d", tid);
         return;
     }
     if (keyThreads_.size() >= MAX_KEY_THREADS) {
@@ -706,6 +792,11 @@ int ForegroundAppRecord::GetPid() const
 int ForegroundAppRecord::GetGrpId() const
 {
     return grpId_;
+}
+
+void ForegroundAppRecord::SetGrpId(int grpId)
+{
+    grpId_ = grpId;
 }
 
 void ForegroundAppRecord::SetRate(int appRate)
