@@ -33,7 +33,7 @@ using namespace OHOS::Security::AccessToken;
 namespace OHOS {
 namespace ConcurrentTask {
 namespace {
-    const std::string INTERVAL_DDL = "ffrt.interval.renderthread";
+    const std::string INTERVAL_DDL = "persist.ffrt.interval.renderthread";
     const std::string INTERVAL_APP_RATE = "persist.ffrt.interval.appRate";
     const std::string INTERVAL_RS_RATE = "persist.ffrt.interval.rsRate";
     constexpr int CURRENT_RATE = 120;
