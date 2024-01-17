@@ -35,6 +35,7 @@ public:
 
     int SetThreadQosForOtherThread(enum QosLevel level, int tid);
     int ResetThreadQosForOtherThread(int tid);
+    int GetThreadQosForOtherThread(enum QosLevel &level, int tid);
 
 private:
     QosController() = default;
@@ -50,6 +51,7 @@ int SetThreadQos(enum QosLevel level);
 int SetQosForOtherThread(enum QosLevel level, int tid);
 int ResetThreadQos();
 int ResetQosForOtherThread(int tid);
+int GetThreadQos(enum QosLevel &level);
 } // namespace QOS
 } // namespace OHOS
 

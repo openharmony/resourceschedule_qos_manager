@@ -44,7 +44,8 @@
                 "//foundation/resourceschedule/qos_manager/sa_profile:concurrent_task_sa_profile",
                 "//foundation/resourceschedule/qos_manager/services:concurrentsvc",
                 "//foundation/resourceschedule/qos_manager/frameworks/concurrent_task_client:concurrent_task_client",
-                "//foundation/resourceschedule/qos_manager/qos:qos"
+                "//foundation/resourceschedule/qos_manager/qos:qos",
+                "//foundation/resourceschedule/qos_manager/frameworks/native:qos_ndk"
             ],
             "inner_kits": [
                 {
