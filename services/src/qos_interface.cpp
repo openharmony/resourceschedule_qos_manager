@@ -332,3 +332,34 @@ int QosPolicySet(const struct QosPolicyDatas *policyDatas)
     close(fd);
     return ret;
 }
+
+int QosGet(struct QosCtrlData &data)
+{
+    int tid = gettid();
+    return QosGetForOther(tid, data);
+}
+
+int QosGetForOther(int tid, struct QosCtrlData &data)
+{
+    int fd;
+    int ret = 0;
+
+    fd = TrivalOpenQosCtrlNode();
+    if (fd < 0) {
+        return fd;
+    }
+#ifdef QOS_EXT_ENABLE
+    data.type = static_cast<unsigned int>(QosManipulateType::QOS_GET);
+    data.pid = tid;
+    data.qos = -1;
+
+    ret = ioctl(fd, QOS_CTRL_BASIC_OPERATION, &data);
+#ifdef QOS_DEBUG
+    if (ret < 0) {
+        printf("get qos failed for task %d\n", tid);
+    }
+#endif
+#endif
+    close(fd);
+    return ret;
+}

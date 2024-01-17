@@ -179,6 +179,8 @@ int QosApplyForOther(unsigned int level, int tid);
 int QosLeave(void);
 int QosLeaveForOther(int tid);
 int QosPolicySet(const struct QosPolicyDatas *policyDatas);
+int QosGet(struct QosCtrlData &data);
+int QosGetForOther(int tid, struct QosCtrlData &data);
 
 #ifdef __cplusplus
 }
