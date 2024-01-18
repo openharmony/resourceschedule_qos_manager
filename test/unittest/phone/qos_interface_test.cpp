@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#include <cstring>
+#include <sys/utsname.h>
+
 #include "gtest/gtest.h"
 
 #include "../include/qos_interface.h"
@@ -31,7 +34,16 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
+    bool IsLinuxOs();
 };
+
+bool QosInterfaceTest::IsLinuxOs()
+{
+    struct utsname nameData;
+    uname(&nameData);
+    int cmpNum = 5;
+    return strncmp(nameData.sysname, "Linux", cmpNum) == 0 ? true : false;
+}
 
 void QosInterfaceTest::SetUpTestCase()
 {
@@ -155,6 +167,9 @@ HWTEST_F(QosInterfaceTest, AuthGetTest, TestSize.Level1)
     unsigned int status1 = 0;
     unsigned int *status = &status1;
     int ret = AuthGet(pid);
+    if (!IsLinuxOs()) {
+        return;
+    }
     EXPECT_GE(ret, 0);
     pid = -1;
     ret = AuthGet(pid);
