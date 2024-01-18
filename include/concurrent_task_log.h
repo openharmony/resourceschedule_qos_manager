@@ -16,21 +16,20 @@
 #ifndef CONCURRENT_TASK_COMMON_INCLUDE_CONCURRENT_TASK_LOG_H
 #define CONCURRENT_TASK_COMMON_INCLUDE_CONCURRENT_TASK_LOG_H
 
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD001707
+
+#undef LOG_TAG
+#define LOG_TAG "CONCUR"
 #include "hilog/log.h"
 
 namespace OHOS {
 namespace ConcurrentTask {
-constexpr OHOS::HiviewDFX::HiLogLabel CONCUR_LABEL = {
-    LOG_CORE,
-    0xD001707,
-    "CONCUR"
-};
-
-#define CONCUR_LOGF(...) (void)OHOS::HiviewDFX::HiLog::Fatal(CONCUR_LABEL, __VA_ARGS__)
-#define CONCUR_LOGE(...) (void)OHOS::HiviewDFX::HiLog::Error(CONCUR_LABEL, __VA_ARGS__)
-#define CONCUR_LOGW(...) (void)OHOS::HiviewDFX::HiLog::Warn(CONCUR_LABEL, __VA_ARGS__)
-#define CONCUR_LOGI(...) (void)OHOS::HiviewDFX::HiLog::Info(CONCUR_LABEL, __VA_ARGS__)
-#define CONCUR_LOGD(...) (void)OHOS::HiviewDFX::HiLog::Debug(CONCUR_LABEL, __VA_ARGS__)
+#define CONCUR_LOGF(...) (void)HILOG_FATAL(LOG_CORE, __VA_ARGS__)
+#define CONCUR_LOGE(...) (void)HILOG_ERROR(LOG_CORE, __VA_ARGS__)
+#define CONCUR_LOGW(...) (void)HILOG_WARN(LOG_CORE, __VA_ARGS__)
+#define CONCUR_LOGI(...) (void)HILOG_INFO(LOG_CORE, __VA_ARGS__)
+#define CONCUR_LOGD(...) (void)HILOG_DEBUG(LOG_CORE, __VA_ARGS__)
 } // namespace ConcurrentTask
 } // namespace OHOS
 
