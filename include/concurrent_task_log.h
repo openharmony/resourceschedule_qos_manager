@@ -16,15 +16,17 @@
 #ifndef CONCURRENT_TASK_COMMON_INCLUDE_CONCURRENT_TASK_LOG_H
 #define CONCURRENT_TASK_COMMON_INCLUDE_CONCURRENT_TASK_LOG_H
 
+#include "hilog/log.h"
+
+namespace OHOS {
+namespace ConcurrentTask {
+
 #undef LOG_DOMAIN
 #define LOG_DOMAIN 0xD001707
 
 #undef LOG_TAG
 #define LOG_TAG "CONCUR"
-#include "hilog/log.h"
 
-namespace OHOS {
-namespace ConcurrentTask {
 #define CONCUR_LOGF(...) (void)HILOG_FATAL(LOG_CORE, __VA_ARGS__)
 #define CONCUR_LOGE(...) (void)HILOG_ERROR(LOG_CORE, __VA_ARGS__)
 #define CONCUR_LOGW(...) (void)HILOG_WARN(LOG_CORE, __VA_ARGS__)
