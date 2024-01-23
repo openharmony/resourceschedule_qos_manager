@@ -12,7 +12,7 @@
 # limitations under the License.
 
 ffrt.interval.ui = system:system:0664
-ffrt.interval.renderthread = system:system:0664
+persist.ffrt.interval.renderthread = system:system:0664
 ffrt.interval.renderservice = system:system:0664
 ffrt.interval.slide = system:system:0664
 ffrt.interval.limit = system:system:0664
