@@ -31,6 +31,9 @@ ohos_shared_library("qos_ndk") {
 
   deps = [ "../../qos:qos" ]
 
+  output_name = "qos"
+  output_extension = "so"
+
   innerapi_tags = [ "ndk" ]
   subsystem_name = "resourceschedule"
   part_name = "qos_manager"

@@ -333,13 +333,13 @@ int QosPolicySet(const struct QosPolicyDatas *policyDatas)
     return ret;
 }
 
-int QosGet(struct QosCtrlData &data)
+int QosGet(int &level)
 {
     int tid = gettid();
-    return QosGetForOther(tid, data);
+    return QosGetForOther(tid, level);
 }
 
-int QosGetForOther(int tid, struct QosCtrlData &data)
+int QosGetForOther(int tid, int &level)
 {
     int fd;
     int ret = 0;
@@ -349,6 +349,7 @@ int QosGetForOther(int tid, struct QosCtrlData &data)
         return fd;
     }
 #ifdef QOS_EXT_ENABLE
+    struct QosCtrlData data;
     data.type = static_cast<unsigned int>(QosManipulateType::QOS_GET);
     data.pid = tid;
     data.qos = -1;
@@ -359,6 +360,7 @@ int QosGetForOther(int tid, struct QosCtrlData &data)
         printf("get qos failed for task %d\n", tid);
     }
 #endif
+    level = data.qos;
 #endif
     close(fd);
     return ret;
