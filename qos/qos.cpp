@@ -61,15 +61,18 @@ int QosController::ResetThreadQosForOtherThread(int tid)
 
 int QosController::GetThreadQosForOtherThread(enum QosLevel &level, int tid)
 {
-    struct QosCtrlData data;
-    int ret = QosGetForOther(tid, data);
+    int qos;
+    int ret = QosGetForOther(tid, qos);
     if (ret == 0) {
         CONCUR_LOGD("[Qos] qoslevel get for tid %{public}d success", tid);
     } else {
         CONCUR_LOGE("[Qos] qoslevel get for tid %{public}d failure", tid);
     }
 #ifdef QOS_EXT_ENABLE
-    level = static_cast<QosLevel>(data.qos);
+    level = static_cast<QosLevel>(qos);
+    if (level < QosLevel::QOS_BACKGROUND || level >= QosLevel::QOS_MAX) {
+        level = QosLevel::QOS_DEFAULT;
+    }
 #else
     level = QosLevel::QOS_DEFAULT;
 #endif
