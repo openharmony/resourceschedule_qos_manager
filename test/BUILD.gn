@@ -221,7 +221,6 @@ ohos_unittest("qos_test") {
 
   sources = [ "unittest/phone/qos_test.cpp" ]
 
-
   deps = [ "../qos:qos" ]
   external_deps = [
     "c_utils:utils",
