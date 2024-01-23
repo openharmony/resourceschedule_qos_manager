@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2023 Huawei Device Co., Ltd.
+* Copyright (c) 2024 Huawei Device Co., Ltd.
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
@@ -61,7 +61,6 @@ int OH_QoS_GetThreadQoS(QoS_Level *level)
     if (level == nullptr) {
         return ERROR_NUM;
     }
-#ifdef QOS_EXT_ENABLE
     enum QosLevel qosLevel;
     int ret = QosController::GetInstance().GetThreadQosForOtherThread(qosLevel, gettid());
     if (ret < 0) {
@@ -72,6 +71,5 @@ int OH_QoS_GetThreadQoS(QoS_Level *level)
         return ERROR_NUM;
     }
     *level = iter->second;
-#endif
     return 0;
 }

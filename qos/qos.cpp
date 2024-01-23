@@ -70,6 +70,8 @@ int QosController::GetThreadQosForOtherThread(enum QosLevel &level, int tid)
     }
 #ifdef QOS_EXT_ENABLE
     level = static_cast<QosLevel>(data.qos);
+#else
+    level = QosLevel::QOS_DEFAULT;
 #endif
     return ret;
 }
