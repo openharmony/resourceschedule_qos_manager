@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef QOS_H
-#define QOS_H
+#ifndef QOS_MANAGER_NDK_API_QOS_H
+#define QOS_MANAGER_NDK_API_QOS_H
 /**
  * @addtogroup QoS
  * @{
@@ -105,4 +105,4 @@ int OH_QoS_GetThreadQoS(QoS_Level *level);
 #ifdef __cplusplus
 };
 #endif
-#endif //QOS_H
+#endif //QOS_MANAGER_NDK_API_QOS_H

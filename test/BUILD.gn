@@ -145,11 +145,6 @@ ohos_unittest("qos_interface_test") {
 
   sources = [ "unittest/phone/qos_interface_test.cpp" ]
 
-  if (defined(
-      global_parts_info.hmosresourceschedule_frame_aware_sched_override)) {
-    defines = [ "QOS_EXT_ENABLE" ]
-  }
-
   deps = [
     "../frameworks/concurrent_task_client:concurrent_task_client",
     "../services:concurrentsvc",
@@ -226,10 +221,6 @@ ohos_unittest("qos_test") {
 
   sources = [ "unittest/phone/qos_test.cpp" ]
 
-  if (defined(
-      global_parts_info.hmosresourceschedule_frame_aware_sched_override)) {
-    defines = [ "QOS_EXT_ENABLE" ]
-  }
 
   deps = [ "../qos:qos" ]
   external_deps = [
@@ -251,11 +242,6 @@ ohos_unittest("qos_ndk_test") {
   configs = [ ":test_config" ]
 
   sources = [ "unittest/phone/qos_ndk_test.cpp" ]
-
-  if (defined(
-      global_parts_info.hmosresourceschedule_frame_aware_sched_override)) {
-    defines = [ "QOS_EXT_ENABLE" ]
-  }
 
   deps = [
     "../frameworks/native:qos_ndk",
