@@ -46,10 +46,13 @@ public:
 private:
     void TypeMapInit();
     void QosApplyInit();
+    int TryCreateSystemGroup();
+    void TryCreateHardwareGroup();
     void TryCreateRsGroup();
     void QueryUi(pid_t uid, IntervalReply& queryRs);
     void QueryRender(pid_t uid, IntervalReply& queryRs);
     void QueryRenderService(pid_t uid, pid_t pid, IntervalReply& queryRs);
+    void QueryHardware(pid_t uid, pid_t pid, IntervalReply& queryRs);
     void QueryHwc(pid_t uid, IntervalReply& queryRs);
     int GetRequestType(std::string strRequstType);
     void DealSystemRequest(int requestType, const Json::Value& payload);
@@ -82,7 +85,9 @@ private:
     QosPolicy qosPolicy_;
     std::vector<int> authApps_;
     int renderServiceGrpId_ = -1;
+    int hardwareGrpId_ = -1;
     int rsTid_ = -1;
+    int hardwareTid_ = -1;
     int systemRate_ = 0;
     bool rtgEnabled_ = false;
     bool rsAuthed_ = false;
