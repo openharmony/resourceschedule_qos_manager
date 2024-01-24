@@ -53,6 +53,7 @@ private:
     void QueryRender(pid_t uid, IntervalReply& queryRs);
     void QueryRenderService(pid_t uid, pid_t pid, IntervalReply& queryRs);
     void QueryHardware(pid_t uid, pid_t pid, IntervalReply& queryRs);
+    void QueryExecutorStart(pid_t uid, pid_t pid, IntervalReply& queryRs);
     void QueryHwc(pid_t uid, IntervalReply& queryRs);
     int GetRequestType(std::string strRequstType);
     void DealSystemRequest(int requestType, const Json::Value& payload);
@@ -80,6 +81,7 @@ private:
 
     std::mutex appInfoLock_;
     std::mutex rateInfoLock_;
+    std::mutex executorStartLock_;
     std::list<ForegroundAppRecord> foregroundApp_ = {};
     std::unordered_map<std::string, int> msgType_ = {};
     QosPolicy qosPolicy_;
@@ -92,6 +94,7 @@ private:
     bool rtgEnabled_ = false;
     bool rsAuthed_ = false;
     std::atomic<int> curGamePid_ = -1;
+    int executorNum_ = 0;
 
     const std::string RENDER_SERVICE_PROCESS_NAME = "render_service";
     const std::string RESOURCE_SCHEDULE_PROCESS_NAME = "resource_schedule_service";
