@@ -41,6 +41,7 @@ namespace {
     constexpr int UNI_APP_RATE_ID = -1;
     const char RTG_SCHED_IPC_MAGIC = 0xAB;
     constexpr int RTG_TYPE_MAX = 3;
+    constexpr int RS_UID = 1003;
 }
 
 #define CMD_ID_SET_RTG \
@@ -105,6 +106,9 @@ void TaskController::QueryInterval(int queryItem, IntervalReply& queryRs)
             break;
         case QUERY_COMPOSER:
             QueryHwc(uid, queryRs);
+            break;
+        case QUERY_HARDWARE:
+            QueryHardware(uid, pid, queryRs);
             break;
         default:
             break;
@@ -186,6 +190,23 @@ void TaskController::QueryRenderService(int uid, int pid, IntervalReply& queryRs
     SetFrameRateAndPrioType(renderServiceGrpId_, CURRENT_RATE, PARAM_TYPE);
 }
 
+void TaskController::QueryHardware(int uid, int pid, IntervalReply& queryRs)
+{
+    if (uid != RS_UID) {
+        return;
+    }
+    if (hardwareGrpId_ < 0) {
+        return;
+    }
+    hardwareTid_ = queryRs.tid;
+    int ret = AddThreadToRtg(hardwareTid_, renderServiceGrpId_, PRIO_RT);
+    if (ret < 0) {
+        CONCUR_LOGE("uid %{public}d tid %{public}d join hardware group failed.", uid, rsTid_);
+        return;
+    }
+    queryRs.tid = hardwareGrpId_;
+}
+
 void TaskController::QueryHwc(int uid, IntervalReply& queryRs)
 {
     pid_t pid = IPCSkeleton::GetInstance().GetCallingPid();
@@ -235,23 +256,30 @@ void TaskController::TypeMapInit()
 
 void TaskController::TryCreateRsGroup()
 {
+    renderServiceGrpId_ = TryCreateSystemGroup();
+    hardwareGrpId_ = renderServiceGrpId_;
+}
+
+int TaskController::TryCreateSystemGroup()
+{
     if (!rtgEnabled_) {
         rtgEnabled_ = EnableRtg(true) < 0 ? false : true;
         if (!rtgEnabled_) {
             CONCUR_LOGE("Rtg enable failed");
-            return;
+            return -1;
         }
         CONCUR_LOGI("Enable Rtg");
     }
-    renderServiceGrpId_ = CreateNewRtgGrp(PRIO_RT, MAX_KEY_THREADS);
-    if (renderServiceGrpId_ <= 0) {
+    int grpId = CreateNewRtgGrp(PRIO_RT, MAX_KEY_THREADS);
+    if (grpId <= 0) {
         CONCUR_LOGI("CreateRsRtgGroup with RT failed, try change to normal type.");
-        renderServiceGrpId_ = CreateNewRtgGrp(PRIO_NORMAL, MAX_KEY_THREADS);
+        grpId = CreateNewRtgGrp(PRIO_NORMAL, MAX_KEY_THREADS);
     }
-    if (renderServiceGrpId_ <= 0) {
-        CONCUR_LOGI("CreateRsRtgGroup failed! rtGrp:%{public}d", renderServiceGrpId_);
-        return;
+    if (grpId <= 0) {
+        CONCUR_LOGI("CreateRsRtgGroup failed! rtGrp:%{public}d", grpId);
+        return -1;
     }
+    return grpId;
 }
 
 int TaskController::GetRequestType(std::string strRequstType)
