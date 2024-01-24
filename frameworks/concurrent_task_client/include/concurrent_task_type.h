@@ -48,6 +48,7 @@ enum QueryIntervalItem {
     QUERY_RENDER_SERVICE = 2,
     QUERY_COMPOSER = 3,
     QUERY_HARDWARE = 4,
+    QUERY_EXECUTOR_START = 5,
     QURRY_TYPE_MAX
 };
 
