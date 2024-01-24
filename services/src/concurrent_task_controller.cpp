@@ -42,6 +42,7 @@ namespace {
     const char RTG_SCHED_IPC_MAGIC = 0xAB;
     constexpr int RTG_TYPE_MAX = 3;
     constexpr int RS_UID = 1003;
+    constexpr int EXECUTOR_LIMIT_NUM = 3;
 }
 
 #define CMD_ID_SET_RTG \
@@ -109,6 +110,9 @@ void TaskController::QueryInterval(int queryItem, IntervalReply& queryRs)
             break;
         case QUERY_HARDWARE:
             QueryHardware(uid, pid, queryRs);
+            break;
+        case QUERY_EXECUTOR_START:
+            QueryExecutorStart(uid, pid, queryRs);
             break;
         default:
             break;
@@ -205,6 +209,30 @@ void TaskController::QueryHardware(int uid, int pid, IntervalReply& queryRs)
         return;
     }
     queryRs.tid = hardwareGrpId_;
+}
+
+void TaskController::QueryExecutorStart(int uid, int pid, IntervalReply& queryRs)
+{
+    if (uid != RS_UID) {
+        return;
+    }
+    if (renderServiceGrpId_ < 0) {
+        return;
+    }
+    std::lock_guard<std::mutex> lock(executorStartLock_);
+    if (executorNum_ >= EXECUTOR_LIMIT_NUM) {
+        return;
+    }
+    if (queryRs.tid <= 0) {
+        return;
+    }
+    int ret = AddThreadToRtg(queryRs.tid, renderServiceGrpId_, PRIO_RT);
+    if (ret < 0) {
+        CONCUR_LOGE("uid %{public}d tid %{public}d join executor group failed.", uid, rsTid_);
+        return;
+    }
+    executorNum_++;
+    queryRs.rtgId = renderServiceGrpId_;
 }
 
 void TaskController::QueryHwc(int uid, IntervalReply& queryRs)
