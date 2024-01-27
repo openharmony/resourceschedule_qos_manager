@@ -26,7 +26,6 @@ using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::FFRT_TEST;
 using namespace std;
-constexpr unsigned int AF_QOS_ALL = 0x0003;
 
 class QosInterfaceTest : public testing::Test {
 public:
@@ -272,6 +271,12 @@ HWTEST_F(QosInterfaceTest, QosPolicyTest, TestSize.Level1)
     ret = QosPolicySet(policyDatas);
     EXPECT_EQ(ret, -1);
 #if defined(ARM64_TEST) && ARM64_TEST
+    unsigned int pid = getpid();
+    unsigned int rtgFlag = AF_RTG_ALL;
+    unsigned int qosFlag = AF_QOS_ALL;
+    unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOREGROUND);
+    ret = AuthSwitch(pid, rtgFlag, qosFlag, status);
+    EXPECT_EQ(ret, 0);
     ret = QosPolicySet(&g_defaultQosPolicy);
     EXPECT_EQ(ret, 0);
 #endif
