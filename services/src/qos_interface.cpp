@@ -97,7 +97,7 @@ int AuthEnable(unsigned int pid, unsigned int uaFlag, unsigned int status)
 
     data.pid = pid;
     data.rtgUaFlag = uaFlag;
-    data.qosUaFlag = AF_QOS_ALL;
+    data.qosUaFlag = AF_QOS_DELEGATED;
     data.status = status;
     data.type = static_cast<unsigned int>(AuthManipulateType::AUTH_ENABLE);
 

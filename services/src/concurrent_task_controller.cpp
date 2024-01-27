@@ -533,7 +533,7 @@ void TaskController::FocusStatusProcess(int uid, int pid, int status)
 {
     int ret = -1;
     unsigned int rtgFlag = AF_RTG_ALL;
-    unsigned int qosFlag = AF_QOS_ALL;
+    unsigned int qosFlag = AF_QOS_DELEGATED;
     if (status == static_cast<int>(MSG_GET_FOCUS)) {
         ret = AuthSwitch(pid, rtgFlag, qosFlag, static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOCUS));
         CONCUR_LOGI("pid %{public}d get focus. ret %{public}d", pid, ret);
