@@ -57,7 +57,7 @@ enum class AuthManipulateType {
 };
 
 enum class AuthStatus {
-    AUTH_STATUS_DISABLED = 1,
+    AUTH_STATUS_DEFAULT = 1,
     AUTH_STATUS_SYSTEM_SERVER = 2,
     AUTH_STATUS_FOREGROUND = 3,
     AUTH_STATUS_BACKGROUND = 4,

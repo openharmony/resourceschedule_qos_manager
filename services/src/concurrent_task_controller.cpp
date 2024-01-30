@@ -465,7 +465,7 @@ void TaskController::NewAppStart(int uid, int pid)
     CONCUR_LOGI("pid %{public}d start.", pid);
     unsigned int pidParam = static_cast<unsigned int>(pid);
     unsigned int uaFlag = AF_RTG_ALL;
-    unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_BACKGROUND);
+    unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_DEFAULT);
 
     int ret = AuthEnable(pidParam, uaFlag, status);
     if (ret == 0) {
