@@ -111,6 +111,14 @@ struct QosPolicyData {
     int uclampMin;
     int uclampMax;
     int rtSchedPriority;
+    int policy;
+};
+
+enum SchedPolicy {
+    SCHED_POLICY_OTHER = 0,
+    SCHED_POLICY_FIFO = 1,
+    SCHED_POLICY_RR = 2,
+    SCHED_POLICY_RT_EX = 0xFF,
 };
 
 enum QosPolicyType {
@@ -131,6 +139,8 @@ enum QosPolicyType {
             QOS_FLAG_LATENCY_NICE       | \
             QOS_FLAG_UCLAMP     | \
             QOS_FLAG_RT)
+
+#define SCHED_RESET_ON_FORK         0x40000000
 
 struct QosPolicyDatas {
     int policyType;
