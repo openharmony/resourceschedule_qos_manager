@@ -21,13 +21,13 @@ static struct QosPolicyDatas g_defaultQosPolicy = {
     .policyType = QOS_POLICY_DEFAULT,
     .policyFlag = QOS_FLAG_ALL,
     .policys = {
-        {0, 0, 0, 1024, 0},
-        {0, 0, 0, 1024, 0},
-        {0, 0, 0, 1024, 0},
-        {0, 0, 0, 1024, 0},
-        {0, 0, 0, 1024, 0},
-        {0, 0, 0, 1024, 0},
-        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
     }
 };
 
@@ -35,19 +35,19 @@ static struct QosPolicyDatas g_foregroundQosPolicy = {
     .policyType = QOS_POLICY_FRONT,
     .policyFlag = QOS_FLAG_ALL,
     .policys = {
-        {10, 10, 0, 200, 0},
-        {5, 5, 0, 250, 0},
-        {0, 0, 0, 1024, 0},
+        {10, 10, 0, 200, 0, SCHED_POLICY_OTHER},
+        {5, 5, 0, 250, 0, SCHED_POLICY_OTHER},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
 #ifdef QOS_EXT_ENABLE
-        {-10, 0, 0, 1024, 0},
-        {-10, -10, 0, 1024, 0},
-        {-10, -10, 0, 1024, 0},
+        {-10, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {-10, -10, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {-10, -10, 0, 1024, 0, SCHED_POLICY_OTHER},
 #else
-        {0, 0, 0, 1024, 0},
-        {0, 0, 0, 1024, 0},
-        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
 #endif
-        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
     }
 };
 
@@ -55,18 +55,18 @@ static struct QosPolicyDatas g_backgroundQosPolicy = {
     .policyType = QOS_POLICY_BACK,
     .policyFlag = QOS_FLAG_ALL & ~QOS_FLAG_RT,
     .policys = {
-        {15, 15, 0, 150, 0},
-        {10, 10, 0, 200, 0},
-        {5, 5, 0, 250, 0},
-        {0, 0, 0, 300, 0},
+        {15, 15, 0, 150, 0, SCHED_POLICY_OTHER},
+        {10, 10, 0, 200, 0, SCHED_POLICY_OTHER},
+        {5, 5, 0, 250, 0, SCHED_POLICY_OTHER},
+        {0, 0, 0, 300, 0, SCHED_POLICY_OTHER},
 #ifdef QOS_EXT_ENABLE
-        {-5, -5, 0, 350, 0},
-        {-5, -5, 0, 350, 0},
+        {-5, -5, 0, 350, 0, SCHED_POLICY_OTHER},
+        {-5, -5, 0, 350, 0, SCHED_POLICY_OTHER},
 #else
-        {0, 0, 0, 1024, 0},
-        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
 #endif
-        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
     }
 };
 
@@ -74,19 +74,19 @@ static struct QosPolicyDatas g_systemServerQosPolicy = {
     .policyType = QOS_POLICY_SYSTEM_SERVER,
     .policyFlag = QOS_FLAG_ALL,
     .policys = {
-        {10, 10, 0, 200, 0},
-        {5, 5, 0, 250, 0},
-        {0, 0, 0, 1024, 0},
+        {10, 10, 0, 200, 0, SCHED_POLICY_OTHER},
+        {5, 5, 0, 250, 0, SCHED_POLICY_OTHER},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
 #ifdef QOS_EXT_ENABLE
-        {-10, 0, 0, 1024, 0},
-        {-10, -10, 0, 1024, 0},
-        {-10, -10, 0, 1024, 1},
+        {-10, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {-10, -10, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {-10, -10, 0, 1024, 1, SCHED_POLICY_FIFO | SCHED_RESET_ON_FORK},
 #else
-        {0, 0, 0, 1024, 0},
-        {0, 0, 0, 1024, 0},
-        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
 #endif
-        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
     }
 };
 
@@ -94,19 +94,19 @@ static struct QosPolicyDatas g_focusQosPolicy = {
     .policyType = QOS_POLICY_FOCUS,
     .policyFlag = QOS_FLAG_ALL,
     .policys = {
-        {10, 10, 0, 200, 0},
-        {5, 5, 0, 250, 0},
-        {0, 0, 0, 1024, 0},
+        {10, 10, 0, 200, 0, SCHED_POLICY_OTHER},
+        {5, 5, 0, 250, 0, SCHED_POLICY_OTHER},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
 #ifdef QOS_EXT_ENABLE
-        {-10, 0, 0, 1024, 0},
-        {-10, -10, 0, 1024, 0},
-        {-10, -10, 0, 1024, 1},
+        {-10, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {-10, -10, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {-10, -10, 0, 1024, 1, SCHED_POLICY_RT_EX | SCHED_RESET_ON_FORK},
 #else
-        {0, 0, 0, 1024, 0},
-        {0, 0, 0, 1024, 0},
-        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
 #endif
-        {0, 0, 0, 1024, 0},
+        {0, 0, 0, 1024, 0, SCHED_POLICY_OTHER},
     }
 };
 
