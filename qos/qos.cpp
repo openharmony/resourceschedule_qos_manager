@@ -59,6 +59,26 @@ int QosController::ResetThreadQosForOtherThread(int tid)
     return ret;
 }
 
+int QosController::GetThreadQosForOtherThread(enum QosLevel &level, int tid)
+{
+    int qos;
+    int ret = QosGetForOther(tid, qos);
+    if (ret == 0) {
+        CONCUR_LOGD("[Qos] qoslevel get for tid %{public}d success", tid);
+    } else {
+        CONCUR_LOGE("[Qos] qoslevel get for tid %{public}d failure", tid);
+    }
+#ifdef QOS_EXT_ENABLE
+    level = static_cast<QosLevel>(qos);
+    if (level < QosLevel::QOS_BACKGROUND || level >= QosLevel::QOS_MAX) {
+        level = QosLevel::QOS_DEFAULT;
+    }
+#else
+    level = QosLevel::QOS_DEFAULT;
+#endif
+    return ret;
+}
+
 int SetThreadQos(enum QosLevel level)
 {
     int tid = gettid();
@@ -79,6 +99,11 @@ int ResetThreadQos()
 int ResetQosForOtherThread(int tid)
 {
     return QosController::GetInstance().ResetThreadQosForOtherThread(tid);
+}
+
+int GetThreadQos(enum QosLevel &level)
+{
+    return QosController::GetInstance().GetThreadQosForOtherThread(level, gettid());
 }
 } // namespace QOS
 } // namespace OHOS

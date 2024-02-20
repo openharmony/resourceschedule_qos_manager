@@ -281,6 +281,44 @@ HWTEST_F(QosInterfaceTest, QosPolicyTest, TestSize.Level1)
     EXPECT_EQ(ret, 0);
 #endif
 }
+
+/**
+ * @tc.name: QosGetTest
+ * @tc.desc: Test whether the QosGet interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QosInterfaceTest, QosGetTest, TestSize.Level1)
+{
+    int qos;
+    unsigned int level = 4;
+    int ret = QosApply(level);
+    EXPECT_EQ(ret, 0);
+#ifdef QOS_EXT_ENABLE
+    ret = QosGet(qos);
+    sleep(5);
+    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(qos, level);
+#endif
+}
+
+/**
+ * @tc.name: QosGetForOtherTest
+ * @tc.desc: Test whether the QosGetForOther interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(QosInterfaceTest, QosGetForOtherTest, TestSize.Level1)
+{
+    int qos;
+    unsigned int level = 3;
+    int tid = gettid();
+    int ret = QosApplyForOther(level, tid);
+    EXPECT_EQ(ret, 0);
+#ifdef QOS_EXT_ENABLE
+    ret = QosGetForOther(tid, qos);
+    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(qos, level);
+#endif
+}
 }
 }
 }
