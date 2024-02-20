@@ -24,6 +24,7 @@ config("test_config") {
     "../include/",
     "../frameworks/concurrent_task_client/include",
     "../interfaces/inner_api/",
+    "../interfaces/kits/",
     "../services/include/",
     "//third_party/jsoncpp/include/",
     "//foundation/resourceschedule/frame_aware_sched/common/include/",
@@ -143,6 +144,7 @@ ohos_unittest("qos_interface_test") {
   configs = [ ":test_config" ]
 
   sources = [ "unittest/phone/qos_interface_test.cpp" ]
+
   deps = [
     "../frameworks/concurrent_task_client:concurrent_task_client",
     "../services:concurrentsvc",
@@ -218,7 +220,32 @@ ohos_unittest("qos_test") {
   configs = [ ":test_config" ]
 
   sources = [ "unittest/phone/qos_test.cpp" ]
+
   deps = [ "../qos:qos" ]
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+  ]
+
+  if (is_standard_system) {
+    public_deps = gtest_public_deps
+  }
+
+  subsystem_name = "resourceschedule"
+  part_name = "qos_manager"
+}
+
+ohos_unittest("qos_ndk_test") {
+  module_out_path = module_output_path
+
+  configs = [ ":test_config" ]
+
+  sources = [ "unittest/phone/qos_ndk_test.cpp" ]
+
+  deps = [
+    "../frameworks/native:qos_ndk",
+    "../qos:qos",
+  ]
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
@@ -243,6 +270,7 @@ group("concurrent_unittest") {
       ":concurrent_task_service_ability_test",
       ":concurrent_task_service_test",
       ":qos_interface_test",
+      ":qos_ndk_test",
       ":qos_policy_test",
       ":qos_test",
     ]
