@@ -16,13 +16,18 @@
 #include <cstdint>
 #define private public
 #include "concurrent_task_client.h"
+#include "concurrent_task_service_ability.h"
 #undef private
 #include "concurrent_task_service_proxy.h"
 #include "concurrent_task_service.h"
 #include "securec.h"
 #include "qos.h"
+#include "qos_interface.h"
+#include "qos_policy.h"
 #include "concurrent_task_client.h"
+#include "system_ability_definition.h"
 #include "concurrent_fuzzer.h"
+
 using namespace OHOS::ConcurrentTask;
 using namespace OHOS::QOS;
 
@@ -30,6 +35,7 @@ namespace OHOS {
 const uint8_t *g_baseFuzzData = nullptr;
 size_t g_baseFuzzSize = 0;
 size_t g_baseFuzzPos;
+#define  QUADRUPLE  4
 
 namespace {
     constexpr int TEST_DATA_FIRST = 1;
@@ -236,6 +242,242 @@ bool FuzzConcurrentTaskServiceResetQosForOtherThread(const uint8_t* data, size_t
     }
     return true;
 }
+
+void FuzzQosPolicyInit(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    QosPolicy qosPolicy;
+    qosPolicy.Init();
+    return;
+}
+
+bool FuzzQosInterfaceEnableRtg(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        bool flag = GetData<bool>();
+        EnableRtg(flag);
+    }
+    return true;
+}
+
+bool FuzzQosInterfaceAuthEnable(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(unsigned int) + sizeof(unsigned int) + sizeof(unsigned int)) {
+        unsigned int pid = GetData<unsigned int>();
+        unsigned int uaFlag = GetData<unsigned int>();
+        unsigned int status = GetData<unsigned int>();
+        AuthEnable(pid, uaFlag, status);
+    }
+    return true;
+}
+
+bool FuzzQosInterfaceAuthSwitch(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > QUADRUPLE * sizeof(unsigned int)) {
+        unsigned int pid = GetData<unsigned int>();
+        unsigned int rtgFlag = GetData<unsigned int>();
+        unsigned int qosFlag = GetData<unsigned int>();
+        unsigned int status = GetData<unsigned int>();
+        AuthSwitch(pid, rtgFlag, qosFlag, status);
+    }
+    return true;
+}
+
+bool FuzzQosInterfaceAuthPause(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(unsigned int) + sizeof(unsigned int)) {
+        unsigned int pid = GetData<unsigned int>();
+        AuthPause(pid);
+    }
+    return true;
+}
+
+bool FuzzQosInterfaceAuthGet(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(unsigned int) + sizeof(unsigned int)) {
+        unsigned int pid = GetData<unsigned int>();
+        AuthGet(pid);
+    }
+    return true;
+}
+
+bool FuzzQosInterfaceAuthEnhance(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(unsigned int) + sizeof(unsigned int)) {
+        unsigned int pid = GetData<unsigned int>();
+        bool enhanceStatus = GetData<bool>();
+        AuthEnhance(pid, enhanceStatus);
+    }
+    return true;
+}
+
+bool FuzzQosInterfaceQosLeave(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    QosLeave();
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceAbilityOnStart(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    bool runOnCreate = true;
+    if (size > sizeof(int32_t) + sizeof(int32_t)) {
+        int32_t sysAbilityId = GetData<int32_t>();
+        if ((sysAbilityId > ASSET_SERVICE_ID) && (sysAbilityId < VENDOR_SYS_ABILITY_ID_BEGIN)) {
+            ConcurrentTaskServiceAbility concurrenttaskserviceability =
+                ConcurrentTaskServiceAbility(sysAbilityId, runOnCreate);
+            concurrenttaskserviceability.OnStart();
+        }
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceAbilityOnStop(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    bool runOnCreate = true;
+    if (size > sizeof(int32_t) + sizeof(int32_t)) {
+        int32_t sysAbilityId = GetData<int32_t>();
+        if ((sysAbilityId > ASSET_SERVICE_ID) && (sysAbilityId < VENDOR_SYS_ABILITY_ID_BEGIN)) {
+            ConcurrentTaskServiceAbility concurrenttaskserviceability =
+                ConcurrentTaskServiceAbility(sysAbilityId, runOnCreate);
+            concurrenttaskserviceability.OnStop();
+        }
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceAbilityOnAddSystemAbility(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int32_t) + sizeof(int32_t) + sizeof(int32_t)) {
+        bool runOnCreate = true;
+        int32_t sysAbilityId = GetData<int32_t>();
+        int32_t taskServiceId = GetData<int32_t>();
+        std::string deviceId = std::to_string(GetData<int32_t>());
+        if ((sysAbilityId > ASSET_SERVICE_ID && sysAbilityId < VENDOR_SYS_ABILITY_ID_BEGIN) &&
+            (taskServiceId > ASSET_SERVICE_ID && taskServiceId < VENDOR_SYS_ABILITY_ID_BEGIN)) {
+            ConcurrentTaskServiceAbility concurrenttaskserviceability =
+                ConcurrentTaskServiceAbility(taskServiceId, runOnCreate);
+            concurrenttaskserviceability.OnAddSystemAbility(sysAbilityId, deviceId);
+        }
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceAbilityOnRemoveSystemAbility(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int32_t) + sizeof(int32_t) + sizeof(int32_t)) {
+        bool runOnCreate = true;
+        int32_t sysAbilityId = GetData<int32_t>();
+        int32_t taskServiceId = GetData<int32_t>();
+        std::string deviceId = std::to_string(GetData<int32_t>());
+        if ((sysAbilityId > ASSET_SERVICE_ID && sysAbilityId < VENDOR_SYS_ABILITY_ID_BEGIN) &&
+            (taskServiceId > ASSET_SERVICE_ID && taskServiceId < VENDOR_SYS_ABILITY_ID_BEGIN)) {
+            ConcurrentTaskServiceAbility concurrenttaskserviceability =
+                ConcurrentTaskServiceAbility(taskServiceId, runOnCreate);
+            concurrenttaskserviceability.OnRemoveSystemAbility(sysAbilityId, deviceId);
+        }
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceStubReportData(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(uint32_t) + sizeof(int64_t) + sizeof(uint32_t) + sizeof(uint32_t)) {
+        ConcurrentTaskService s = ConcurrentTaskService();
+        uint32_t resType = GetData<uint32_t>();
+        int64_t value = GetData<int64_t>();
+        Json::Value jsValue;
+        jsValue["1111"] = std::to_string(GetData<uint32_t>());
+        jsValue["2222"] = std::to_string(GetData<uint32_t>());
+        s.ReportData(resType, value, jsValue);
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceStubQueryInterval(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        ConcurrentTaskService s = ConcurrentTaskService();
+        int queryItem = GetData<int>();
+        queryItem = queryItem % (QURRY_TYPE_MAX + 1);
+        IntervalReply queryRs;
+        s.QueryInterval(queryItem, queryRs);
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceStubQueryDeadline(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int) + sizeof(int)) {
+        int deadlineType = GetData<int>();
+        deadlineType = deadlineType % (MSG_GAME + 1);
+        DeadlineReply queryRs;
+        Json::Value jsValue;
+        jsValue["2123"] = std::to_string(GetData<int>());
+        jsValue["2333"] = std::to_string(GetData<int>());
+        ConcurrentTaskService s = ConcurrentTaskService();
+        s.QueryDeadline(deadlineType, queryRs, jsValue);
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceStubRequestAuth(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        Json::Value payload;
+        payload["2187"] = std::to_string(GetData<int>());
+        payload["2376"] = std::to_string(GetData<int>());
+        ConcurrentTaskService s = ConcurrentTaskService();
+        s.RequestAuth(payload);
+    }
+    return true;
+}
 } // namespace OHOS
 
 /* Fuzzer entry point */
@@ -252,5 +494,21 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::FuzzConcurrentTaskServiceResetThreadQos(data, size);
     OHOS::FuzzConcurrentTaskServiceResetQosForOtherThread(data, size);
     OHOS::FuzzConcurrentTaskServiceQueryDeadline(data, size);
+    OHOS::FuzzQosPolicyInit(data, size);
+    OHOS::FuzzQosInterfaceEnableRtg(data, size);
+    OHOS::FuzzQosInterfaceAuthEnable(data, size);
+    OHOS::FuzzQosInterfaceAuthSwitch(data, size);
+    OHOS::FuzzQosInterfaceAuthGet(data, size);
+    OHOS::FuzzQosInterfaceAuthEnhance(data, size);
+    OHOS::FuzzQosInterfaceAuthPause(data, size);
+    OHOS::FuzzQosInterfaceQosLeave(data, size);
+    OHOS::FuzzConcurrentTaskServiceStubReportData(data, size);
+    OHOS::FuzzConcurrentTaskServiceStubQueryInterval(data, size);
+    OHOS::FuzzConcurrentTaskServiceStubQueryDeadline(data, size);
+    OHOS::FuzzConcurrentTaskServiceStubRequestAuth(data, size);
+    OHOS::FuzzConcurrentTaskServiceAbilityOnStart(data, size);
+    OHOS::FuzzConcurrentTaskServiceAbilityOnStop(data, size);
+    OHOS::FuzzConcurrentTaskServiceAbilityOnAddSystemAbility(data, size);
+    OHOS::FuzzConcurrentTaskServiceAbilityOnRemoveSystemAbility(data, size);
     return 0;
 }
