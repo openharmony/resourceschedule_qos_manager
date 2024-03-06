@@ -37,9 +37,14 @@ ohos_fuzztest("ConcurrentFuzzTest") {
     "../../../services:concurrentsvc",
   ]
   external_deps = [
+    "access_token:libaccesstoken_sdk",
     "c_utils:utils",
+    "frame_aware_sched:rtg_interface",
     "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "init:libbegetutil",
     "ipc:ipc_single",
+    "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
 }
