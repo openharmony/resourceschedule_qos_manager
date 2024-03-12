@@ -71,6 +71,8 @@ HWTEST_F(QosTest, SetThreadQosTest1, TestSize.Level1)
     EXPECT_EQ(ret, 0);
     ret = SetThreadQos(QosLevel::QOS_MAX);
     EXPECT_EQ(ret, -1);
+    ret = SetThreadQos(QosLevel(-1));
+    EXPECT_EQ(ret, -1);
 }
 
 HWTEST_F(QosTest, SetThreadQosTest2, TestSize.Level1)
@@ -106,7 +108,6 @@ HWTEST_F(QosTest, GetThreadQosTest1, TestSize.Level1)
     int ret = SetThreadQos(QosLevel::QOS_USER_INITIATED);
     EXPECT_EQ(ret, 0);
     enum QosLevel level;
-#ifdef QOS_EXT_ENABLE
     ret = GetThreadQos(level);
     EXPECT_EQ(ret, 0);
     EXPECT_EQ(static_cast<unsigned int>(level), static_cast<unsigned int>(QosLevel::QOS_USER_INITIATED));
@@ -115,7 +116,6 @@ HWTEST_F(QosTest, GetThreadQosTest1, TestSize.Level1)
     ret = GetThreadQos(level);
     EXPECT_EQ(ret, 0);
     EXPECT_EQ(static_cast<unsigned int>(level), static_cast<unsigned int>(QosLevel::QOS_USER_INTERACTIVE));
-#endif
 }
 
 HWTEST_F(QosTest, GetThreadQosTest2, TestSize.Level1)
@@ -124,7 +124,7 @@ HWTEST_F(QosTest, GetThreadQosTest2, TestSize.Level1)
     EXPECT_EQ(ret, 0);
     enum QosLevel level;
     ret = GetThreadQos(level);
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(ret, -1);
 }
 } // QOS
 } // OHOS
