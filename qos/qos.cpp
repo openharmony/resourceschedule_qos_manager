@@ -68,14 +68,11 @@ int QosController::GetThreadQosForOtherThread(enum QosLevel &level, int tid)
     } else {
         CONCUR_LOGE("[Qos] qoslevel get for tid %{public}d failure", tid);
     }
-#ifdef QOS_EXT_ENABLE
-    level = static_cast<QosLevel>(qos);
-    if (level < QosLevel::QOS_BACKGROUND || level >= QosLevel::QOS_MAX) {
-        level = QosLevel::QOS_DEFAULT;
+    if (qos < static_cast<int>(QosLevel::QOS_BACKGROUND) || qos >= static_cast<int>(QosLevel::QOS_MAX)) {
+        return ERROR_NUM;
     }
-#else
-    level = QosLevel::QOS_DEFAULT;
-#endif
+    level = static_cast<QosLevel>(qos);
+
     return ret;
 }
 

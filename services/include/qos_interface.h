@@ -87,9 +87,7 @@ enum AuthCtrlCmdid {
 enum class QosManipulateType {
     QOS_APPLY = 1,
     QOS_LEAVE,
-#ifdef QOS_EXT_ENABLE
     QOS_GET,
-#endif
     QOS_MAX_NR,
 };
 
@@ -97,6 +95,7 @@ struct QosCtrlData {
     int pid;
     unsigned int type;
     unsigned int level;
+    int qos;
 #ifdef QOS_EXT_ENABLE
     int qos;
     int staticQos;

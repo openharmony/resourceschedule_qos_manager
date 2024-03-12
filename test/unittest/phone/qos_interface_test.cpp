@@ -293,12 +293,10 @@ HWTEST_F(QosInterfaceTest, QosGetTest, TestSize.Level1)
     unsigned int level = 4;
     int ret = QosApply(level);
     EXPECT_EQ(ret, 0);
-#ifdef QOS_EXT_ENABLE
     ret = QosGet(qos);
     sleep(5);
     EXPECT_EQ(ret, 0);
     EXPECT_EQ(qos, level);
-#endif
 }
 
 /**
@@ -313,11 +311,9 @@ HWTEST_F(QosInterfaceTest, QosGetForOtherTest, TestSize.Level1)
     int tid = gettid();
     int ret = QosApplyForOther(level, tid);
     EXPECT_EQ(ret, 0);
-#ifdef QOS_EXT_ENABLE
     ret = QosGetForOther(tid, qos);
     EXPECT_EQ(ret, 0);
     EXPECT_EQ(qos, level);
-#endif
 }
 }
 }
