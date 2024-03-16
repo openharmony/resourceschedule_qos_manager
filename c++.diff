@@ -1,0 +1,34 @@
+diff --git a/qos/qos.cpp b/qos/qos.cpp
+index 7914423..cc110bb 100644
+--- a/qos/qos.cpp
++++ b/qos/qos.cpp
+@@ -22,7 +22,6 @@
+ using namespace OHOS::ConcurrentTask;
+ 
+ static constexpr int ERROR_NUM = -1;
+-static constexpr int QOS_DISABLE = 0;
+ namespace OHOS {
+ namespace QOS {
+ QosController& QosController::GetInstance()
+@@ -37,8 +36,8 @@ int QosController::SetThreadQosForOtherThread(enum QosLevel level, int tid)
+     int qos = static_cast<int>(level);
+ 
+     if (!qosEnable) {
+-        CONCUR_LOGD("LIUYUXIU [Qos] qoslevel %{public}d apply for tid %{public}d disable", qos, tid);
+-        return QOS_DISABLE;
++        CONCUR_LOGD("[Qos] qoslevel %{public}d apply for tid %{public}d disable", qos, tid);
++        return 0;
+     }
+ 
+     if (level < QosLevel::QOS_BACKGROUND || level >= QosLevel::QOS_MAX) {
+@@ -59,8 +58,8 @@ int QosController::ResetThreadQosForOtherThread(int tid)
+ {
+     bool qosEnable = OHOS::system::GetBoolParameter("persist.all.setQos.on", true);
+     if (!qosEnable) {
+-        CONCUR_LOGD("LIUYUXIU [Qos] qoslevel reset disable for tid %{public}d.", tid);
+-        return QOS_DISABLE;
++        CONCUR_LOGD("[Qos] qoslevel reset disable for tid %{public}d.", tid);
++        return 0;
+     }
+     int ret = QosLeaveForOther(tid);
+     if (ret == 0) {
