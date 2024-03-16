@@ -43,7 +43,6 @@ int QosController::SetThreadQosForOtherThread(enum QosLevel level, int tid)
         CONCUR_LOGE("[Qos] invalid qos level %{public}d", qos);
         return ERROR_NUM;
     }
-
     int ret = QosApplyForOther(qos, tid);
     if (ret == 0) {
         CONCUR_LOGD("[Qos] qoslevel %{public}d apply for tid %{public}d success", qos, tid);
