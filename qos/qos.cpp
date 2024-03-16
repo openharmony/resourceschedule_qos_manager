@@ -58,9 +58,8 @@ int QosController::ResetThreadQosForOtherThread(int tid)
     bool qosEnable = OHOS::system::GetBoolParameter("persist.all.setQos.on", true);
     if (!qosEnable) {
         CONCUR_LOGD("[Qos] qoslevel reset disable for tid %{public}d.", tid);
-+       return 0;
+        return 0;
     }
-
     int ret = QosLeaveForOther(tid);
     if (ret == 0) {
         CONCUR_LOGD("[Qos] qoslevel reset for tid %{public}d success", tid);
