@@ -18,7 +18,7 @@
 
 #include "gtest/gtest.h"
 
-#include "../include/qos_interface.h"
+#include "qos_interface.h"
 
 namespace OHOS {
 namespace FFRT_TEST {

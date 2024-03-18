@@ -19,8 +19,6 @@ config("client_private_config") {
   include_dirs = [
     "../../include",
     "../../services/include",
-    "//commonlibrary/c_utils/base/include",
-    "//utils/system/safwk/native/include",
   ]
 }
 
@@ -49,7 +47,7 @@ ohos_shared_library("concurrent_task_client") {
     "src/concurrent_task_service_proxy.cpp",
   ]
 
-  public_deps = [ "//third_party/jsoncpp:jsoncpp" ]
+  public_deps = [ "../../../../../third_party/jsoncpp:jsoncpp" ]
 
   external_deps = [
     "c_utils:utils",
