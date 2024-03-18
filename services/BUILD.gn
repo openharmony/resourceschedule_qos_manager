@@ -25,10 +25,6 @@ config("concurrent_task_config") {
     "../include",
     "../frameworks/concurrent_task_client/include/",
     "../interfaces/inner_api/",
-    "//foundation/resourceschedule/frame_aware_sched/common/include/",
-    "//utils/system/safwk/native/include",
-    "//commonlibrary/c_utils/base/include",
-    "//third_party/jsoncpp/include",
   ]
 }
 
@@ -51,7 +47,7 @@ ohos_shared_library("concurrentsvc") {
 
   deps = [
     "../etc/param:ffrt_etc",
-    "//third_party/jsoncpp:jsoncpp",
+    "../../../../third_party/jsoncpp:jsoncpp",
   ]
 
   if (defined(

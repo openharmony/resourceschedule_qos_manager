@@ -22,7 +22,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "../include/qos_interface.h"
+#include "qos_interface.h"
 
 static int TrivalOpenRtgNode(void)
 {
