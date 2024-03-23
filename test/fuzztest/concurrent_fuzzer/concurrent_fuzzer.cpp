@@ -20,6 +20,7 @@
 #undef private
 #include "concurrent_task_service_proxy.h"
 #include "concurrent_task_service.h"
+#include "concurrent_task_service_stub.h"
 #include "securec.h"
 #include "qos.h"
 #include "qos_interface.h"
@@ -36,6 +37,21 @@ const uint8_t *g_baseFuzzData = nullptr;
 size_t g_baseFuzzSize = 0;
 size_t g_baseFuzzPos;
 #define  QUADRUPLE  4
+#define  LEN 4
+
+class ConcurrentTaskServiceStubFuzer : public ConcurrentTaskServiceStub {
+public:
+    ConcurrentTaskServiceStubFuzer() = default;
+    virtual ~ConcurrentTaskServiceStubFuzer() = default;
+    void ReportData(uint32_t resType, int64_t value, const Json::Value& payload) override
+    {}
+    void QueryInterval(int queryItem, IntervalReply& queryRs) override
+    {}
+    void QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload) override
+    {}
+    void RequestAuth(const Json::Value& payload) override
+    {}
+};
 
 namespace {
     constexpr int TEST_DATA_FIRST = 1;
@@ -537,8 +553,8 @@ bool FuzzConcurrentTaskServiceStringToJson(const uint8_t* data, size_t size)
     std::string str(data1, size1);
     ConcurrentTaskServiceStubFuzer s = ConcurrentTaskServiceStubFuzer();
     s.StringToJson(str);
-     return true;
- }
+    return true;
+}
 } // namespace OHOS
 
 /* Fuzzer entry point */
