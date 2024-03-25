@@ -20,6 +20,7 @@
 #undef private
 #include "concurrent_task_service_proxy.h"
 #include "concurrent_task_service.h"
+#include "concurrent_task_service_stub.h"
 #include "securec.h"
 #include "qos.h"
 #include "qos_interface.h"
@@ -36,6 +37,21 @@ const uint8_t *g_baseFuzzData = nullptr;
 size_t g_baseFuzzSize = 0;
 size_t g_baseFuzzPos;
 #define  QUADRUPLE  4
+#define  LEN 4
+
+class ConcurrentTaskServiceStubFuzer : public ConcurrentTaskServiceStub {
+public:
+    ConcurrentTaskServiceStubFuzer() = default;
+    virtual ~ConcurrentTaskServiceStubFuzer() = default;
+    void ReportData(uint32_t resType, int64_t value, const Json::Value& payload) override
+    {}
+    void QueryInterval(int queryItem, IntervalReply& queryRs) override
+    {}
+    void QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload) override
+    {}
+    void RequestAuth(const Json::Value& payload) override
+    {}
+};
 
 namespace {
     constexpr int TEST_DATA_FIRST = 1;
@@ -478,6 +494,67 @@ bool FuzzConcurrentTaskServiceStubRequestAuth(const uint8_t* data, size_t size)
     }
     return true;
 }
+
+bool FuzzConcurrentTaskServiceStubQueryDeadlineInner(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    MessageParcel data4;
+    int32_t intData;
+    const char *str2;
+    data4.WriteInterfaceToken(ConcurrentTaskServiceStub::GetDescriptor());
+    if (size >= sizeof(int32_t)) {
+        intData = GetData<int32_t>();
+        str2 = reinterpret_cast<const char*>(data + g_baseFuzzPos);
+        size_t size1 = (size - g_baseFuzzPos) > LEN ? LEN : (size - g_baseFuzzPos);
+        std::string str(str2, size1);
+        data4.WriteInt32(intData);
+        data4.WriteString(str);
+    } else if (size > 0) {
+        intData = GetData<int32_t>();
+        data4.WriteInt32(intData);
+    }
+
+    MessageParcel reply;
+    ConcurrentTaskServiceStubFuzer s = ConcurrentTaskServiceStubFuzer();
+    s.QueryDeadlineInner(data4, reply);
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceStubRequestAuthInner(const uint8_t* data, size_t size)
+{
+    if (data == nullptr) {
+        return false;
+    }
+
+    MessageParcel data3;
+    data3.WriteInterfaceToken(ConcurrentTaskServiceStub::GetDescriptor());
+    if (size >= sizeof(int)) {
+        const char *data1 = reinterpret_cast<const char*>(data);
+        size_t size1 = size > LEN ? LEN : size;
+        std::string str1(data1, size1);
+        data3.WriteString(str1);
+    } else if (size == 0) {
+        std::string str1 = "";
+        data3.WriteString(str1);
+    }
+
+    MessageParcel reply;
+    ConcurrentTaskServiceStubFuzer s = ConcurrentTaskServiceStubFuzer();
+    s.RequestAuthInner(data3, reply);
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceStringToJson(const uint8_t* data, size_t size)
+{
+    const char *data1 = reinterpret_cast<const char*>(data);
+    size_t size1 = size > LEN ? LEN : size;
+    std::string str(data1, size1);
+    ConcurrentTaskServiceStubFuzer s = ConcurrentTaskServiceStubFuzer();
+    s.StringToJson(str);
+    return true;
+}
 } // namespace OHOS
 
 /* Fuzzer entry point */
@@ -510,5 +587,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::FuzzConcurrentTaskServiceAbilityOnStop(data, size);
     OHOS::FuzzConcurrentTaskServiceAbilityOnAddSystemAbility(data, size);
     OHOS::FuzzConcurrentTaskServiceAbilityOnRemoveSystemAbility(data, size);
+    OHOS::FuzzConcurrentTaskServiceStubQueryDeadlineInner(data, size);
+    OHOS::FuzzConcurrentTaskServiceStubRequestAuthInner(data, size);
+    OHOS::FuzzConcurrentTaskServiceStringToJson(data, size);
     return 0;
 }
