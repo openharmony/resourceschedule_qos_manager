@@ -21,6 +21,7 @@
 #include "concurrent_task_service_proxy.h"
 #include "concurrent_task_service.h"
 #include "concurrent_task_service_stub.h"
+#include "iservice_registry.h"
 #include "securec.h"
 #include "qos.h"
 #include "qos_interface.h"
@@ -555,6 +556,151 @@ bool FuzzConcurrentTaskServiceStringToJson(const uint8_t* data, size_t size)
     s.StringToJson(str);
     return true;
 }
+
+bool FuzzConcurrentTaskClientQueryInterval(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        int queryItem = GetData<int>();
+        queryItem = queryItem % (QURRY_TYPE_MAX + 1);
+        IntervalReply queryRs;
+        ConcurrentTaskClient::GetInstance().QueryInterval(queryItem, queryRs);
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskClientQueryDeadline(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(pid_t) + sizeof(uint32_t)) {
+        int queryItem = GetData<int>();
+        queryItem = queryItem % (QURRY_TYPE_MAX + 1);
+        DeadlineReply ddlReply;
+        pid_t pid = GetData<pid_t>();
+        uint32_t qos = GetData<uint32_t>();
+        std::unordered_map<pid_t, uint32_t> mapPayload;
+        mapPayload.insert(std::pair<pid_t, uint32_t>(pid, qos));
+        ConcurrentTaskClient::GetInstance().QueryDeadline(queryItem, ddlReply, mapPayload);
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskClinetRequestAuth(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int32_t)) {
+        MessageParcel data1;
+        std::unordered_map<std::string, std::string> mapPayload;
+        mapPayload["2182"] = std::to_string(GetData<int32_t>());
+        ConcurrentTaskClient::GetInstance().RequestAuth(mapPayload);
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskClientTryConnect(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    ConcurrentTaskClient::GetInstance().TryConnect();
+    return true;
+}
+
+bool FuzzConcurrentTaskClientStopRemoteObject(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    ConcurrentTaskClient::GetInstance().StopRemoteObject();
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceProxyReportData(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size >= sizeof(uint32_t) + sizeof(int64_t) + sizeof(int32_t)) {
+        uint32_t intdata1 = GetData<int32_t>();
+        int64_t intdata2 = GetData<int64_t>();
+        Json::Value payload;
+        payload["2123"] = std::to_string(GetData<int32_t>());
+        sptr<ISystemAbilityManager> systemAbilityManager =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(CONCURRENT_TASK_SERVICE_ID);
+        ConcurrentTaskServiceProxy s = ConcurrentTaskServiceProxy(remoteObject);
+        s.ReportData(intdata1, intdata2, payload);
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceProxyQueryInterval(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    IntervalReply queryRs;
+    queryRs.rtgId = -1;
+    queryRs.paramA = -1;
+    queryRs.paramB = -1;
+    sptr<ISystemAbilityManager> systemAbilityManager =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(CONCURRENT_TASK_SERVICE_ID);
+    if (size >= sizeof(int) + sizeof(int)) {
+        int intdata1 = GetData<int>();
+        queryRs.tid = GetData<int>();
+        ConcurrentTaskServiceProxy s = ConcurrentTaskServiceProxy(remoteObject);
+        s.QueryInterval(intdata1, queryRs);
+    } else if (size >= sizeof(int)) {
+        queryRs.tid = GetData<int>();
+        ConcurrentTaskServiceProxy s = ConcurrentTaskServiceProxy(remoteObject);
+        s.QueryInterval(12345, queryRs);
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceProxyQueryDeadline(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size >= sizeof(int) + sizeof(int)) {
+        int queryItem = GetData<int>();
+        queryItem = queryItem % (QURRY_TYPE_MAX + 1);
+        DeadlineReply ddlReply;
+        Json::Value payload;
+        payload["2147"] = std::to_string(GetData<int>());
+        sptr<ISystemAbilityManager> systemAbilityManager =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(CONCURRENT_TASK_SERVICE_ID);
+        ConcurrentTaskServiceProxy s = ConcurrentTaskServiceProxy(remoteObject);
+        s.QueryDeadline(queryItem, ddlReply, payload);
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceProxyRequestAuth(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size >= sizeof(int)) {
+        Json::Value payload;
+        payload["2147"] = std::to_string(GetData<int>());
+        sptr<ISystemAbilityManager> systemAbilityManager =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(CONCURRENT_TASK_SERVICE_ID);
+        ConcurrentTaskServiceProxy s = ConcurrentTaskServiceProxy(remoteObject);
+        s.RequestAuth(payload);
+    }
+    return true;
+}
 } // namespace OHOS
 
 /* Fuzzer entry point */
@@ -590,5 +736,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::FuzzConcurrentTaskServiceStubQueryDeadlineInner(data, size);
     OHOS::FuzzConcurrentTaskServiceStubRequestAuthInner(data, size);
     OHOS::FuzzConcurrentTaskServiceStringToJson(data, size);
+    OHOS::FuzzConcurrentTaskClientQueryInterval(data, size);
+    OHOS::FuzzConcurrentTaskServiceStubQueryDeadline(data, size);
+    OHOS::FuzzConcurrentTaskClinetRequestAuth(data, size);
+    OHOS::FuzzConcurrentTaskClientTryConnect(data, size);
+    OHOS::FuzzConcurrentTaskClientStopRemoteObject(data, size);
+    OHOS::FuzzConcurrentTaskServiceProxyReportData(data, size);
+    OHOS::FuzzConcurrentTaskServiceProxyQueryInterval(data, size);
+    OHOS::FuzzConcurrentTaskServiceProxyQueryDeadline(data, size);
+    OHOS::FuzzConcurrentTaskServiceProxyRequestAuth(data, size);
     return 0;
 }
