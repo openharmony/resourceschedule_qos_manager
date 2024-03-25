@@ -658,9 +658,10 @@ bool FuzzConcurrentTaskServiceProxyQueryInterval(const uint8_t* data, size_t siz
         ConcurrentTaskServiceProxy s = ConcurrentTaskServiceProxy(remoteObject);
         s.QueryInterval(intdata1, queryRs);
     } else if (size >= sizeof(int)) {
+        int queryItem = 12345;
         queryRs.tid = GetData<int>();
         ConcurrentTaskServiceProxy s = ConcurrentTaskServiceProxy(remoteObject);
-        s.QueryInterval(12345, queryRs);
+        s.QueryInterval(queryItem, queryRs);
     }
     return true;
 }
