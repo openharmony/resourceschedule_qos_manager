@@ -348,7 +348,7 @@ int QosGetForOther(int tid, int &level)
     if (fd < 0) {
         return fd;
     }
-#ifdef QOS_EXT_ENABLE
+
     struct QosCtrlData data;
     data.type = static_cast<unsigned int>(QosManipulateType::QOS_GET);
     data.pid = tid;
@@ -361,7 +361,7 @@ int QosGetForOther(int tid, int &level)
     }
 #endif
     level = data.qos;
-#endif
+
     close(fd);
     return ret;
 }
