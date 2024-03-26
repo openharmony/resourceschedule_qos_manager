@@ -30,12 +30,12 @@
                 "hitrace",
                 "init",
                 "ipc",
+                "jsoncpp",
                 "safwk",
                 "samgr"
             ],
             "third_party": [
-                "json",
-                "jsoncpp"
+                "json"
             ]
         },
         "build": {
