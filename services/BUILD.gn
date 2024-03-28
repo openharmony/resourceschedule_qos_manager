@@ -25,10 +25,6 @@ config("concurrent_task_config") {
     "../include",
     "../frameworks/concurrent_task_client/include/",
     "../interfaces/inner_api/",
-    "//foundation/resourceschedule/frame_aware_sched/common/include/",
-    "//utils/system/safwk/native/include",
-    "//commonlibrary/c_utils/base/include",
-    "//third_party/jsoncpp/include",
   ]
 }
 
@@ -49,10 +45,7 @@ ohos_shared_library("concurrentsvc") {
     "src/qos_policy.cpp",
   ]
 
-  deps = [
-    "../etc/param:ffrt_etc",
-    "//third_party/jsoncpp:jsoncpp",
-  ]
+  deps = [ "../etc/param:ffrt_etc" ]
 
   if (defined(
       global_parts_info.hmosresourceschedule_frame_aware_sched_override)) {
@@ -67,6 +60,7 @@ ohos_shared_library("concurrentsvc") {
     "hitrace:hitrace_meter",
     "init:libbegetutil",
     "ipc:ipc_single",
+    "jsoncpp:jsoncpp",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
