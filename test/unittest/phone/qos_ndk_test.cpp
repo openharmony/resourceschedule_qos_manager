@@ -67,11 +67,11 @@ HWTEST_F(QoSNdkTest, SetThreadQoSNdkTest1, TestSize.Level1)
     EXPECT_EQ(ret, 0);
     ret = OH_QoS_SetThreadQoS(QoS_Level::QOS_USER_INTERACTIVE);
     EXPECT_EQ(ret, 0);
-    ret = ret = OH_QoS_SetThreadQoS(QoS_Level(-1));
+    ret = OH_QoS_SetThreadQoS(QoS_Level(-1));
     EXPECT_EQ(ret, -1);
-    ret = ret = OH_QoS_SetThreadQoS(QoS_Level(6));
+    ret = OH_QoS_SetThreadQoS(QoS_Level(6));
     EXPECT_EQ(ret, -1);
-    ret = ret = OH_QoS_SetThreadQoS(QoS_Level(1024));
+    ret = OH_QoS_SetThreadQoS(QoS_Level(1024));
     EXPECT_EQ(ret, -1);
 }
 
@@ -155,7 +155,5 @@ HWTEST_F(QoSNdkTest, GetThreadQoSNdkTest1, TestSize.Level1)
     ret = OH_QoS_GetThreadQoS(&level);
     EXPECT_EQ(ret, -1);
 }
-
-
 } // QOS
 } // OHOS
