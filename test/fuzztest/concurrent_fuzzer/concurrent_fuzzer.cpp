@@ -503,9 +503,9 @@ bool FuzzConcurrentTaskServiceStubQueryDeadlineInner(const uint8_t* data, size_t
     g_baseFuzzPos = 0;
     MessageParcel data4;
     int32_t intData;
-    const char *str2;
     data4.WriteInterfaceToken(ConcurrentTaskServiceStub::GetDescriptor());
     if (size >= sizeof(int32_t)) {
+        const char *str2;
         intData = GetData<int32_t>();
         str2 = reinterpret_cast<const char*>(data + g_baseFuzzPos);
         size_t size1 = (size - g_baseFuzzPos) > LEN ? LEN : (size - g_baseFuzzPos);
