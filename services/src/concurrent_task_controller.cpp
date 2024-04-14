@@ -103,7 +103,10 @@ void TaskController::QueryInterval(int queryItem, IntervalReply& queryRs)
             QueryRender(uid, queryRs);
             break;
         case QUERY_RENDER_SERVICE:
-            QueryRenderService(uid, pid, queryRs);
+            QueryRenderService(uid, queryRs);
+            break;
+        case QUERY_RENDER_SERVICE_START:
+            QueryRenderServiceStart(uid, pid, queryRs);
             break;
         case QUERY_COMPOSER:
             QueryHwc(uid, queryRs);
@@ -163,7 +166,40 @@ void TaskController::QueryRender(int uid, IntervalReply& queryRs)
     }
 }
 
-void TaskController::QueryRenderService(int uid, int pid, IntervalReply& queryRs)
+void TaskController::QueryRenderService(int uid, IntervalReply& queryRs)
+{
+    if (uid != RS_UID) {
+        return;
+    }
+    int queryTid = queryRs.tid;
+    if (renderServiceGrpId_ <= 0) {
+        TryCreateRsGroup();
+        CONCUR_LOGI("uid %{public}d query rs group failed and create %{public}d.", uid, renderServiceGrpId_);
+        if (renderServiceGrpId_ <= 0) {
+            CONCUR_LOGE("uid %{public}d create rs group failed", uid);
+            return;
+        }
+    }
+
+    queryRs.rtgId = renderServiceGrpId_;
+    if (queryTid <= 0) {
+        return;
+    }
+    list<int>::iterator iter = find(rsThreads_.begin(), rsThreads_.end(), queryTid);
+    if (iter != rsThreads_.end()) {
+        return;
+    }
+    queryRs.rtgId = renderServiceGrpId_;
+    int ret = AddThreadToRtg(queryTid, renderServiceGrpId_, PRIO_RT);
+    if (ret < 0) {
+        CONCUR_LOGE("uid %{public}d tid %{public}d join rs group failed", uid, queryTid);
+        return;
+    }
+    CONCUR_LOGI("uid %{public}d tid %{public}d join rs group success in Query", uid, queryTid);
+    SetFrameRateAndPrioType(renderServiceGrpId_, CURRENT_RATE, PARAM_TYPE);
+}
+
+void TaskController::QueryRenderServiceStart(int uid, int pid, IntervalReply& queryRs)
 {
     if (GetProcessNameByToken() != RENDER_SERVICE_PROCESS_NAME) {
         return;
