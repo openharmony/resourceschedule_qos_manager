@@ -51,7 +51,8 @@ private:
     void TryCreateRsGroup();
     void QueryUi(pid_t uid, IntervalReply& queryRs);
     void QueryRender(pid_t uid, IntervalReply& queryRs);
-    void QueryRenderService(pid_t uid, pid_t pid, IntervalReply& queryRs);
+    void QueryRenderServiceStart(pid_t uid, pid_t pid, IntervalReply& queryRs);
+    void QueryRenderService(pid_t uid, IntervalReply& queryRs);
     void QueryHardware(pid_t uid, pid_t pid, IntervalReply& queryRs);
     void QueryExecutorStart(pid_t uid, pid_t pid, IntervalReply& queryRs);
     void QueryHwc(pid_t uid, IntervalReply& queryRs);
@@ -83,6 +84,7 @@ private:
     std::mutex rateInfoLock_;
     std::mutex executorStartLock_;
     std::list<ForegroundAppRecord> foregroundApp_ = {};
+    std::list<int> rsThreads_ = {};
     std::unordered_map<std::string, int> msgType_ = {};
     QosPolicy qosPolicy_;
     std::vector<int> authApps_;
