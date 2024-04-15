@@ -59,7 +59,7 @@ private:
     void DealSystemRequest(int requestType, const Json::Value& payload);
     void NewForeground(int uid, int pid);
     void NewBackground(int uid, int pid);
-    void NewAppStart(int uid, int pid);
+    void NewAppStart(int uid, int pid, const std::string& bundleName);
     void AppKilled(int uid, int pid);
     void ContinuousTaskProcess(int uid, int pid, int status);
     void FocusStatusProcess(int uid, int pid, int status);
@@ -72,7 +72,7 @@ private:
     void SetFrameRate(int rtgId, int rate);
     std::list<ForegroundAppRecord>::iterator GetRecordOfPid(int pid);
     void PrintInfo();
-    bool ParsePayload(const Json::Value& payload, int& uid, int& pid);
+    bool ParsePayload(const Json::Value& payload, int& uid, int& pid, std::string& bundleName);
     std::string GetProcessNameByToken();
     void ModifyGameState(const Json::Value& payload);
     int GetGamePid(const std::string &gameMsg) const;
@@ -95,6 +95,7 @@ private:
     bool rsAuthed_ = false;
     std::atomic<int> curGamePid_ = -1;
     int executorNum_ = 0;
+    std::map<int, std::string> appBundleName;
 
     const std::string RENDER_SERVICE_PROCESS_NAME = "render_service";
     const std::string RESOURCE_SCHEDULE_PROCESS_NAME = "resource_schedule_service";
