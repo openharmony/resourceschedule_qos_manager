@@ -127,23 +127,39 @@ HWTEST_F(ConcurrentTaskControllerTest, TryCreateRsGroupTest, TestSize.Level1)
 }
 
 /**
- * @tc.name: PushTaskTest
- * @tc.desc: Test whether the PushTask interface are normal.
+ * @tc.name:QueryRenderServiceTest
+ * @tc.desc: Test whether the QueryRenderService interface is normal
  * @tc.type: FUNC
  */
 HWTEST_F(ConcurrentTaskControllerTest, QueryRenderServiceTest, TestSize.Level1)
 {
     int uid = SYSTEM_UID;
+    IntervalReply queryRs = {87, 657, 357, 214};
+    TaskController::GetInstance().QueryRenderService(uid, queryRs);
+    int grpId = TaskController::GetInstance().renderServiceGrpId_;
+    EXPECT_TRUE(grpId > 0);
+    int rsThreadsSize = TaskController::GetInstance().rsThreads_.size();
+    EXPECT_TRUE(rsThreadsSize > 0);
+}
+
+/**
+ * @tc.name: PushTaskTest
+ * @tc.desc: Test whether the PushTask interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, QueryRenderServiceStartTest, TestSize.Level1)
+{
+    int uid = SYSTEM_UID;
     int pid = getpid();
     IntervalReply queryRs = {87, 657, 357, 214};
-    TaskController::GetInstance().QueryRenderService(uid, pid, queryRs);
+    TaskController::GetInstance().QueryRenderServiceStart(uid, pid, queryRs);
     int flag = TaskController::GetInstance().renderServiceGrpId_;
     TaskController::GetInstance().renderServiceGrpId_ = 1;
-    TaskController::GetInstance().QueryRenderService(uid, pid, queryRs);
+    TaskController::GetInstance().QueryRenderServiceStart(uid, pid, queryRs);
     TaskController::GetInstance().renderServiceGrpId_ = -1;
-    TaskController::GetInstance().QueryRenderService(uid, pid, queryRs);
+    TaskController::GetInstance().QueryRenderServiceStart(uid, pid, queryRs);
     TaskController::GetInstance().renderServiceGrpId_ = flag;
-    TaskController::GetInstance().QueryRenderService(uid, pid, queryRs);
+    TaskController::GetInstance().QueryRenderServiceStart(uid, pid, queryRs);
 }
 
 /**
