@@ -144,6 +144,7 @@ void TaskController::QueryUi(int uid, IntervalReply& queryRs)
     } else {
         queryRs.rtgId = grpId;
     }
+    queryRs.bundleName = appBundleName[pid];
 }
 
 void TaskController::QueryRender(int uid, IntervalReply& queryRs)
@@ -319,11 +320,12 @@ int TaskController::GetRequestType(std::string strRequstType)
     return msgType_[strRequstType];
 }
 
-bool TaskController::ParsePayload(const Json::Value& payload, int& uid, int& pid)
+bool TaskController::ParsePayload(const Json::Value& payload, int& uid, int& pid, std::string& bundleName)
 {
     try {
         uid = stoi(payload["uid"].asString());
         pid = stoi(payload["pid"].asString());
+        bundleName = payload["bundleName"].asString();
     } catch(...) {
         CONCUR_LOGE("Unexpected uid or pid format");
         return false;
@@ -338,7 +340,8 @@ void TaskController::DealSystemRequest(int requestType, const Json::Value& paylo
 {
     int uid = -1;
     int pid = -1;
-    if (!ParsePayload(payload, uid, pid)) {
+    std::string bundleName = "";
+    if (!ParsePayload(payload, uid, pid, bundleName)) {
         return;
     }
     switch (requestType) {
@@ -349,7 +352,7 @@ void TaskController::DealSystemRequest(int requestType, const Json::Value& paylo
             NewBackground(uid, pid);
             break;
         case MSG_APP_START:
-            NewAppStart(uid, pid);
+            NewAppStart(uid, pid, bundleName);
             break;
         case MSG_APP_KILLED:
             AppKilled(uid, pid);
@@ -460,7 +463,7 @@ void TaskController::NewBackground(int uid, int pid)
     }
 }
 
-void TaskController::NewAppStart(int uid, int pid)
+void TaskController::NewAppStart(int uid, int pid, const std::string& bundleName)
 {
     CONCUR_LOGI("pid %{public}d start.", pid);
     unsigned int pidParam = static_cast<unsigned int>(pid);
@@ -475,6 +478,7 @@ void TaskController::NewAppStart(int uid, int pid)
         return;
     }
     authApps_.push_back(pid);
+    appBundleName[pid] = bundleName;
 }
 
 void TaskController::AppKilled(int uid, int pid)
@@ -500,6 +504,7 @@ void TaskController::AppKilled(int uid, int pid)
             break;
         }
     }
+    appBundleName.erase(pid);
 }
 
 int TaskController::AuthSystemProcess(int pid)
