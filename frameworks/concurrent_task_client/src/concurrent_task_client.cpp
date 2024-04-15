@@ -147,5 +147,16 @@ void ConcurrentTaskClient::ConcurrentTaskDeathRecipient::OnRemoteDied(const wptr
 {
     concurrentTaskClient_.StopRemoteObject();
 }
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+void CTC_QueryInterval(int queryItem, OHOS::ConcurrentTask::IntervalReply& queryRs)
+{
+    OHOS::ConcurrentTask::ConcurrentTaskClient::GetInstance().QueryInterval(queryItem, queryRs);
+}
+#ifdef __cplusplus
+}
+#endif
 } // namespace ConcurrentTask
 } // namespace OHOS
