@@ -426,7 +426,8 @@ void TaskController::NewForeground(int uid, int pid)
         return;
     }
     int ret = AuthGet(pid);
-    if (ret != static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOCUS)) {
+    if (ret < 0 ||
+        static_cast<unsigned int>(ret) != static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOCUS)) {
         unsigned int pidParam = static_cast<unsigned int>(pid);
         unsigned int uaFlag = AF_RTG_ALL;
         unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOREGROUND);
