@@ -958,7 +958,8 @@ bool FuzzTaskControllerCheckJsonValid(const uint8_t* data, size_t size)
 }
 } // namespace OHOS
 
-void TaskControllerFuzzTestSuit(const uint8_t *data, size_t size) {
+void TaskControllerFuzzTestSuit(const uint8_t *data, size_t size)
+{
     OHOS::FuzzTaskControllerQueryRenderService(data, size);
     OHOS::FuzzTaskControllerQueryExecutorStart(data, size);
     OHOS::FuzzTaskControllerGetRequestType(data, size);
