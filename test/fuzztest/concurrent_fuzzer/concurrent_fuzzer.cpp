@@ -17,6 +17,7 @@
 #define private public
 #include "concurrent_task_client.h"
 #include "concurrent_task_service_ability.h"
+#include "concurrent_task_controller.h"
 #undef private
 #include "concurrent_task_service_proxy.h"
 #include "concurrent_task_service.h"
@@ -702,6 +703,260 @@ bool FuzzConcurrentTaskServiceProxyRequestAuth(const uint8_t* data, size_t size)
     }
     return true;
 }
+
+bool FuzzTaskControllerQueryRenderService(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int)) {
+        int uid = GetData<int>();
+        IntervalReply queryRs;
+        queryRs.tid = GetData<int>();
+        queryRs.rtgId = GetData<int>();
+        queryRs.paramA = 1;
+        queryRs.paramB = 1;
+        TaskController::GetInstance().renderServiceGrpId_ = GetData<int>();
+        TaskController::GetInstance().QueryRenderService(uid, queryRs);
+    }
+    return true;
+}
+
+bool FuzzTaskControllerQueryExecutorStart(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int)) {
+        int uid = GetData<int>();
+        IntervalReply queryRs;
+        queryRs.tid = GetData<int>();
+        queryRs.rtgId = GetData<int>();
+        queryRs.paramA = 1;
+        queryRs.paramB = 1;
+        TaskController::GetInstance().renderServiceGrpId_ = GetData<int>();
+        TaskController::GetInstance().QueryRenderService(uid, queryRs);
+    }
+    return true;
+}
+
+bool FuzzTaskControllerGetRequestType(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int)) {
+        std::string msgType = std::to_string(GetData<int>());
+        TaskController::GetInstance().GetRequestType(msgType);
+    }
+    return true;
+}
+
+bool FuzzTaskControllerDealSystemRequest(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int) + sizeof(int)) {
+        Json::Value payload;
+        payload["pid"] = GetData<int>();
+        payload["uid"] = GetData<int>();
+        int requestType = GetData<int>();
+        TaskController::GetInstance().DealSystemRequest(requestType, payload);
+    }
+    return true;
+}
+
+bool FuzzTaskControllerNewForeground(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        int uid = GetData<int>();
+        int pid = GetData<int>();
+        TaskController::GetInstance().NewForeground(uid, pid);
+    }
+    return true;
+}
+
+bool FuzzTaskControllerNewForegroundAppRecord(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int) + sizeof(int)) {
+        int pid = GetData<int>();
+        int uiPid = GetData<int>();
+        bool ddlEnable = GetData<bool>();
+        TaskController::GetInstance().NewForegroundAppRecord(pid, uiPid, ddlEnable);
+    }
+    return true;
+}
+
+bool FuzzTaskControllerNewBackground(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        int pid = GetData<int>();
+        int uid = GetData<int>();
+        TaskController::GetInstance().NewBackground(uid, pid);
+    }
+    return true;
+}
+
+bool FuzzTaskControllerNewAppStart(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        int pid = GetData<int>();
+        int uid = GetData<int>();
+        TaskController::GetInstance().NewAppStart(uid, pid);
+    }
+    return true;
+}
+
+bool FuzzTaskControllerAppKilled(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        int pid = GetData<int>();
+        int uid = GetData<int>();
+        TaskController::GetInstance().AppKilled(uid, pid);
+    }
+    return true;
+}
+
+bool FuzzTaskControllerAuthSystemProcess(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int)) {
+        int pid = GetData<int>();
+        TaskController::GetInstance().AuthSystemProcess(pid);
+    }
+    return true;
+}
+
+bool FuzzTaskControllerContinuousTaskProcess(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int) + sizeof(int)) {
+        int pid = GetData<int>();
+        int uid = GetData<int>();
+        int status = GetData<int>();
+        TaskController::GetInstance().ContinuousTaskProcess(uid, pid, status);
+    }
+    return true;
+}
+
+bool FuzzTaskControllerFocusStatusProcess(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int) + sizeof(int)) {
+        int pid = GetData<int>();
+        int uid = GetData<int>();
+        int status = GetData<int>();
+        TaskController::GetInstance().FocusStatusProcess(uid, pid, status);
+    }
+    return true;
+}
+
+bool FuzzTaskControllerModifyGameState(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        const char* str1;
+        str1 = reinterpret_cast<const char*>(data + g_baseFuzzPos);
+        size_t size1 = (size - g_baseFuzzPos) > LEN ? LEN : (size - g_baseFuzzPos);
+        std::string gameMsg(str1, size1);
+        Json::Value payload;
+        payload["gameMsg"] = gameMsg.c_str();
+        TaskController::GetInstance().ModifyGameState(payload);
+    } else {
+        Json::Value payload;
+        payload["gameMsg"] = "gameScene\":\"1";
+        TaskController::GetInstance().ModifyGameState(payload);
+    }
+    return true;
+}
+
+bool FuzzTaskControllerModifySystemRate(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        const char* str1;
+        str1 = reinterpret_cast<const char*>(data + g_baseFuzzPos);
+        size_t size1 = (size - g_baseFuzzPos) > LEN ? LEN : (size - g_baseFuzzPos);
+        std::string gameMsg(str1, size1);
+        Json::Value payload;
+        payload["gameMsg"] = gameMsg.c_str();
+        TaskController::GetInstance().ModifyGameState(payload);
+    } else {
+        Json::Value payload;
+        payload["gameMsg"] = "gameScene\":\"1";
+        TaskController::GetInstance().ModifyGameState(payload);
+    }
+    return true;
+}
+
+bool FuzzTaskControllerSetAppRate(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int) + sizeof(int)) {
+        Json::Value payload;
+        payload[std::to_string(GetData<int>()).c_str()] = std::to_string(GetData<int>()).c_str();
+        TaskController::GetInstance().SetAppRate(payload);
+    } else {
+        Json::Value payload;
+        payload["-1"] = std::to_string(GetData<int>()).c_str();
+        TaskController::GetInstance().SetAppRate(payload);
+    }
+    return true;
+}
+
+bool FuzzTaskControllerSetRenderServiceRate(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int) + sizeof(int)) {
+        Json::Value payload;
+        payload[std::to_string(GetData<int>()).c_str()] = std::to_string(GetData<int>()).c_str();
+        TaskController::GetInstance().SetRenderServiceRate(payload);
+    }
+    return true;
+}
+
+bool FuzzTaskControllerCheckJsonValid(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        Json::Value payload;
+        payload[std::to_string(GetData<int>()).c_str()] = std::to_string(GetData<int>()).c_str();
+        TaskController::GetInstance().CheckJsonValid(payload);
+    }
+    return true;
+}
 } // namespace OHOS
 
 /* Fuzzer entry point */
@@ -746,5 +1001,22 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::FuzzConcurrentTaskServiceProxyQueryInterval(data, size);
     OHOS::FuzzConcurrentTaskServiceProxyQueryDeadline(data, size);
     OHOS::FuzzConcurrentTaskServiceProxyRequestAuth(data, size);
+    OHOS::FuzzTaskControllerQueryRenderService(data, size);
+    OHOS::FuzzTaskControllerQueryExecutorStart(data, size);
+    OHOS::FuzzTaskControllerGetRequestType(data, size);
+    OHOS::FuzzTaskControllerDealSystemRequest(data, size);
+    OHOS::FuzzTaskControllerNewForeground(data, size);
+    OHOS::FuzzTaskControllerNewForegroundAppRecord(data, size);
+    OHOS::FuzzTaskControllerNewBackground(data, size);
+    OHOS::FuzzTaskControllerNewAppStart(data, size);
+    OHOS::FuzzTaskControllerAppKilled(data, size);
+    OHOS::FuzzTaskControllerAuthSystemProcess(data, size);
+    OHOS::FuzzTaskControllerContinuousTaskProcess(data, size);
+    OHOS::FuzzTaskControllerFocusStatusProcess(data, size);
+    OHOS::FuzzTaskControllerModifyGameState(data, size);
+    OHOS::FuzzTaskControllerSetAppRate(data, size);
+    OHOS::FuzzTaskControllerModifySystemRate(data, size);
+    OHOS::FuzzTaskControllerSetRenderServiceRate(data, size);
+    OHOS::FuzzTaskControllerCheckJsonValid(data, size);
     return 0;
 }
