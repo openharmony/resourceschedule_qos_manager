@@ -879,8 +879,7 @@ bool FuzzTaskControllerModifyGameState(const uint8_t* data, size_t size)
     g_baseFuzzSize = size;
     g_baseFuzzPos = 0;
     if (size > sizeof(int) + sizeof(int)) {
-        const char* str1;
-        str1 = reinterpret_cast<const char*>(data + g_baseFuzzPos);
+        const char* str1 = reinterpret_cast<const char*>(data + g_baseFuzzPos);
         size_t size1 = (size - g_baseFuzzPos) > LEN ? LEN : (size - g_baseFuzzPos);
         std::string gameMsg(str1, size1);
         Json::Value payload;
@@ -900,8 +899,7 @@ bool FuzzTaskControllerModifySystemRate(const uint8_t* data, size_t size)
     g_baseFuzzSize = size;
     g_baseFuzzPos = 0;
     if (size > sizeof(int) + sizeof(int)) {
-        const char* str1;
-        str1 = reinterpret_cast<const char*>(data + g_baseFuzzPos);
+        const char* str1 = reinterpret_cast<const char*>(data + g_baseFuzzPos);
         size_t size1 = (size - g_baseFuzzPos) > LEN ? LEN : (size - g_baseFuzzPos);
         std::string gameMsg(str1, size1);
         Json::Value payload;
@@ -959,6 +957,26 @@ bool FuzzTaskControllerCheckJsonValid(const uint8_t* data, size_t size)
 }
 } // namespace OHOS
 
+void TaskControllerFuzzTestSuit(const uint8_t *data, size_t size) {
+    OHOS::FuzzTaskControllerQueryRenderService(data, size);
+    OHOS::FuzzTaskControllerQueryExecutorStart(data, size);
+    OHOS::FuzzTaskControllerGetRequestType(data, size);
+    OHOS::FuzzTaskControllerDealSystemRequest(data, size);
+    OHOS::FuzzTaskControllerNewForeground(data, size);
+    OHOS::FuzzTaskControllerNewForegroundAppRecord(data, size);
+    OHOS::FuzzTaskControllerNewBackground(data, size);
+    OHOS::FuzzTaskControllerNewAppStart(data, size);
+    OHOS::FuzzTaskControllerAppKilled(data, size);
+    OHOS::FuzzTaskControllerAuthSystemProcess(data, size);
+    OHOS::FuzzTaskControllerContinuousTaskProcess(data, size);
+    OHOS::FuzzTaskControllerFocusStatusProcess(data, size);
+    OHOS::FuzzTaskControllerModifyGameState(data, size);
+    OHOS::FuzzTaskControllerSetAppRate(data, size);
+    OHOS::FuzzTaskControllerModifySystemRate(data, size);
+    OHOS::FuzzTaskControllerSetRenderServiceRate(data, size);
+    OHOS::FuzzTaskControllerCheckJsonValid(data, size);
+}
+
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
@@ -1001,22 +1019,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::FuzzConcurrentTaskServiceProxyQueryInterval(data, size);
     OHOS::FuzzConcurrentTaskServiceProxyQueryDeadline(data, size);
     OHOS::FuzzConcurrentTaskServiceProxyRequestAuth(data, size);
-    OHOS::FuzzTaskControllerQueryRenderService(data, size);
-    OHOS::FuzzTaskControllerQueryExecutorStart(data, size);
-    OHOS::FuzzTaskControllerGetRequestType(data, size);
-    OHOS::FuzzTaskControllerDealSystemRequest(data, size);
-    OHOS::FuzzTaskControllerNewForeground(data, size);
-    OHOS::FuzzTaskControllerNewForegroundAppRecord(data, size);
-    OHOS::FuzzTaskControllerNewBackground(data, size);
-    OHOS::FuzzTaskControllerNewAppStart(data, size);
-    OHOS::FuzzTaskControllerAppKilled(data, size);
-    OHOS::FuzzTaskControllerAuthSystemProcess(data, size);
-    OHOS::FuzzTaskControllerContinuousTaskProcess(data, size);
-    OHOS::FuzzTaskControllerFocusStatusProcess(data, size);
-    OHOS::FuzzTaskControllerModifyGameState(data, size);
-    OHOS::FuzzTaskControllerSetAppRate(data, size);
-    OHOS::FuzzTaskControllerModifySystemRate(data, size);
-    OHOS::FuzzTaskControllerSetRenderServiceRate(data, size);
-    OHOS::FuzzTaskControllerCheckJsonValid(data, size);
+    TaskControllerFuzzTestSuit(data, size);
     return 0;
 }
