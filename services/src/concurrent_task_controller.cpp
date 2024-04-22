@@ -105,8 +105,11 @@ void TaskController::QueryInterval(int queryItem, IntervalReply& queryRs)
         case QUERY_RENDER_SERVICE:
             QueryRenderService(uid, queryRs);
             break;
-        case QUERY_RENDER_SERVICE_START:
-            QueryRenderServiceStart(uid, pid, queryRs);
+        case QUERY_RENDER_SERVICE_MAIN:
+            QueryRenderServiceMain(uid, pid, queryRs);
+            break;
+        case QUERY_RENDER_SERVICE_RENDER:
+            QueryRenderServiceRender(uid, pid, queryRs);
             break;
         case QUERY_COMPOSER:
             QueryHwc(uid, queryRs);
@@ -173,16 +176,16 @@ void TaskController::QueryRenderService(int uid, IntervalReply& queryRs)
         return;
     }
     int queryTid = queryRs.tid;
-    if (renderServiceGrpId_ <= 0) {
-        TryCreateRsGroup();
-        CONCUR_LOGI("uid %{public}d query rs group failed and create %{public}d.", uid, renderServiceGrpId_);
-        if (renderServiceGrpId_ <= 0) {
+    if (renderServiceMainGrpId_ <= 0) {
+        TryCreateRSMainGrp();
+        CONCUR_LOGI("uid %{public}d query rs group failed and create %{public}d.", uid, renderServiceMainGrpId_);
+        if (renderServiceMainGrpId_ <= 0) {
             CONCUR_LOGE("uid %{public}d create rs group failed", uid);
             return;
         }
     }
 
-    queryRs.rtgId = renderServiceGrpId_;
+    queryRs.rtgId = renderServiceMainGrpId_;
     if (queryTid <= 0) {
         return;
     }
@@ -190,45 +193,67 @@ void TaskController::QueryRenderService(int uid, IntervalReply& queryRs)
     if (iter != rsThreads_.end()) {
         return;
     }
-    queryRs.rtgId = renderServiceGrpId_;
-    int ret = AddThreadToRtg(queryTid, renderServiceGrpId_, PRIO_RT);
+    queryRs.rtgId = renderServiceMainGrpId_;
+    int ret = AddThreadToRtg(queryTid, renderServiceMainGrpId_, PRIO_RT);
     if (ret < 0) {
         CONCUR_LOGE("uid %{public}d tid %{public}d join rs group failed", uid, queryTid);
         return;
     }
     CONCUR_LOGI("uid %{public}d tid %{public}d join rs group success in Query", uid, queryTid);
-    SetFrameRateAndPrioType(renderServiceGrpId_, CURRENT_RATE, PARAM_TYPE);
+    SetFrameRateAndPrioType(renderServiceMainGrpId_, CURRENT_RATE, PARAM_TYPE);
 }
 
-void TaskController::QueryRenderServiceStart(int uid, int pid, IntervalReply& queryRs)
+void TaskController::QueryRenderServiceMain(int uid, int pid, IntervalReply& queryRs)
 {
     if (GetProcessNameByToken() != RENDER_SERVICE_PROCESS_NAME) {
         return;
     }
-
-    if (!rsAuthed_) {
+    if (authedRSPid_ != pid) {
         if (AuthSystemProcess(pid) != 0) {
             return;
         }
-        rsAuthed_ = true;
+        authedRSPid_ = pid;
     }
-    if (renderServiceGrpId_ <= 0) {
-        TryCreateRsGroup();
-        CONCUR_LOGI("uid %{public}d query rs group failed and create %{public}d.", uid, renderServiceGrpId_);
-        if (renderServiceGrpId_ <= 0) {
+    if (renderServiceMainGrpId_ <= 0) {
+        TryCreateRSMainGrp();
+        CONCUR_LOGI("uid %{public}d query rs group failed and create %{public}d.", uid, renderServiceMainGrpId_);
+        if (renderServiceMainGrpId_ <= 0) {
             CONCUR_LOGE("uid %{public}d create rs group failed", uid);
             return;
         }
     }
-    queryRs.rtgId = renderServiceGrpId_;
-    if (rsTid_ <= 0) {
-        rsTid_ = queryRs.tid;
-        int ret = AddThreadToRtg(rsTid_, renderServiceGrpId_, PRIO_RT);
+    queryRs.rtgId = renderServiceMainGrpId_;
+    if (renderServiceMainTid_ <= 0 || renderServiceMainTid_ != authedRSPid_) {
+        renderServiceMainTid_ = queryRs.tid;
+        int ret = AddThreadToRtg(renderServiceMainTid_, renderServiceMainGrpId_, PRIO_RT);
         if (ret < 0) {
-            CONCUR_LOGE("uid %{public}d tid %{public}d join rs group failed.", uid, rsTid_);
+            CONCUR_LOGE("uid %{public}d tid %{public}d join rs group failed.", uid, renderServiceMainTid_);
         }
     }
-    SetFrameRateAndPrioType(renderServiceGrpId_, CURRENT_RATE, PARAM_TYPE);
+    SetFrameRateAndPrioType(renderServiceMainGrpId_, CURRENT_RATE, PARAM_TYPE);
+}
+ 
+void TaskController::QueryRenderServiceRender(int uid, int pid, IntervalReply& queryRs)
+{
+    if (GetProcessNameByToken() != RENDER_SERVICE_PROCESS_NAME) {
+        return;
+    }
+    if (renderServiceRenderGrpId_ <= 0) {
+        TryCreateRSRenderGrp();
+        if (renderServiceRenderGrpId_ <= 0) {
+            CONCUR_LOGE("uid %{public}d create rs group failed", uid);
+            return;
+        }
+    }
+    queryRs.rtgId = renderServiceRenderGrpId_;
+    if (renderServiceRenderTid_ <= 0 || renderServiceRenderTid_ != queryRs.tid) {
+        renderServiceRenderTid_ = queryRs.tid;
+        int ret = AddThreadToRtg(renderServiceRenderTid_, renderServiceRenderGrpId_, PRIO_RT);
+        if (ret < 0) {
+            CONCUR_LOGE("uid %{public}d tid %{public}d join rs group failed.", uid, renderServiceMainGrpId_);
+        }
+    }
+    SetFrameRateAndPrioType(renderServiceRenderGrpId_, CURRENT_RATE, PARAM_TYPE);
 }
 
 void TaskController::QueryHardware(int uid, int pid, IntervalReply& queryRs)
@@ -240,12 +265,13 @@ void TaskController::QueryHardware(int uid, int pid, IntervalReply& queryRs)
         return;
     }
     hardwareTid_ = queryRs.tid;
-    int ret = AddThreadToRtg(hardwareTid_, renderServiceGrpId_, PRIO_RT);
+    TryCreateRSMainGrp();
+    int ret = AddThreadToRtg(hardwareTid_, renderServiceMainGrpId_, PRIO_RT);
     if (ret < 0) {
-        CONCUR_LOGE("uid %{public}d tid %{public}d join hardware group failed.", uid, rsTid_);
+        CONCUR_LOGE("uid %{public}d tid %{public}d join hardware group failed.", uid, hardwareTid_);
         return;
     }
-    queryRs.tid = hardwareGrpId_;
+    queryRs.rtgId = hardwareGrpId_;
 }
 
 void TaskController::QueryExecutorStart(int uid, int pid, IntervalReply& queryRs)
@@ -253,23 +279,20 @@ void TaskController::QueryExecutorStart(int uid, int pid, IntervalReply& queryRs
     if (uid != RS_UID) {
         return;
     }
-    if (renderServiceGrpId_ < 0) {
+    if (renderServiceMainGrpId_ < 0) {
         return;
     }
     std::lock_guard<std::mutex> lock(executorStartLock_);
-    if (executorNum_ >= EXECUTOR_LIMIT_NUM) {
-        return;
-    }
     if (queryRs.tid <= 0) {
         return;
     }
-    int ret = AddThreadToRtg(queryRs.tid, renderServiceGrpId_, PRIO_RT);
+    int ret = AddThreadToRtg(queryRs.tid, renderServiceMainGrpId_, PRIO_RT);
     if (ret < 0) {
-        CONCUR_LOGE("uid %{public}d tid %{public}d join executor group failed.", uid, rsTid_);
+        CONCUR_LOGE("uid %{public}d tid %{public}d join executor group failed.", uid, renderServiceMainTid_);
         return;
     }
     executorNum_++;
-    queryRs.rtgId = renderServiceGrpId_;
+    queryRs.rtgId = renderServiceMainGrpId_;
 }
 
 void TaskController::QueryHwc(int uid, IntervalReply& queryRs)
@@ -299,11 +322,14 @@ void TaskController::Init()
 void TaskController::Release()
 {
     msgType_.clear();
-    if (renderServiceGrpId_ <= 0) {
-        return;
+    if (renderServiceMainGrpId_ > 0) {
+        DestroyRtgGrp(renderServiceMainGrpId_);
+        renderServiceMainGrpId_ = -1;
     }
-    DestroyRtgGrp(renderServiceGrpId_);
-    renderServiceGrpId_ = -1;
+    if (renderServiceRenderGrpId_ > 0) {
+        DestroyRtgGrp(renderServiceRenderGrpId_);
+        renderServiceRenderGrpId_ = -1;
+    }
 }
 
 void TaskController::TypeMapInit()
@@ -319,10 +345,25 @@ void TaskController::TypeMapInit()
     msgType_.insert(pair<std::string, int>("loseFocus", MSG_LOSE_FOCUS));
 }
 
+void TaskController::TryCreateRSMainGrp()
+{
+    if (renderServiceMainGrpId_ == -1) {
+        renderServiceMainGrpId_ = TryCreateSystemGroup();
+        hardwareGrpId_ = renderServiceMainGrpId_;
+    }
+}
+ 
+void TaskController::TryCreateRSRenderGrp()
+{
+    if (renderServiceRenderGrpId_ == -1) {
+        renderServiceRenderGrpId_ = TryCreateSystemGroup();
+    }
+}
+ 
 void TaskController::TryCreateRsGroup()
 {
-    renderServiceGrpId_ = TryCreateSystemGroup();
-    hardwareGrpId_ = renderServiceGrpId_;
+    TryCreateRSMainGrp();
+    TryCreateRSRenderGrp();
 }
 
 int TaskController::TryCreateSystemGroup()
@@ -743,11 +784,11 @@ int TaskController::FindRateFromInfo(int uiTid, const Json::Value& payload)
 
 void TaskController::SetRenderServiceRate(const Json::Value& payload)
 {
-    int rsRate = FindRateFromInfo(rsTid_, payload);
-    if (renderServiceGrpId_ > 0 && rsRate > 0 && rsRate != systemRate_) {
+    int rsRate = FindRateFromInfo(renderServiceMainTid_, payload);
+    if (renderServiceMainGrpId_ > 0 && rsRate > 0 && rsRate != systemRate_) {
         CONCUR_LOGI("set rs rate %{public}d rtgId is %{public}d, old rate is %{public}d",
-                    rsRate, renderServiceGrpId_, systemRate_);
-        SetFrameRate(renderServiceGrpId_, rsRate);
+                    rsRate, renderServiceMainGrpId_, systemRate_);
+        SetFrameRate(renderServiceMainGrpId_, rsRate);
         systemRate_ = rsRate;
         bool ret = OHOS::system::SetParameter(INTERVAL_RS_RATE, std::to_string(rsRate));
         if (ret == false) {
