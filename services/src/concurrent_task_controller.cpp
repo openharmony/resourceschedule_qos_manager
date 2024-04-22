@@ -283,6 +283,9 @@ void TaskController::QueryExecutorStart(int uid, int pid, IntervalReply& queryRs
         return;
     }
     std::lock_guard<std::mutex> lock(executorStartLock_);
+    if (executorNum_ >= EXECUTOR_LIMIT_NUM) {
+        return;
+    }
     if (queryRs.tid <= 0) {
         return;
     }
