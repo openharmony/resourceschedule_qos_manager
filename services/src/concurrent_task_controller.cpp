@@ -208,11 +208,11 @@ void TaskController::QueryRenderServiceMain(int uid, int pid, IntervalReply& que
     if (GetProcessNameByToken() != RENDER_SERVICE_PROCESS_NAME) {
         return;
     }
-    if (authedRSPid_ != pid) {
+    if (!rsAuthed_) {
         if (AuthSystemProcess(pid) != 0) {
             return;
         }
-        authedRSPid_ = pid;
+        rsAuthed_ = true;
     }
     if (renderServiceMainGrpId_ <= 0) {
         TryCreateRSMainGrp();
