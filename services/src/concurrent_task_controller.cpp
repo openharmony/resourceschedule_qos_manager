@@ -223,7 +223,7 @@ void TaskController::QueryRenderServiceMain(int uid, int pid, IntervalReply& que
         }
     }
     queryRs.rtgId = renderServiceMainGrpId_;
-    if (renderServiceMainTid_ <= 0 || renderServiceMainTid_ != authedRSPid_) {
+    if (renderServiceMainTid_ <= 0) {
         renderServiceMainTid_ = queryRs.tid;
         int ret = AddThreadToRtg(renderServiceMainTid_, renderServiceMainGrpId_, PRIO_RT);
         if (ret < 0) {
