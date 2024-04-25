@@ -57,7 +57,7 @@ TaskController& TaskController::GetInstance()
 void TaskController::RequestAuth(const Json::Value& payload)
 {
     pid_t uid = IPCSkeleton::GetInstance().GetCallingUid();
-    if (GetProcessNameByToken() != MEDIA_SERVICE_PROCESS_NAME) {
+    if (uid != HWF_SERVICE_UID) {
         CONCUR_LOGE("Invalid uid %{public}d, only media service can call RequestAuth", uid);
         return;
     }
