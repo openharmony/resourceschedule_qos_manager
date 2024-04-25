@@ -716,7 +716,7 @@ bool FuzzTaskControllerQueryRenderService(const uint8_t* data, size_t size)
         queryRs.rtgId = GetData<int>();
         queryRs.paramA = 1;
         queryRs.paramB = 1;
-        TaskController::GetInstance().renderServiceGrpId_ = GetData<int>();
+        TaskController::GetInstance().renderServiceMainGrpId_ = GetData<int>();
         TaskController::GetInstance().QueryRenderService(uid, queryRs);
     }
     return true;
@@ -734,7 +734,7 @@ bool FuzzTaskControllerQueryExecutorStart(const uint8_t* data, size_t size)
         queryRs.rtgId = GetData<int>();
         queryRs.paramA = 1;
         queryRs.paramB = 1;
-        TaskController::GetInstance().renderServiceGrpId_ = GetData<int>();
+        TaskController::GetInstance().renderServiceMainGrpId_ = GetData<int>();
         TaskController::GetInstance().QueryRenderService(uid, queryRs);
     }
     return true;
