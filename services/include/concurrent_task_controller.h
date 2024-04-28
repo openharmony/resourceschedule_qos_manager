@@ -101,8 +101,8 @@ private:
 
     const std::string RENDER_SERVICE_PROCESS_NAME = "render_service";
     const std::string RESOURCE_SCHEDULE_PROCESS_NAME = "resource_schedule_service";
-    const std::string MEDIA_SERVICE_PROCESS_NAME = "media_service";
     const std::string GAME_ACCELERATE_SCHED_PROCESS_NAME = "game_accelerate_schedule";
+    const int32_t HWF_SERVICE_UID = 7700;
 };
 
 class ForegroundAppRecord {
