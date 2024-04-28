@@ -590,7 +590,7 @@ void TaskController::QueryDeadline(int queryItem, DeadlineReply& ddlReply, const
 {
     pid_t uid = IPCSkeleton::GetInstance().GetCallingUid();
     std::string processName = GetProcessNameByToken();
-    if (processName != RENDER_SERVICE_PROCESS_NAME && processName != RESOURCE_SCHEDULE_PROCESS_NAME) {
+    if (processName != RENDER_SERVICE_PROCESS_NAME && processName != GAME_ACCELERATE_SCHED_PROCESS_NAME) {
         CONCUR_LOGE("Invalid uid %{public}d, only RS or RSS can call QueryDeadline", uid);
         return;
     }
