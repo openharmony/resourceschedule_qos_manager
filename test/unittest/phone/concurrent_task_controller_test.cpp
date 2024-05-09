@@ -127,6 +127,32 @@ HWTEST_F(ConcurrentTaskControllerTest, TryCreateRsGroupTest, TestSize.Level1)
 }
 
 /**
+ * @tc.name: PushTaskTest
+ * @tc.desc: Test whether the PushTask interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, TryCreateRSMainGrpTest, TestSize.Level1)
+{
+    TaskController::GetInstance().rtgEnabled_ = false;
+    TaskController::GetInstance().TryCreateRSMainGrp();
+    TaskController::GetInstance().rtgEnabled_ = true;
+    TaskController::GetInstance().TryCreateRSMainGrp();
+}
+ 
+/**
+ * @tc.name: PushTaskTest
+ * @tc.desc: Test whether the PushTask interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, TryCreateRSRenderGrpTest, TestSize.Level1)
+{
+    TaskController::GetInstance().rtgEnabled_ = false;
+    TaskController::GetInstance().TryCreateRSRenderGrp();
+    TaskController::GetInstance().rtgEnabled_ = true;
+    TaskController::GetInstance().TryCreateRSRenderGrp();
+}
+
+/**
  * @tc.name:QueryRenderServiceTest
  * @tc.desc: Test whether the QueryRenderService interface is normal
  * @tc.type: FUNC
@@ -136,10 +162,8 @@ HWTEST_F(ConcurrentTaskControllerTest, QueryRenderServiceTest, TestSize.Level1)
     int uid = SYSTEM_UID;
     IntervalReply queryRs = {87, 657, 357, 214};
     TaskController::GetInstance().QueryRenderService(uid, queryRs);
-    int grpId = TaskController::GetInstance().renderServiceGrpId_;
+    int grpId = TaskController::GetInstance().renderServiceMainGrpId_;
     EXPECT_TRUE(grpId > 0);
-    int rsThreadsSize = TaskController::GetInstance().rsThreads_.size();
-    EXPECT_TRUE(rsThreadsSize > 0);
 }
 
 /**
@@ -147,19 +171,39 @@ HWTEST_F(ConcurrentTaskControllerTest, QueryRenderServiceTest, TestSize.Level1)
  * @tc.desc: Test whether the PushTask interface are normal.
  * @tc.type: FUNC
  */
-HWTEST_F(ConcurrentTaskControllerTest, QueryRenderServiceStartTest, TestSize.Level1)
+HWTEST_F(ConcurrentTaskControllerTest, QueryRenderServiceMainTest, TestSize.Level1)
 {
     int uid = SYSTEM_UID;
     int pid = getpid();
     IntervalReply queryRs = {87, 657, 357, 214};
-    TaskController::GetInstance().QueryRenderServiceStart(uid, pid, queryRs);
-    int flag = TaskController::GetInstance().renderServiceGrpId_;
-    TaskController::GetInstance().renderServiceGrpId_ = 1;
-    TaskController::GetInstance().QueryRenderServiceStart(uid, pid, queryRs);
-    TaskController::GetInstance().renderServiceGrpId_ = -1;
-    TaskController::GetInstance().QueryRenderServiceStart(uid, pid, queryRs);
-    TaskController::GetInstance().renderServiceGrpId_ = flag;
-    TaskController::GetInstance().QueryRenderServiceStart(uid, pid, queryRs);
+    TaskController::GetInstance().QueryRenderServiceMain(uid, pid, queryRs);
+    int flag = TaskController::GetInstance().renderServiceMainGrpId_;
+    TaskController::GetInstance().renderServiceMainGrpId_ = 1;
+    TaskController::GetInstance().QueryRenderServiceMain(uid, pid, queryRs);
+    TaskController::GetInstance().renderServiceMainGrpId_ = -1;
+    TaskController::GetInstance().QueryRenderServiceMain(uid, pid, queryRs);
+    TaskController::GetInstance().renderServiceMainGrpId_ = flag;
+    TaskController::GetInstance().QueryRenderServiceMain(uid, pid, queryRs);
+}
+ 
+/**
+ * @tc.name: PushTaskTest
+ * @tc.desc: Test whether the PushTask interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerTest, QueryRenderServiceRenderTest, TestSize.Level1)
+{
+    int uid = SYSTEM_UID;
+    int pid = getpid();
+    IntervalReply queryRs = {87, 657, 357, 214};
+    TaskController::GetInstance().QueryRenderServiceRender(uid, pid, queryRs);
+    int flag = TaskController::GetInstance().renderServiceRenderGrpId_;
+    TaskController::GetInstance().renderServiceRenderGrpId_ = 1;
+    TaskController::GetInstance().QueryRenderServiceRender(uid, pid, queryRs);
+    TaskController::GetInstance().renderServiceRenderGrpId_ = -1;
+    TaskController::GetInstance().QueryRenderServiceRender(uid, pid, queryRs);
+    TaskController::GetInstance().renderServiceRenderGrpId_ = flag;
+    TaskController::GetInstance().QueryRenderServiceRender(uid, pid, queryRs);
 }
 
 /**
@@ -403,9 +447,9 @@ HWTEST_F(ConcurrentTaskControllerTest, SetRenderServiceRateTest, TestSize.Level1
 {
     Json::Value payload;
     payload["758"] = "120";
-    TaskController::GetInstance().rsTid_ = 758;
+    TaskController::GetInstance().renderServiceMainTid_ = 758;
     TaskController::GetInstance().systemRate_ = 0;
-    TaskController::GetInstance().renderServiceGrpId_ = 1;
+    TaskController::GetInstance().renderServiceMainGrpId_ = 1;
     TaskController::GetInstance().SetRenderServiceRate(payload);
     EXPECT_EQ(TaskController::GetInstance().systemRate_, 120);
     EXPECT_EQ(OHOS::system::GetIntParameter("persist.ffrt.interval.rsRate", 0), 120);
