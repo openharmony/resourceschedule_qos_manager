@@ -16,11 +16,13 @@
 #ifndef GNU_SOURCE
 #define GNU_SOURCE
 #endif
+#include <cerrno>
 #include <cstdio>
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <concurrent_task_log.h>
 
 #include "qos_interface.h"
 
@@ -28,11 +30,10 @@ static int TrivalOpenRtgNode(void)
 {
     char fileName[] = "/proc/self/sched_rtg_ctrl";
     int fd = open(fileName, O_RDWR);
-#ifdef QOS_DEBUG
     if (fd < 0) {
-        printf("task %d belong to user %d open rtg node failed\n", getpid(), getuid());
+        CONCUR_LOGE("[Interface] task %{public}d belong to user %{public}d open rtg node failed, errno = %{public}d",
+            getpid(), getuid(), errno);
     }
-#endif
     return fd;
 }
 
@@ -40,11 +41,10 @@ static int TrivalOpenAuthCtrlNode(void)
 {
     char fileName[] = "/dev/auth_ctrl";
     int fd = open(fileName, O_RDWR);
-#ifdef QOS_DEBUG
     if (fd < 0) {
-        printf("task %d belong to user %d open auth node failed\n", getpid(), getuid());
+        CONCUR_LOGE("[Interface] task %{public}d belong to user %{public}d open auth node failed, errno = %{public}d",
+            getpid(), getuid(), errno);
     }
-#endif
     return fd;
 }
 
@@ -52,11 +52,10 @@ static int TrivalOpenQosCtrlNode(void)
 {
     char fileName[] = "/proc/thread-self/sched_qos_ctrl";
     int fd = open(fileName, O_RDWR);
-#ifdef QOS_DEBUG
     if (fd < 0) {
-        printf("task %d belong to user %d open qos node failed\n", getpid(), getuid());
+        CONCUR_LOGE("[Interface] task %{public}d belong to user %{public}d open qos node failed, errno = %{public}d",
+            getpid(), getuid(), errno);
     }
-#endif
     return fd;
 }
 
@@ -256,11 +255,9 @@ int QosApplyForOther(unsigned int level, int tid)
     data.pid = tid;
 
     ret = ioctl(fd, QOS_CTRL_BASIC_OPERATION, &data);
-#ifdef QOS_DEBUG
     if (ret < 0) {
-        printf("qos apply failed for task %d\n", tid);
+        CONCUR_LOGE("[Interface] task %{public}d apply qos failed, errno = %{public}d", tid, errno);
     }
-#endif
     close(fd);
     return ret;
 }
@@ -280,11 +277,9 @@ int QosLeave(void)
     data.pid = gettid();
 
     ret = ioctl(fd, QOS_CTRL_BASIC_OPERATION, &data);
-#ifdef QOS_DEBUG
     if (ret < 0) {
-        printf("qos leave failed for task %d\n", getpid());
+        CONCUR_LOGE("[Interface] task %{public}d leave qos failed, errno = %{public}d", gettid(), errno);
     }
-#endif
     close(fd);
     return ret;
 }
@@ -304,11 +299,9 @@ int QosLeaveForOther(int tid)
     data.pid = tid;
 
     ret = ioctl(fd, QOS_CTRL_BASIC_OPERATION, &data);
-#ifdef QOS_DEBUG
     if (ret < 0) {
-        printf("qos leave failed for task %d\n", tid);
+        CONCUR_LOGE("[Interface] task %{public}d leave qos failed, errno = %{public}d", tid, errno);
     }
-#endif
     close(fd);
     return ret;
 }
@@ -324,11 +317,9 @@ int QosPolicySet(const struct QosPolicyDatas *policyDatas)
     }
 
     ret = ioctl(fd, QOS_CTRL_POLICY_OPERATION, policyDatas);
-#ifdef QOS_DEBUG
     if (ret < 0) {
-        printf("set qos policy failed for task %d\n", getpid());
+        CONCUR_LOGE("[Interface] set qos policy failed, errno = %{public}d", errno);
     }
-#endif
     close(fd);
     return ret;
 }
@@ -355,11 +346,9 @@ int QosGetForOther(int tid, int &level)
     data.qos = -1;
 
     ret = ioctl(fd, QOS_CTRL_BASIC_OPERATION, &data);
-#ifdef QOS_DEBUG
     if (ret < 0) {
-        printf("get qos failed for task %d\n", tid);
+        CONCUR_LOGE("[Interface] task %{public}d get qos failed, errno = %{public}d", tid, errno);
     }
-#endif
     level = data.qos;
 
     close(fd);
