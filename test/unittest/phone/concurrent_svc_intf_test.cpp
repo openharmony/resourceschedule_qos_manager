@@ -104,7 +104,7 @@ HWTEST_F(ConcurrentSvcIntfTest, QueryNagativeItem, TestSize.Level1)
  */
 HWTEST_F(ConcurrentSvcIntfTest, QueryRenderServiceTest, TestSize.Level1)
 {
-    int grpId = QueryInterval(QUERY_RENDER_SERVICE);
+    int grpId = QueryInterval(QUERY_RENDER_SERVICE_MAIN);
 #if TDD_MUSL
     EXPECT_GT(grpId, 0);
 #else

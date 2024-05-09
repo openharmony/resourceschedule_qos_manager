@@ -49,10 +49,13 @@ private:
     int TryCreateSystemGroup();
     void TryCreateHardwareGroup();
     void TryCreateRsGroup();
+    void TryCreateRSMainGrp();
+    void TryCreateRSRenderGrp();
     void QueryUi(pid_t uid, IntervalReply& queryRs);
     void QueryRender(pid_t uid, IntervalReply& queryRs);
-    void QueryRenderServiceStart(pid_t uid, pid_t pid, IntervalReply& queryRs);
     void QueryRenderService(pid_t uid, IntervalReply& queryRs);
+    void QueryRenderServiceMain(pid_t uid, pid_t pid, IntervalReply& queryRs);
+    void QueryRenderServiceRender(pid_t uid, pid_t pid, IntervalReply& queryRs);
     void QueryHardware(pid_t uid, pid_t pid, IntervalReply& queryRs);
     void QueryExecutorStart(pid_t uid, pid_t pid, IntervalReply& queryRs);
     void QueryHwc(pid_t uid, IntervalReply& queryRs);
@@ -88,9 +91,11 @@ private:
     std::unordered_map<std::string, int> msgType_ = {};
     QosPolicy qosPolicy_;
     std::vector<int> authApps_;
-    int renderServiceGrpId_ = -1;
+    int renderServiceMainGrpId_ = -1;
+    int renderServiceRenderGrpId_ = -1;
+    int renderServiceMainTid_ = -1;
+    int renderServiceRenderTid_ = -1;
     int hardwareGrpId_ = -1;
-    int rsTid_ = -1;
     int hardwareTid_ = -1;
     int systemRate_ = 0;
     bool rtgEnabled_ = false;
