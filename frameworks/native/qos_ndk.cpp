@@ -1,3 +1,4 @@
+
 /*
 * Copyright (c) 2024 Huawei Device Co., Ltd.
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,37 +24,17 @@ static constexpr int ERROR_NUM = -1;
 using namespace OHOS::QOS;
 using namespace std;
 
-const unordered_map<QoS_Level, QosLevel> qos_map = {
-    {QoS_Level::QOS_BACKGROUND, QosLevel::QOS_BACKGROUND},
-    {QoS_Level::QOS_UTILITY, QosLevel::QOS_UTILITY},
-    {QoS_Level::QOS_DEFAULT, QosLevel::QOS_DEFAULT},
-    {QoS_Level::QOS_USER_INITIATED, QosLevel::QOS_USER_INITIATED},
-    {QoS_Level::QOS_DEADLINE_REQUEST, QosLevel::QOS_DEADLINE_REQUEST},
-    {QoS_Level::QOS_USER_INTERACTIVE, QosLevel::QOS_USER_INTERACTIVE}
-};
-
-const unordered_map<QosLevel, QoS_Level> qos_reverse_map = {
-    {QosLevel::QOS_BACKGROUND, QoS_Level::QOS_BACKGROUND},
-    {QosLevel::QOS_UTILITY, QoS_Level::QOS_UTILITY},
-    {QosLevel::QOS_DEFAULT, QoS_Level::QOS_DEFAULT},
-    {QosLevel::QOS_USER_INITIATED, QoS_Level::QOS_USER_INITIATED},
-    {QosLevel::QOS_DEADLINE_REQUEST, QoS_Level::QOS_DEADLINE_REQUEST},
-    {QosLevel::QOS_USER_INTERACTIVE, QoS_Level::QOS_USER_INTERACTIVE}
-};
-
-
 int OH_QoS_SetThreadQoS(QoS_Level level)
 {
-    auto iter = qos_map.find(level);
-    if (iter == qos_map.end()) {
+    if (level < QOS_BACKGROUND || level > QOS_USER_INTERACTIVE) {
         return ERROR_NUM;
     }
-    return QosController::GetInstance().SetThreadQosForOtherThread(iter->second, gettid());
+    return SetThreadQos(static_cast<QosLevel>(level));
 }
 
-int OH_QoS_ResetThreadQoS(void)
+int OH_QoS_ResetThreadQoS()
 {
-    return QosController::GetInstance().ResetThreadQosForOtherThread(gettid());
+    return ResetThreadQos();
 }
 
 int OH_QoS_GetThreadQoS(QoS_Level *level)
@@ -61,15 +42,15 @@ int OH_QoS_GetThreadQoS(QoS_Level *level)
     if (level == nullptr) {
         return ERROR_NUM;
     }
-    enum QosLevel qosLevel;
-    int ret = QosController::GetInstance().GetThreadQosForOtherThread(qosLevel, gettid());
+    QosLevel qosLevel;
+    int ret = GetThreadQos(qosLevel);
     if (ret < 0) {
         return ERROR_NUM;
     }
-    auto iter = qos_reverse_map.find(qosLevel);
-    if (iter == qos_reverse_map.end()) {
+    if (static_cast<int>(qosLevel) < QoS_Level::QOS_BACKGROUND ||
+        static_cast<int>(qosLevel) > QoS_Level::QOS_USER_INTERACTIVE) {
         return ERROR_NUM;
     }
-    *level = iter->second;
+    *level = static_cast<QoS_Level>(qosLevel);
     return 0;
 }
