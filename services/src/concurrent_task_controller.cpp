@@ -453,6 +453,7 @@ void TaskController::DealSystemRequest(int requestType, const Json::Value& paylo
 
 std::list<ForegroundAppRecord>::iterator TaskController::GetRecordOfPid(int pid)
 {
+    std::lock_guard<std::mutex> lock(appInfoLock_);
     for (auto iter = foregroundApp_.begin(); iter != foregroundApp_.end(); iter++) {
         if (iter->GetPid() == pid) {
             return iter;
@@ -486,6 +487,7 @@ void TaskController::NewForeground(int uid, int pid)
     }
     bool found = false;
     bool ddlEnabled = OHOS::system::GetBoolParameter(INTERVAL_DDL, false);
+    std::lock_guard<std::mutex> lock(appInfoLock_);
     for (auto iter = foregroundApp_.begin(); iter != foregroundApp_.end(); iter++) {
         if (iter->GetPid() == pid) {
             found = true;
@@ -535,6 +537,7 @@ void TaskController::NewBackground(int uid, int pid)
     } else {
         CONCUR_LOGI("auth_pause %{public}d fail with %{public}d", pid, ret);
     }
+    std::lock_guard<std::mutex> lock(appInfoLock_);
     for (auto iter = foregroundApp_.begin(); iter != foregroundApp_.end(); iter++) {
         if (iter->GetPid() == pid) {
             iter->EndScene();
@@ -672,6 +675,7 @@ void TaskController::ModifyGameState(const Json::Value& payload)
     if (curGamePid_ == -1) {
         return;
     }
+    std::lock_guard<std::mutex> lock(appInfoLock_);
     for (auto iter = foregroundApp_.begin(); iter != foregroundApp_.end(); iter++) {
         if (iter->GetPid() == curGamePid_ && iter->GetGrpId() >= 0) {
             CONCUR_LOGI("[MSG_GAME]destroy rtg grp, pid is %{public}d grpId is %{public}d",
@@ -730,7 +734,6 @@ bool TaskController::ModifySystemRate(const Json::Value& payload)
         CONCUR_LOGI("service receive json invalid");
         return false;
     }
-    std::lock_guard<std::mutex> lock(rateInfoLock_);
     SetAppRate(payload);
     SetRenderServiceRate(payload);
     return true;
@@ -743,7 +746,7 @@ void TaskController::SetAppRate(const Json::Value& payload)
     int appRate = 0;
     int uniAppRate = FindRateFromInfo(UNI_APP_RATE_ID, payload);
     if (uniAppRate > 0) {
-        CONCUR_LOGI("set unified app rate %{public}d", uniAppRate);
+        CONCUR_LOGD("set unified app rate %{public}d", uniAppRate);
         bool ret = OHOS::system::SetParameter(INTERVAL_APP_RATE, std::to_string(uniAppRate));
         if (ret == false) {
             CONCUR_LOGI("set app rate param failed");
@@ -753,6 +756,7 @@ void TaskController::SetAppRate(const Json::Value& payload)
         FinishTrace(HITRACE_TAG_ACE);
         return;
     }
+    std::lock_guard<std::mutex> lock(appInfoLock_);
     for (auto iter = foregroundApp_.begin(); iter != foregroundApp_.end(); iter++) {
         uiTid = iter->GetUiTid();
         rtgId = iter->GetGrpId();
@@ -788,8 +792,9 @@ int TaskController::FindRateFromInfo(int uiTid, const Json::Value& payload)
 void TaskController::SetRenderServiceRate(const Json::Value& payload)
 {
     int rsRate = FindRateFromInfo(renderServiceMainTid_, payload);
+    std::lock_guard<std::mutex> lock(rateInfoLock_);
     if (renderServiceMainGrpId_ > 0 && rsRate > 0 && rsRate != systemRate_) {
-        CONCUR_LOGI("set rs rate %{public}d rtgId is %{public}d, old rate is %{public}d",
+        CONCUR_LOGD("set rs rate %{public}d rtgId is %{public}d, old rate is %{public}d",
                     rsRate, renderServiceMainGrpId_, systemRate_);
         SetFrameRate(renderServiceMainGrpId_, rsRate);
         systemRate_ = rsRate;
@@ -826,6 +831,7 @@ void TaskController::SetFrameRate(int rtgId, int rate)
 
 void TaskController::PrintInfo()
 {
+    std::lock_guard<std::mutex> lock(appInfoLock_);
     for (auto iter = foregroundApp_.begin(); iter != foregroundApp_.end(); iter++) {
         iter->PrintKeyThreads();
     }
