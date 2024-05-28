@@ -16,7 +16,9 @@
 #include <cstdlib>
 #include <unistd.h>
 #include "concurrent_task_log.h"
+#if !defined(CROSS_PLATFORM)
 #include "parameters.h"
+#endif
 #include "qos_interface.h"
 #include "qos.h"
 using namespace OHOS::ConcurrentTask;
@@ -33,12 +35,14 @@ QosController& QosController::GetInstance()
 
 int QosController::SetThreadQosForOtherThread(enum QosLevel level, int tid)
 {
+#if !defined(CROSS_PLATFORM)
     bool qosEnable = OHOS::system::GetBoolParameter("persist.all.setQos.on", true);
-    int qos = static_cast<int>(level);
     if (!qosEnable) {
-        CONCUR_LOGD("[Qos] qoslevel %{public}d apply for tid %{public}d disable", qos, tid);
+        CONCUR_LOGD("[Qos] qoslevel %{public}d apply for tid %{public}d disable", static_cast<int>(level), tid);
         return 0;
     }
+#endif
+    int qos = static_cast<int>(level);
     if (level < QosLevel::QOS_BACKGROUND || level >= QosLevel::QOS_MAX) {
         CONCUR_LOGE("[Qos] invalid qos level %{public}d", qos);
         return ERROR_NUM;
@@ -55,11 +59,13 @@ int QosController::SetThreadQosForOtherThread(enum QosLevel level, int tid)
 
 int QosController::ResetThreadQosForOtherThread(int tid)
 {
+#if !defined(CROSS_PLATFORM)
     bool qosEnable = OHOS::system::GetBoolParameter("persist.all.setQos.on", true);
     if (!qosEnable) {
         CONCUR_LOGD("[Qos] qoslevel reset disable for tid %{public}d.", tid);
         return 0;
     }
+#endif
     int ret = QosLeaveForOther(tid);
     if (ret == 0) {
         CONCUR_LOGD("[Qos] qoslevel reset for tid %{public}d success", tid);
