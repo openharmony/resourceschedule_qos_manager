@@ -32,7 +32,7 @@ int OH_QoS_SetThreadQoS(QoS_Level level)
     return SetThreadQos(static_cast<QosLevel>(level));
 }
 
-int OH_QoS_ResetThreadQoS()
+int OH_QoS_ResetThreadQoS(void)
 {
     return ResetThreadQos();
 }
