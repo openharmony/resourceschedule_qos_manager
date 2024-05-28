@@ -25,6 +25,7 @@ config("concurrent_task_config") {
     "../include",
     "../frameworks/concurrent_task_client/include/",
     "../interfaces/inner_api/",
+    "../common/include",
   ]
 }
 
@@ -43,6 +44,7 @@ ohos_shared_library("concurrentsvc") {
     "src/concurrent_task_service_stub.cpp",
     "src/qos_interface.cpp",
     "src/qos_policy.cpp",
+    "../common/src/config_reader.cpp",
   ]
 
   deps = [ "../etc/param:ffrt_etc" ]
@@ -55,9 +57,11 @@ ohos_shared_library("concurrentsvc") {
   external_deps = [
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
+    "config_policy:configpolicy_util",
     "frame_aware_sched:rtg_interface",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "libxml2:libxml2",
     "init:libbegetutil",
     "ipc:ipc_single",
     "jsoncpp:jsoncpp",
