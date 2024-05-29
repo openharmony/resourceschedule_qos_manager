@@ -62,7 +62,7 @@ void TaskController::RequestAuth(const Json::Value& payload)
     }
     pid_t uid = IPCSkeleton::GetInstance().GetCallingUid();
     auto bundleName = GetProcessNameByToken();
-    if (configReader_->IsUidAuth(uid) || configReader_->IsBundleNameAuth(bundleName)) {
+    if (configReader_->IsBundleNameAuth(bundleName) || configReader_->IsUidAuth(uid)) {
         pid_t pid = IPCSkeleton::GetInstance().GetCallingPid();
         AuthSystemProcess(pid);
         return;
