@@ -14,7 +14,7 @@
  */
 #include <cstdlib>
 #include <string>
-#include <climits.h>
+#include <climits>
 #include "config_reader.h"
 #include "config_policy_utils.h"
 #include "concurrent_task_log.h"
