@@ -127,9 +127,9 @@ bool ConfigReader::LoadFromConfigFile(const std::string& configFile)
 
 void ConfigReader::GetRealConfigPath(const char* configName, std::string& configPath)
 {
-    char buf[PATH_MAX + 1] = {0};
-    char* configFilePath = GetOneCfgFile(configName, buf, PATH_MAX + 1);
-    char tmpPath[PATH_MAX + 1] = {0};
+    char buf[PATH_MAX] = {0};
+    char* configFilePath = GetOneCfgFile(configName, buf, PATH_MAX);
+    char tmpPath[PATH_MAX] = {0};
     if (!configFilePath || strlen(configFilePath) == 0 || strlen(configFilePath) > PATH_MAX ||
         !realpath(configFilePath, tmpPath)) {
         CONCUR_LOGE("get config file path error!");
