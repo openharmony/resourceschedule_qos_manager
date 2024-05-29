@@ -61,15 +61,13 @@ void TaskController::RequestAuth(const Json::Value& payload)
         ConfigReaderInit();
     }
     pid_t uid = IPCSkeleton::GetInstance().GetCallingUid();
-    auto uidIter = ConfigReader_->authProcUidConfigs_.find(uid);
-    auto bundleNameIter = ConfigReader_->authProcBundleNameConfigs_.find(GetProcessNameByToken());
-    if (uidIter == ConfigReader_->authProcUidConfigs_.end() &&
-        bundleNameIter == ConfigReader_->authProcBundleNameConfigs_.end()) {
-        CONCUR_LOGE("Invalid uid %{public}d, only hwf service uid and msdp can call RequestAuth", uid);
+    auto bundleName = GetProcessNameByToken();
+    if (configReader_->IsUidAuth(uid) || configReader_->IsBundleNameAuth(bundleName)) {
+        pid_t pid = IPCSkeleton::GetInstance().GetCallingPid();
+        AuthSystemProcess(pid);
         return;
     }
-    pid_t pid = IPCSkeleton::GetInstance().GetCallingPid();
-    AuthSystemProcess(pid);
+    CONCUR_LOGE("Invalid uid %{public}d, only hwf service uid and msdp can call RequestAuth", uid);
 }
 
 void TaskController::ReportData(uint32_t resType, int64_t value, const Json::Value& payload)
@@ -332,15 +330,15 @@ void TaskController::Init()
 
 void TaskController::ConfigReaderInit()
 {
-    ConfigReader_ = make_unique<ConfigReader>();
-    if (!ConfigReader_) {
-        CONCUR_LOGE("ConfigReader_ initialize error!");
+    configReader_ = make_unique<ConfigReader>();
+    if (!configReader_) {
+        CONCUR_LOGE("configReader_ initialize error!");
         return;
     }
 
     std::string realPath;
-    ConfigReader_->GetRealConfigPath(CONFIG_FILE_NAME.c_str(), realPath);
-    if (realPath.empty() || !ConfigReader_->LoadFromConfigFile(realPath)) {
+    configReader_->GetRealConfigPath(CONFIG_FILE_NAME.c_str(), realPath);
+    if (realPath.empty() || !configReader_->LoadFromConfigFile(realPath)) {
         CONCUR_LOGE("config load failed!");
         return;
     }
@@ -358,7 +356,7 @@ void TaskController::Release()
         DestroyRtgGrp(renderServiceRenderGrpId_);
         renderServiceRenderGrpId_ = -1;
     }
-    ConfigReader_ = nullptr;
+    configReader_ = nullptr;
 }
 
 void TaskController::TypeMapInit()

@@ -26,13 +26,15 @@ class ConfigReader {
 public:
     bool LoadFromConfigFile(const std::string& configFile);
     void GetRealConfigPath(const char* configName, std::string& configPath);
-    std::unordered_set<int64_t> authProcUidConfigs_;
-    std::unordered_set<std::string> authProcBundleNameConfigs_;
+    bool IsUidAuth(pid_t uid);
+    bool IsBundleNameAuth(std::string& bundleName);
 private:
     static bool IsValidNode(const xmlNode* currNode);
     bool FillinUidInfo(const xmlNode* currNode);
     bool FillinBundleNameInfo(const xmlNode* currNode);
     void ParseAuth(const xmlNode* currNode);
+    std::unordered_set<int64_t> authProcUidConfigs_;
+    std::unordered_set<std::string> authProcBundleNameConfigs_;
 };
 } // namespace ConcurrentTask
 } // namespace OHOS

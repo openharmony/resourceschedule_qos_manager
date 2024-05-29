@@ -138,5 +138,21 @@ void ConfigReader::GetRealConfigPath(const char* configName, std::string& config
     }
     configPath = tmpPath;
 }
+
+bool ConfigReader::IsUidAuth(pid_t uid)
+{
+    if (authProcUidConfigs_.find(uid) != authProcUidConfigs_.end()) {
+        return true;
+    }
+    return false;
+}
+
+bool ConfigReader::IsBundleNameAuth(std::string& bundleName)
+{
+    if (authProcBundleNameConfigs_.find(bundleName) != authProcBundleNameConfigs_.end()) {
+        return true;
+    }
+    return false;
+}
 }
 }
