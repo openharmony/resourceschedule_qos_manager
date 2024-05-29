@@ -15,7 +15,6 @@
 #ifndef CONCURRENT_TASK_SERVICES_COMMON_INCLUDE_CONFIG_READER_H
 #define CONCURRENT_TASK_SERVICES_COMMON_INCLUDE_CONFIG_READER_H
 
-#include <climits>
 #include <memory>
 #include <unordered_set>
 #include "libxml/parser.h"
