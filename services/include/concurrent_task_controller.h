@@ -106,7 +106,7 @@ private:
     std::atomic<int> curGamePid_ = -1;
     int executorNum_ = 0;
     std::map<int, std::string> appBundleName;
-    std::unique_ptr<ConfigReader> ConfigReader_ = nullptr;
+    std::unique_ptr<ConfigReader> configReader_ = nullptr;
 
     const std::string RENDER_SERVICE_PROCESS_NAME = "render_service";
     const std::string RESOURCE_SCHEDULE_PROCESS_NAME = "resource_schedule_service";

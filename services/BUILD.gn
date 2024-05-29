@@ -38,13 +38,13 @@ ohos_shared_library("concurrentsvc") {
     debug = false
   }
   sources = [
+    "../common/src/config_reader.cpp",
     "src/concurrent_task_controller.cpp",
     "src/concurrent_task_service.cpp",
     "src/concurrent_task_service_ability.cpp",
     "src/concurrent_task_service_stub.cpp",
     "src/qos_interface.cpp",
     "src/qos_policy.cpp",
-    "../common/src/config_reader.cpp",
   ]
 
   deps = [ "../etc/param:ffrt_etc" ]
@@ -61,10 +61,10 @@ ohos_shared_library("concurrentsvc") {
     "frame_aware_sched:rtg_interface",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
-    "libxml2:libxml2",
     "init:libbegetutil",
     "ipc:ipc_single",
     "jsoncpp:jsoncpp",
+    "libxml2:libxml2",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
