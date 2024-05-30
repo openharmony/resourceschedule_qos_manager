@@ -69,7 +69,7 @@ private:
     void ContinuousTaskProcess(int uid, int pid, int status);
     void FocusStatusProcess(int uid, int pid, int status);
     int AuthSystemProcess(int pid);
-    void ConfigReaderInit();
+    bool ConfigReaderInit();
     bool ModifySystemRate(const Json::Value& payload);
     void SetAppRate(const Json::Value& payload);
     int FindRateFromInfo(int uiTid, const Json::Value& payload);

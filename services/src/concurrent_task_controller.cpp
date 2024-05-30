@@ -57,8 +57,8 @@ TaskController& TaskController::GetInstance()
 
 void TaskController::RequestAuth(const Json::Value& payload)
 {
-    if (!configEnable_) {
-        ConfigReaderInit();
+    if (!configEnable_ && !ConfigReaderInit()) {
+        return;
     }
     pid_t uid = IPCSkeleton::GetInstance().GetCallingUid();
     auto bundleName = GetProcessNameByToken();
@@ -67,7 +67,7 @@ void TaskController::RequestAuth(const Json::Value& payload)
         AuthSystemProcess(pid);
         return;
     }
-    CONCUR_LOGE("Invalid uid %{public}d, only hwf service uid and msdp can call RequestAuth", uid);
+    CONCUR_LOGE("Invalid uid %{public}d, can't call RequestAuth", uid);
 }
 
 void TaskController::ReportData(uint32_t resType, int64_t value, const Json::Value& payload)
@@ -333,16 +333,17 @@ void TaskController::ConfigReaderInit()
     configReader_ = make_unique<ConfigReader>();
     if (!configReader_) {
         CONCUR_LOGE("configReader_ initialize error!");
-        return;
+        return configEnable_;
     }
 
     std::string realPath;
     configReader_->GetRealConfigPath(CONFIG_FILE_NAME.c_str(), realPath);
     if (realPath.empty() || !configReader_->LoadFromConfigFile(realPath)) {
         CONCUR_LOGE("config load failed!");
-        return;
+        return configEnable_;
     }
     configEnable_ = true;
+    return configEnable_;
 }
 
 void TaskController::Release()
