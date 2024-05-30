@@ -18,4 +18,4 @@ ffrt.interval.slide=false
 ffrt.interval.limit=false
 persist.ffrt.interval.appRate=0
 persist.ffrt.interval.rsRate=0
-persist.qosmanager.setQos.on=false
+persist.qosmanager.setQos.on=true
