@@ -36,7 +36,7 @@ QosController& QosController::GetInstance()
 int QosController::SetThreadQosForOtherThread(enum QosLevel level, int tid)
 {
 #if !defined(CROSS_PLATFORM)
-    bool qosEnable = OHOS::system::GetBoolParameter("persist.all.setQos.on", true);
+    bool qosEnable = OHOS::system::GetBoolParameter("persist.qosmanager.setQos.on", true);
     if (!qosEnable) {
         CONCUR_LOGD("[Qos] qoslevel %{public}d apply for tid %{public}d disable", static_cast<int>(level), tid);
         return 0;
@@ -60,7 +60,7 @@ int QosController::SetThreadQosForOtherThread(enum QosLevel level, int tid)
 int QosController::ResetThreadQosForOtherThread(int tid)
 {
 #if !defined(CROSS_PLATFORM)
-    bool qosEnable = OHOS::system::GetBoolParameter("persist.all.setQos.on", true);
+    bool qosEnable = OHOS::system::GetBoolParameter("persist.qosmanager.setQos.on", true);
     if (!qosEnable) {
         CONCUR_LOGD("[Qos] qoslevel reset disable for tid %{public}d.", tid);
         return 0;
