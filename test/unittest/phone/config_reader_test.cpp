@@ -41,7 +41,6 @@ void ConfigReaderTest::TearDownTestCase()
 
 void ConfigReaderTest::SetUp()
 {
-    configReader_ = std::make_unique<ConfigReader>();
 }
 
 void ConfigReaderTest::TearDown()
