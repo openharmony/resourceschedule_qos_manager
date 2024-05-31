@@ -176,8 +176,8 @@ bool ConfigReader::IsBundleNameAuth(std::string& bundleName)
 
 void ConfigReader::TestHilog()
 {
-    bool cfgTestEnable = OHOS::system::GetBoolParameter("persist.qos.configTest", false);
-    if (cfgTestEnable) {
+    bool getConfigRead = OHOS::system::GetBoolParameter("persist.qos.configreadlog", false);
+    if (getConfigRead) {
         for (auto iter : authProcUidConfigs_) {
             CONCUR_LOGI("authProcUidConfigs_ contain uid = %{public}d", (int32_t)iter);
         }
