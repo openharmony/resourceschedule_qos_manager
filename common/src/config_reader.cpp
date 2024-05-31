@@ -47,9 +47,9 @@ bool ConfigReader::IsValidNode(const xmlNode* currNode)
 
 bool ConfigReader::FillinUidInfo(const xmlNode* currNode)
 {
-    if (!IsValidNode) {
+    if (!IsValidNode(currNode)) {
         CONCUR_LOGE("FillinUidInfo:: currNode is nullptr!");
-        return;
+        return false;
     }
     xmlNodePtr currNodePtr = currNode->xmlChildrenNode;
     for (; currNodePtr; currNodePtr = currNodePtr->next) {
@@ -69,9 +69,9 @@ bool ConfigReader::FillinUidInfo(const xmlNode* currNode)
 
 bool ConfigReader::FillinBundleNameInfo(const xmlNode* currNode)
 {
-    if (!IsValidNode) {
+    if (!IsValidNode(currNode)) {
         CONCUR_LOGE("FillinBundleNameInfo:: currNode is nullptr!");
-        return;
+        return false;
     }
     xmlNodePtr currNodePtr = currNode->xmlChildrenNode;
     for (; currNodePtr; currNodePtr = currNodePtr->next) {
@@ -174,7 +174,8 @@ bool ConfigReader::IsBundleNameAuth(std::string& bundleName)
     return false;
 }
 
-void ConfigReader::TestHilog() {
+void ConfigReader::TestHilog()
+{
     bool cfgTestEnable = OHOS::system::GetBoolParameter("persist.qos.configTest", false);
     if (cfgTestEnable) {
         for (auto iter : authProcUidConfigs_) {
