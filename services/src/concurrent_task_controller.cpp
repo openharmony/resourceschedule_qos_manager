@@ -328,7 +328,7 @@ void TaskController::Init()
     ConfigReaderInit();
 }
 
-void TaskController::ConfigReaderInit()
+bool TaskController::ConfigReaderInit()
 {
     configReader_ = make_unique<ConfigReader>();
     if (!configReader_) {
