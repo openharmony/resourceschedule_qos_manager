@@ -265,8 +265,8 @@ ohos_unittest("config_reader_test") {
   configs = [ ":test_config" ]
 
   sources = [
-    "unittest/phone/config_reader_test.cpp",
     "../common/src/config_reader.cpp",
+    "unittest/phone/config_reader_test.cpp",
   ]
 
   external_deps = [
