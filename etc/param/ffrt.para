@@ -18,3 +18,4 @@ ffrt.interval.slide=false
 ffrt.interval.limit=false
 persist.ffrt.interval.appRate=0
 persist.ffrt.interval.rsRate=0
+persist.qos.configreadlog = false
