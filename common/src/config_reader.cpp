@@ -107,16 +107,6 @@ void ConfigReader::ParseAuth(const xmlNode* currNode)
             }
         }
     }
-
-    bool cfgTestEnable = OHOS::system::GetBoolParameter("persist.qos.configTest", false);
-    if (cfgTestEnable) {
-        for (auto iter : authProcUidConfigs_) {
-            CONCUR_LOGI("ParseAuth:: authProcUidConfigs_ contain uid = %{public}d", (int32_t)iter);
-        }
-        for (auto iter : authProcBundleNameConfigs_) {
-            CONCUR_LOGI("ParseAuth:: authProcBundleNameConfigs_ contain bundleName = %{public}s", iter.c_str());
-        }
-    }
 }
 
 bool ConfigReader::LoadFromConfigFile(const std::string& configFile)
@@ -145,6 +135,7 @@ bool ConfigReader::LoadFromConfigFile(const std::string& configFile)
             ParseAuth(currNodePtr);
         }
     }
+    TestHilog();
     xmlFreeDoc(xmlDocPtr);
     return true;
 }
@@ -181,6 +172,18 @@ bool ConfigReader::IsBundleNameAuth(std::string& bundleName)
         return true;
     }
     return false;
+}
+
+void ConfigReader::TestHilog() {
+    bool cfgTestEnable = OHOS::system::GetBoolParameter("persist.qos.configTest", false);
+    if (cfgTestEnable) {
+        for (auto iter : authProcUidConfigs_) {
+            CONCUR_LOGI("authProcUidConfigs_ contain uid = %{public}d", (int32_t)iter);
+        }
+        for (auto iter : authProcBundleNameConfigs_) {
+            CONCUR_LOGI("authProcBundleNameConfigs_ contain bundleName = %{public}s", iter.c_str());
+        }
+    }
 }
 }
 }
