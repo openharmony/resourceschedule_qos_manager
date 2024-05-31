@@ -14,11 +14,7 @@
  */
 #include <memory>
 #include <string>
-#define private public
-#define protected public
 #include "config_reader.h"
-#undef private
-#undef protected
 #include "gtest/gtest.h"
 
 namespace OHOS {
