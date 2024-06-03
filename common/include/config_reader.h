@@ -33,7 +33,7 @@ private:
     bool FillinUidInfo(const xmlNode* currNode);
     bool FillinBundleNameInfo(const xmlNode* currNode);
     void ParseAuth(const xmlNode* currNode);
-    void TestHilog();
+    void ConfigHilog();
     std::unordered_set<pid_t> authProcUidConfigs_;
     std::unordered_set<std::string> authProcBundleNameConfigs_;
 };
