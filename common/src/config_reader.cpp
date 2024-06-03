@@ -135,7 +135,7 @@ bool ConfigReader::LoadFromConfigFile(const std::string& configFile)
             ParseAuth(currNodePtr);
         }
     }
-    TestHilog();
+    ConfigHilog();
     xmlFreeDoc(xmlDocPtr);
     return true;
 }
@@ -174,7 +174,7 @@ bool ConfigReader::IsBundleNameAuth(std::string& bundleName)
     return false;
 }
 
-void ConfigReader::TestHilog()
+void ConfigReader::ConfigHilog()
 {
     bool getConfigRead = OHOS::system::GetBoolParameter("persist.qos.configreadlog", false);
     if (getConfigRead) {
