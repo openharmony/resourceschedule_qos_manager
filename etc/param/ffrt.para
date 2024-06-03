@@ -18,4 +18,5 @@ ffrt.interval.slide=false
 ffrt.interval.limit=false
 persist.ffrt.interval.appRate=0
 persist.ffrt.interval.rsRate=0
-persist.qos.configreadlog = false
+persist.qosmanager.setQos.on=true
+persist.qos.configReadLog = false
