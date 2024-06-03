@@ -52,6 +52,7 @@ int SetQosForOtherThread(enum QosLevel level, int tid);
 int ResetThreadQos();
 int ResetQosForOtherThread(int tid);
 int GetThreadQos(enum QosLevel &level);
+int GetQosForOtherThread(enum QosLevel &level, int tid);
 } // namespace QOS
 } // namespace OHOS
 
