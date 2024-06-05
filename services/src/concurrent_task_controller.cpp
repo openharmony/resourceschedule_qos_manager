@@ -36,6 +36,7 @@ namespace {
     const std::string INTERVAL_DDL = "persist.ffrt.interval.renderthread";
     const std::string INTERVAL_APP_RATE = "persist.ffrt.interval.appRate";
     const std::string INTERVAL_RS_RATE = "persist.ffrt.interval.rsRate";
+    const std::string CONFIG_FILE_NAME = "etc/qos_manager/qos_manager_config.xml";
     constexpr int CURRENT_RATE = 120;
     constexpr int PARAM_TYPE = 1;
     constexpr int UNI_APP_RATE_ID = -1;
@@ -56,13 +57,17 @@ TaskController& TaskController::GetInstance()
 
 void TaskController::RequestAuth(const Json::Value& payload)
 {
-    pid_t uid = IPCSkeleton::GetInstance().GetCallingUid();
-    if (uid != HWF_SERVICE_UID) {
-        CONCUR_LOGE("Invalid uid %{public}d, only hwf service uid can call RequestAuth", uid);
+    if (!configEnable_ && !ConfigReaderInit()) {
         return;
     }
-    pid_t pid = IPCSkeleton::GetInstance().GetCallingPid();
-    AuthSystemProcess(pid);
+    pid_t uid = IPCSkeleton::GetInstance().GetCallingUid();
+    auto bundleName = GetProcessNameByToken();
+    if (configReader_->IsBundleNameAuth(bundleName) || configReader_->IsUidAuth(uid)) {
+        pid_t pid = IPCSkeleton::GetInstance().GetCallingPid();
+        AuthSystemProcess(pid);
+        return;
+    }
+    CONCUR_LOGE("Invalid uid %{public}d, can't call RequestAuth", uid);
 }
 
 void TaskController::ReportData(uint32_t resType, int64_t value, const Json::Value& payload)
@@ -320,6 +325,25 @@ void TaskController::Init()
     TypeMapInit();
     qosPolicy_.Init();
     TryCreateRsGroup();
+    ConfigReaderInit();
+}
+
+bool TaskController::ConfigReaderInit()
+{
+    configReader_ = make_unique<ConfigReader>();
+    if (!configReader_) {
+        CONCUR_LOGE("configReader_ initialize error!");
+        return configEnable_;
+    }
+
+    std::string realPath;
+    configReader_->GetRealConfigPath(CONFIG_FILE_NAME.c_str(), realPath);
+    if (realPath.empty() || !configReader_->LoadFromConfigFile(realPath)) {
+        CONCUR_LOGE("config load failed!");
+        return configEnable_;
+    }
+    configEnable_ = true;
+    return configEnable_;
 }
 
 void TaskController::Release()
@@ -333,6 +357,7 @@ void TaskController::Release()
         DestroyRtgGrp(renderServiceRenderGrpId_);
         renderServiceRenderGrpId_ = -1;
     }
+    configReader_ = nullptr;
 }
 
 void TaskController::TypeMapInit()

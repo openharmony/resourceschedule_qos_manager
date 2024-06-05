@@ -24,6 +24,7 @@
                 "ability_base",
                 "ability_runtime",
                 "access_token",
+                "config_policy",
                 "c_utils",
                 "frame_aware_sched",
                 "hilog",
@@ -31,6 +32,7 @@
                 "init",
                 "ipc",
                 "jsoncpp",
+                "libxml2",
                 "safwk",
                 "samgr"
             ],

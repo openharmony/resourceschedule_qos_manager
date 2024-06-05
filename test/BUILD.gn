@@ -22,6 +22,7 @@ gtest_public_deps = [ "//third_party/googletest:gtest_main" ]
 config("test_config") {
   include_dirs = [
     "../include/",
+    "../common/include",
     "../frameworks/concurrent_task_client/include",
     "../interfaces/inner_api/",
     "../interfaces/kits/",
@@ -259,6 +260,27 @@ ohos_unittest("qos_ndk_test") {
   part_name = "qos_manager"
 }
 
+ohos_unittest("config_reader_test") {
+  module_out_path = module_output_path
+  configs = [ ":test_config" ]
+
+  sources = [
+    "../common/src/config_reader.cpp",
+    "unittest/phone/config_reader_test.cpp",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "config_policy:configpolicy_util",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "libxml2:libxml2",
+  ]
+
+  subsystem_name = "resourceschedule"
+  part_name = "qos_manager"
+}
+
 group("concurrent_unittest") {
   testonly = true
   deps = []
@@ -269,6 +291,7 @@ group("concurrent_unittest") {
       ":concurrent_task_controller_test",
       ":concurrent_task_service_ability_test",
       ":concurrent_task_service_test",
+      ":config_reader_test",
       ":qos_interface_test",
       ":qos_ndk_test",
       ":qos_policy_test",

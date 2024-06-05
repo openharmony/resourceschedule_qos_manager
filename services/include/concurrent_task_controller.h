@@ -24,6 +24,7 @@
 #include <atomic>
 #include "json/json.h"
 #include "concurrent_task_type.h"
+#include "config_reader.h"
 #include "qos_policy.h"
 
 namespace OHOS {
@@ -68,6 +69,7 @@ private:
     void ContinuousTaskProcess(int uid, int pid, int status);
     void FocusStatusProcess(int uid, int pid, int status);
     int AuthSystemProcess(int pid);
+    bool ConfigReaderInit();
     bool ModifySystemRate(const Json::Value& payload);
     void SetAppRate(const Json::Value& payload);
     int FindRateFromInfo(int uiTid, const Json::Value& payload);
@@ -99,15 +101,16 @@ private:
     int hardwareTid_ = -1;
     int systemRate_ = 0;
     bool rtgEnabled_ = false;
+    bool configEnable_ = false;
     bool rsAuthed_ = false;
     std::atomic<int> curGamePid_ = -1;
     int executorNum_ = 0;
     std::map<int, std::string> appBundleName;
+    std::unique_ptr<ConfigReader> configReader_ = nullptr;
 
     const std::string RENDER_SERVICE_PROCESS_NAME = "render_service";
     const std::string RESOURCE_SCHEDULE_PROCESS_NAME = "resource_schedule_service";
     const std::string GAME_ACCELERATE_SCHED_PROCESS_NAME = "game_accelerate_schedule";
-    const int32_t HWF_SERVICE_UID = 7700;
 };
 
 class ForegroundAppRecord {
