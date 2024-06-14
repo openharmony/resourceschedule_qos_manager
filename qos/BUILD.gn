@@ -41,10 +41,7 @@ ohos_shared_library("qos") {
     defines = [ "QOS_EXT_ENABLE" ]
   }
 
-  external_deps = [
-    "hilog:libhilog",
-    "init:libbegetutil",
-  ]
+  external_deps = [ "hilog:libhilog" ]
 
   subsystem_name = "resourceschedule"
   part_name = "qos_manager"
