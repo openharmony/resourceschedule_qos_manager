@@ -44,6 +44,9 @@ namespace {
     constexpr int RTG_TYPE_MAX = 3;
     constexpr int RS_UID = 1003;
     constexpr int EXECUTOR_LIMIT_NUM = 3;
+    constexpr int APP_TYPE_VIDEO = 10067;
+    constexpr int APP_TYPE_VIDEO_CLIP = 10026;
+    constexpr int APP_TYPE_INVALID = -1;
 }
 
 #define CMD_ID_SET_RTG \
@@ -343,12 +346,15 @@ bool TaskController::ConfigReaderInit()
         return configEnable_;
     }
     configEnable_ = true;
+    ddlSceneSchedSwitch_ = configReader_->GetPowerModeSchedSwitch();
+    CONCUR_LOGI("deadline scene sched switch = %{public}d", ddlSceneSchedSwitch_);
     return configEnable_;
 }
 
 void TaskController::Release()
 {
     msgType_.clear();
+    appTypeCache_.clear();
     if (renderServiceMainGrpId_ > 0) {
         DestroyRtgGrp(renderServiceMainGrpId_);
         renderServiceMainGrpId_ = -1;
@@ -357,6 +363,7 @@ void TaskController::Release()
         DestroyRtgGrp(renderServiceRenderGrpId_);
         renderServiceRenderGrpId_ = -1;
     }
+    ddlSceneSchedSwitch_ = false;
     configReader_ = nullptr;
 }
 
@@ -371,6 +378,8 @@ void TaskController::TypeMapInit()
     msgType_.insert(pair<std::string, int>("continuousEnd", MSG_CONTINUOUS_TASK_END));
     msgType_.insert(pair<std::string, int>("getFocus", MSG_GET_FOCUS));
     msgType_.insert(pair<std::string, int>("loseFocus", MSG_LOSE_FOCUS));
+    msgType_.insert(pair<std::string, int>("enterInteractionScene", MSG_ENTER_INTERACTION_SCENE));
+    msgType_.insert(pair<std::string, int>("exitInteractionScene", MSG_EXIT_INTERACTION_SCENE));
 }
 
 void TaskController::TryCreateRSMainGrp()
@@ -457,7 +466,7 @@ void TaskController::DealSystemRequest(int requestType, const Json::Value& paylo
             NewBackground(uid, pid);
             break;
         case MSG_APP_START:
-            NewAppStart(uid, pid, bundleName);
+            NewAppStart(uid, pid, bundleName, ParseAppType(payload));
             break;
         case MSG_APP_KILLED:
             AppKilled(uid, pid);
@@ -469,6 +478,10 @@ void TaskController::DealSystemRequest(int requestType, const Json::Value& paylo
         case MSG_GET_FOCUS:
         case MSG_LOSE_FOCUS:
             FocusStatusProcess(uid, pid, requestType);
+            break;
+        case MSG_ENTER_INTERACTION_SCENE:
+        case MSG_EXIT_INTERACTION_SCENE:
+            InteractionSceneProcess(requestType);
             break;
         default:
             CONCUR_LOGE("Unknown system request");
@@ -571,7 +584,7 @@ void TaskController::NewBackground(int uid, int pid)
     }
 }
 
-void TaskController::NewAppStart(int uid, int pid, const std::string& bundleName)
+void TaskController::NewAppStart(int uid, int pid, const std::string& bundleName, int appType)
 {
     CONCUR_LOGI("pid %{public}d start.", pid);
     unsigned int pidParam = static_cast<unsigned int>(pid);
@@ -585,8 +598,12 @@ void TaskController::NewAppStart(int uid, int pid, const std::string& bundleName
         CONCUR_LOGE("auth_enable %{public}d fail with ret %{public}d", pid, ret);
         return;
     }
+    std::lock_guard<std::mutex> lock(appInfoLock_);
     authApps_.push_back(pid);
     appBundleName[pid] = bundleName;
+    if (ddlSceneSchedSwitch_ && appType != APP_TYPE_INVALID) {
+        appTypeCache_[bundleName] = appType;
+    }
 }
 
 void TaskController::AppKilled(int uid, int pid)
@@ -650,14 +667,65 @@ void TaskController::FocusStatusProcess(int uid, int pid, int status)
     if (status == static_cast<int>(MSG_GET_FOCUS)) {
         ret = AuthSwitch(pid, rtgFlag, qosFlag, static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOCUS));
         CONCUR_LOGI("pid %{public}d get focus. ret %{public}d", pid, ret);
+        if (ddlSceneSchedSwitch_) {
+            if (IsVideoApp(pid)) {
+                isVideoApp_ = true;
+                CONCUR_LOGD("video app bundleName %{public}s get focus", appBundleName[pid].c_str());
+            } else {
+                isVideoApp_ = false;
+            }
+        }
     } else if (status == static_cast<int>(MSG_LOSE_FOCUS)) {
         ret = AuthSwitch(pid, rtgFlag, qosFlag, static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOREGROUND));
         CONCUR_LOGI("pid %{public}d lose focus. ret %{public}d", pid, ret);
+        isVideoApp_ = false;
     } else {
         CONCUR_LOGE("Invalid focus status %{public}d", status);
     }
 }
 
+void TaskController::InteractionSceneProcess(int status)
+{
+    std::lock_guard<std::mutex> lock(ddlPowerModeLock_);
+    if (ddlSceneSchedSwitch_) {
+        if (status ==  MSG_ENTER_INTERACTION_SCENE) {
+            DeadlinePerfMode();
+        } else if (status == MSG_EXIT_INTERACTION_SCENE) {
+            if (isVideoApp_) {
+                return;
+            }
+            DeadlinePowerMode();
+        }
+    }
+}
+
+void TaskController::DeadlinePerfMode()
+{
+    if (ddlPowerModeEnable_) {
+        StartTrace(HITRACE_TAG_ACE, "Deadline perf mode");
+        SetAppAndRenderServicRate(uniAppRate_, systemRate_);
+        ddlPowerModeEnable_ = false;
+        CONCUR_LOGI("Deadline switch to perf mode");
+        FinishTrace(HITRACE_TAG_ACE);
+    }
+}
+
+void TaskController::DeadlinePowerMode()
+{
+    if (!ddlPowerModeEnable_) {
+        StartTrace(HITRACE_TAG_ACE, "Deadline power mode");
+        int appRate = uniAppRate_;
+        int rsRate = systemRate_;
+        if (configReader_) {
+            appRate = configReader_->GetDegratationFps(appRate);
+            rsRate = configReader_->GetDegratationFps(rsRate);
+        }
+        SetAppAndRenderServicRate(appRate, rsRate);
+        ddlPowerModeEnable_ = true;
+        CONCUR_LOGI("Deadline switch to power mode");
+        FinishTrace(HITRACE_TAG_ACE);
+    }
+}
 void TaskController::QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload)
 {
     pid_t uid = IPCSkeleton::GetInstance().GetCallingUid();
@@ -768,16 +836,19 @@ void TaskController::SetAppRate(const Json::Value& payload)
 {
     int rtgId = 0;
     int uiTid = 0;
-    int appRate = 0;
-    int uniAppRate = FindRateFromInfo(UNI_APP_RATE_ID, payload);
-    if (uniAppRate > 0) {
-        CONCUR_LOGD("set unified app rate %{public}d", uniAppRate);
-        bool ret = OHOS::system::SetParameter(INTERVAL_APP_RATE, std::to_string(uniAppRate));
+    int appRate = FindRateFromInfo(UNI_APP_RATE_ID, payload);
+    if (appRate > 0 && appRate != uniAppRate_) {
+        CONCUR_LOGD("set unified app rate %{public}d", appRate);
+        uniAppRate_ = appRate;
+        if (ddlSceneSchedSwitch_ && ddlPowerModeEnable_ && configReader_) {
+            appRate = configReader_->GetDegratationFps(appRate);
+        }
+        bool ret = OHOS::system::SetParameter(INTERVAL_APP_RATE, std::to_string(appRate));
         if (ret == false) {
             CONCUR_LOGI("set app rate param failed");
         }
         StartTrace(HITRACE_TAG_ACE,
-            "SetAppRate:" + std::to_string(uniAppRate) + " ret:" + std::to_string(ret));
+            "SetAppRate:" + std::to_string(appRate) + " ret:" + std::to_string(ret));
         FinishTrace(HITRACE_TAG_ACE);
         return;
     }
@@ -823,6 +894,9 @@ void TaskController::SetRenderServiceRate(const Json::Value& payload)
                     rsRate, renderServiceMainGrpId_, systemRate_);
         SetFrameRate(renderServiceMainGrpId_, rsRate);
         systemRate_ = rsRate;
+        if (ddlSceneSchedSwitch_ && ddlPowerModeEnable_ && configReader_) {
+            rsRate = configReader_->GetDegratationFps(rsRate);
+        }
         bool ret = OHOS::system::SetParameter(INTERVAL_RS_RATE, std::to_string(rsRate));
         if (ret == false) {
             CONCUR_LOGI("set rs rate param failed");
@@ -831,6 +905,25 @@ void TaskController::SetRenderServiceRate(const Json::Value& payload)
             "SetRSRate:" + std::to_string(rsRate) + " ret:" + std::to_string(ret));
         FinishTrace(HITRACE_TAG_ACE);
     }
+}
+
+void TaskController::SetAppAndRenderServicRate(int appRate, int rsRate)
+{
+    bool ret = OHOS::system::SetParameter(INTERVAL_APP_RATE, std::to_string(appRate));
+    if (ret == false) {
+        CONCUR_LOGI("set app rate param failed");
+    }
+    StartTrace(HITRACE_TAG_ACE,
+        "SetAppRate:" + std::to_string(appRate) + " ret:" + std::to_string(ret));
+    FinishTrace(HITRACE_TAG_ACE);
+
+    ret = OHOS::system::SetParameter(INTERVAL_RS_RATE, std::to_string(rsRate));
+    if (ret == false) {
+        CONCUR_LOGI("set rs rate param failed");
+    }
+    StartTrace(HITRACE_TAG_ACE,
+        "SetRSRate:" + std::to_string(rsRate) + " ret:" + std::to_string(ret));
+    FinishTrace(HITRACE_TAG_ACE);
 }
 
 bool TaskController::CheckJsonValid(const Json::Value& payload)
@@ -888,6 +981,33 @@ int TaskController::CreateNewRtgGrp(int prioType, int rtNum)
     }
     close(fd);
     return ret;
+}
+
+int TaskController::ParseAppType(const Json::Value& payload)
+{
+    int appType = APP_TYPE_INVALID;
+    if (payload.isMember("appType") && payload["appType"].isString()) {
+        try {
+            appType = stoi(payload["appType"].asString());
+        } catch (...) {
+            CONCUR_LOGE("Unexpected apptype format");
+            return APP_TYPE_INVALID;
+        }
+    }
+    return appType;
+}
+
+bool TaskController::IsVideoApp(int pid)
+{
+    if (!ddlSceneSchedSwitch_ || appBundleName.find(pid) == appBundleName.end()) {
+        return false;
+    }
+    std::string bundleName = appBundleName[pid];
+    if (appTypeCache_.find(bundleName) != appTypeCache_.end()) {
+        return appTypeCache_[bundleName] == APP_TYPE_VIDEO ||
+            appTypeCache_[bundleName]== APP_TYPE_VIDEO_CLIP;
+    }
+    return false;
 }
 
 ForegroundAppRecord::ForegroundAppRecord(int pid, int uiTid, bool createGrp)
