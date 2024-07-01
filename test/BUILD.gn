@@ -264,10 +264,8 @@ ohos_unittest("config_reader_test") {
   module_out_path = module_output_path
   configs = [ ":test_config" ]
 
-  sources = [
-    "../common/src/config_reader.cpp",
-    "unittest/phone/config_reader_test.cpp",
-  ]
+  sources = [ "unittest/phone/config_reader_test.cpp" ]
+  deps = [ "../services:concurrentsvc" ]
 
   external_deps = [
     "c_utils:utils",
