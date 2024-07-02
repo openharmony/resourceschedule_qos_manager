@@ -51,7 +51,7 @@ int QosController::SetThreadQosForOtherThread(enum QosLevel level, int tid)
     if (ret == 0) {
         CONCUR_LOGD("[Qos] qoslevel %{public}d apply for tid %{public}d success", qos, tid);
     } else {
-        CONCUR_LOGE("[Qos] qoslevel %{public}d apply for tid %{public}d failure", qos, tid);
+        CONCUR_LOGD("[Qos] qoslevel %{public}d apply for tid %{public}d failure", qos, tid);
     }
 
     return ret;
@@ -70,7 +70,7 @@ int QosController::ResetThreadQosForOtherThread(int tid)
     if (ret == 0) {
         CONCUR_LOGD("[Qos] qoslevel reset for tid %{public}d success", tid);
     } else {
-        CONCUR_LOGE("[Qos] qoslevel reset for tid %{public}d failure", tid);
+        CONCUR_LOGD("[Qos] qoslevel reset for tid %{public}d failure", tid);
     }
 
     return ret;
@@ -90,7 +90,7 @@ int QosController::GetThreadQosForOtherThread(enum QosLevel &level, int tid)
         level = static_cast<QosLevel>(qos);
         return ret;
     } else {
-        CONCUR_LOGE("[Qos] qoslevel get for tid %{public}d failure", tid);
+        CONCUR_LOGD("[Qos] qoslevel get for tid %{public}d failure", tid);
         return ret;
     }
 }
