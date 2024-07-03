@@ -236,7 +236,7 @@ HWTEST_F(ConcurrentTaskControllerTest, NewForegroundTest, TestSize.Level1)
     int tid = gettid();
     fore.NewForeground(uid, tid);
     fore.NewBackground(uid, tid);
-    fore.NewAppStart(uid, tid, "");
+    fore.NewAppStart(uid, tid, "", -1);
     fore.NewForeground(uid, tid);
     fore.NewBackground(uid, tid);
     fore.ContinuousTaskProcess(uid, tid, static_cast<int>(MSG_CONTINUOUS_TASK_START));
@@ -251,7 +251,7 @@ HWTEST_F(ConcurrentTaskControllerTest, NewForegroundTest, TestSize.Level1)
     EXPECT_EQ(iter->GetPid(), tid);
     fore.NewForeground(uid, tid);
     fore.NewBackground(uid, tid);
-    fore.NewAppStart(uid, tid, "");
+    fore.NewAppStart(uid, tid, "", -1);
     fore.NewForeground(uid, tid);
     fore.NewBackground(uid, tid);
     fore.ContinuousTaskProcess(uid, tid, static_cast<int>(MSG_CONTINUOUS_TASK_END));
