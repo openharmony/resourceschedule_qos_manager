@@ -32,6 +32,10 @@ namespace {
     const std::string XML_TAG_UID = "uid";
     const std::string XML_TAG_BUNDLENAMELIST = "bundlenamelist";
     const std::string XML_TAG_BUNDLENAME = "bundlename";
+    const std::string XML_TAG_POWER_MODE = "powermode";
+    const std::string XML_TAG_SWITCH = "switch";
+    const std::string XML_TAG_FPS = "fps";
+    const std::string XML_TAG_DEGRADATION_FPS = "degradationfps";
 }
 
 bool ConfigReader::IsValidNode(const xmlNode* currNode)
@@ -109,6 +113,49 @@ void ConfigReader::ParseAuth(const xmlNode* currNode)
     }
 }
 
+void ConfigReader::ParsePowerMode(const xmlNode* currNode)
+{
+    if (!IsValidNode(currNode)) {
+        CONCUR_LOGE("ParsePowerMode:: currNode is nullptr!");
+        return;
+    }
+    xmlNodePtr currNodePtr = currNode->xmlChildrenNode;
+    for (; currNodePtr; currNodePtr = currNodePtr->next) {
+        if (xmlStrcmp(currNodePtr->name, reinterpret_cast<const xmlChar*>(XML_TAG_SWITCH.c_str())) == 0) {
+            char* switchValue = reinterpret_cast<char*>(xmlNodeGetContent(currNode));
+            if (!switchValue) {
+                CONCUR_LOGE("ParsePowerMode:: switch is null!");
+                continue;
+            }
+            if (strcmp(switchValue, "1") == 0) {
+                powerModeSchedSwitch_ = true;
+            } else if (strcmp(switchValue, "0") == 0) {
+                powerModeSchedSwitch_ = false;
+            } else {
+                CONCUR_LOGE("ParsePowerMode:: invalid switch value!");
+            }
+            xmlFree(switchValue);
+        }
+
+        if (xmlStrcmp(currNodePtr->name, reinterpret_cast<const xmlChar*>(XML_TAG_DEGRADATION_FPS.c_str())) == 0) {
+            char* fpsValue = reinterpret_cast<char*>(xmlGetProp(currNodePtr,
+                reinterpret_cast<const xmlChar*>(XML_TAG_FPS.c_str())));
+            char* deFpsValue = reinterpret_cast<char*>(xmlNodeGetContent(currNode));
+            if (!fpsValue || !deFpsValue) {
+                CONCUR_LOGE("ParsePowerMode:: fps is null!");
+                continue;
+            }
+            if (IsValidFps(fpsValue) && IsPositiveInt(deFpsValue)) {
+                degradationFpsMap_.insert(std::make_pair(atoi(fpsValue), atoi(deFpsValue)));
+            } else {
+                CONCUR_LOGE("ParsePowerMode:: invalid fps value!");
+            }
+            xmlFree(fpsValue);
+            xmlFree(deFpsValue);
+        }
+    }
+}
+
 bool ConfigReader::LoadFromConfigFile(const std::string& configFile)
 {
     // skip the empty string, else you will get empty node
@@ -133,6 +180,9 @@ bool ConfigReader::LoadFromConfigFile(const std::string& configFile)
         }
         if (xmlStrcmp(currNodePtr->name, reinterpret_cast<const xmlChar*>(XML_TAG_QOS_AUTH.c_str())) == 0) {
             ParseAuth(currNodePtr);
+        }
+        if (xmlStrcmp(currNodePtr->name, reinterpret_cast<const xmlChar*>(XML_TAG_POWER_MODE.c_str())) == 0) {
+            ParsePowerMode(currNodePtr);
         }
     }
     ConfigHilog();
@@ -174,6 +224,39 @@ bool ConfigReader::IsBundleNameAuth(std::string& bundleName)
     return false;
 }
 
+bool ConfigReader::GetPowerModeSchedSwitch()
+{
+    return powerModeSchedSwitch_;
+}
+
+int ConfigReader::GetDegratationFps(int fps)
+{
+    if (degradationFpsMap_.find(fps) == degradationFpsMap_.end()) {
+        return fps;
+    }
+    return degradationFpsMap_[fps];
+}
+
+bool ConfigReader::IsValidFps(const std::string& fps)
+{
+    if (fps == "120" || fps == "90" || fps == "60") {
+        return true;
+    }
+    return false;
+}
+
+bool  ConfigReader::IsPositiveInt(const std::string& intStr)
+{
+    int num = 0;
+    try {
+        num = stoi(intStr);
+    } catch (...) {
+        CONCUR_LOGE("Unexpected number format!");
+        return false;
+    }
+    return num > 0;
+}
+
 void ConfigReader::ConfigHilog()
 {
     bool getConfigRead = OHOS::system::GetBoolParameter("persist.qos.configreadlog", false);
@@ -183,6 +266,10 @@ void ConfigReader::ConfigHilog()
         }
         for (auto iter : authProcBundleNameConfigs_) {
             CONCUR_LOGI("authProcBundleNameConfigs_ contain bundleName = %{public}s", iter.c_str());
+        }
+        CONCUR_LOGI("powerModeSchedSwitch_ = %{public}d", powerModeSchedSwitch_);
+        for (auto iter : degradationFpsMap_) {
+            CONCUR_LOGI("fps = %{public}d degradationFps = %{public}d", iter.first, iter.second);
         }
     }
 }

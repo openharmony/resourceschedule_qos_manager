@@ -15,6 +15,7 @@
 #ifndef CONCURRENT_TASK_SERVICES_COMMON_INCLUDE_CONFIG_READER_H
 #define CONCURRENT_TASK_SERVICES_COMMON_INCLUDE_CONFIG_READER_H
 
+#include <map>
 #include <memory>
 #include <unordered_set>
 #include "libxml/parser.h"
@@ -28,14 +29,21 @@ public:
     void GetRealConfigPath(const char* configName, std::string& configPath);
     bool IsUidAuth(pid_t uid);
     bool IsBundleNameAuth(std::string& bundleName);
+    bool GetPowerModeSchedSwitch();
+    int GetDegratationFps(int fps);
 private:
     bool IsValidNode(const xmlNode* currNode);
+    bool IsValidFps(const std::string& fps);
+    bool IsPositiveInt(const std::string& intStr);
     bool FillinUidInfo(const xmlNode* currNode);
     bool FillinBundleNameInfo(const xmlNode* currNode);
     void ParseAuth(const xmlNode* currNode);
+    void ParsePowerMode(const xmlNode* currNode);
     void ConfigHilog();
+    bool powerModeSchedSwitch_ = false;
     std::unordered_set<pid_t> authProcUidConfigs_;
     std::unordered_set<std::string> authProcBundleNameConfigs_;
+    std::map<int, int> degradationFpsMap_;
 };
 } // namespace ConcurrentTask
 } // namespace OHOS
