@@ -28,7 +28,6 @@ ohos_shared_library("qos_ndk") {
     "-g0",
     "-Os"
   ]
-
   include_dirs = [
     "../../interfaces/",
     "../../interfaces/kits/c/",

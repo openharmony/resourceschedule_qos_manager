@@ -51,7 +51,6 @@ ohos_shared_library("concurrent_task_client") {
   ]
 
   ldflags = ["-Wl,--exclude-libs=ALL"]
-
   sources = [
     "src/concurrent_task_client.cpp",
     "src/concurrent_task_service_proxy.cpp",
