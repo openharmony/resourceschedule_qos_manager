@@ -46,10 +46,10 @@ ohos_shared_library("concurrent_task_client") {
     "-fno-unwind-tables",
     "-fno-asynchronous-unwind-tables",
     "-g0",
-    "-Os"
+    "-Os",
   ]
 
-  ldflags = ["-Wl,--exclude-libs=ALL"]
+  ldflags = [ "-Wl,--exclude-libs=ALL" ]
   sources = [
     "src/concurrent_task_client.cpp",
     "src/concurrent_task_service_proxy.cpp",
