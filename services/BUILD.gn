@@ -44,7 +44,7 @@ ohos_shared_library("concurrentsvc") {
     "-fomit-frame-pointer",
     "-fdata-sections",
     "-ffunction-sections",
-    "fno-unroll-loops",
+    "-fno-unroll-loops",
     "-fno-exceptions",
     "-fno-unwind-tables",
     "-fno-asynchronous-unwind-tables",
