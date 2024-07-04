@@ -34,7 +34,7 @@ ohos_shared_library("qos") {
     "-fno-unwind-tables",
     "-fno-asynchronous-unwind-tables",
     "-g0",
-    "-Os"
+    "-Os",
   ]
   public_configs = [ ":qos_config" ]
   sources = [

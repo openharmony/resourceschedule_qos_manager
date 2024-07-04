@@ -26,7 +26,7 @@ ohos_shared_library("qos_ndk") {
     "-fno-unwind-tables",
     "-fno-asynchronous-unwind-tables",
     "-g0",
-    "-Os"
+    "-Os",
   ]
   include_dirs = [
     "../../interfaces/",

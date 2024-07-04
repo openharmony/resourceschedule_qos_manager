@@ -49,10 +49,10 @@ ohos_shared_library("concurrentsvc") {
     "-fno-unwind-tables",
     "-fno-asynchronous-unwind-tables",
     "-g0",
-    "-Os"
+    "-Os",
   ]
 
-  ldflags = ["-Wl,--exclude-libs=ALL"]
+  ldflags = [ "-Wl,--exclude-libs=ALL" ]
   sources = [
     "../common/src/config_reader.cpp",
     "src/concurrent_task_controller.cpp",
