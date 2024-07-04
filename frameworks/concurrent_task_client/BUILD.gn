@@ -33,14 +33,24 @@ config("client_public_config") {
 
 ohos_shared_library("concurrent_task_client") {
   branch_protector_ret = "pac_ret"
-  sanitize = {
-    cfi = true
-    cfi_cross_dso = true
-    debug = false
-  }
+
   configs = [ ":client_private_config" ]
 
   public_configs = [ ":client_public_config" ]
+
+  cflags_cc = [
+    "-fomit-frame-pointer",
+    "-fdata-sections",
+    "-ffunction-sections",
+    "fno-unroll-loops",
+    "-fno-exceptions",
+    "-fno-unwind-tables",
+    "-fno-asynchronous-unwind-tables",
+    "-g0",
+    "-Os"
+  ]
+
+  ldflags = ["-Wl,--exclude-libs=ALL"]
 
   sources = [
     "src/concurrent_task_client.cpp",
