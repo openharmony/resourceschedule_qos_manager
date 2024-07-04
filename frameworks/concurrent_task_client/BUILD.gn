@@ -33,7 +33,6 @@ config("client_public_config") {
 
 ohos_shared_library("concurrent_task_client") {
   branch_protector_ret = "pac_ret"
-
   configs = [ ":client_private_config" ]
 
   public_configs = [ ":client_public_config" ]
