@@ -42,7 +42,7 @@ ohos_shared_library("concurrent_task_client") {
     "-fomit-frame-pointer",
     "-fdata-sections",
     "-ffunction-sections",
-    "fno-unroll-loops",
+    "-fno-unroll-loops",
     "-fno-exceptions",
     "-fno-unwind-tables",
     "-fno-asynchronous-unwind-tables",

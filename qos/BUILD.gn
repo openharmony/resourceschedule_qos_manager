@@ -29,7 +29,7 @@ ohos_shared_library("qos") {
     "-fomit-frame-pointer",
     "-fdata-sections",
     "-ffunction-sections",
-    "fno-unroll-loops",
+    "-fno-unroll-loops",
     "-fno-exceptions",
     "-fno-unwind-tables",
     "-fno-asynchronous-unwind-tables",
