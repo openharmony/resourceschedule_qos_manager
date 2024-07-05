@@ -24,12 +24,18 @@ config("qos_config") {
 
 ohos_shared_library("qos") {
   branch_protector_ret = "pac_ret"
-  sanitize = {
-    cfi = true
-    cfi_cross_dso = true
-    debug = false
-  }
 
+  cflags_cc = [
+    "-fomit-frame-pointer",
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fno-unroll-loops",
+    "-fno-exceptions",
+    "-fno-unwind-tables",
+    "-fno-asynchronous-unwind-tables",
+    "-g0",
+    "-Os",
+  ]
   public_configs = [ ":qos_config" ]
   sources = [
     "../services/src/qos_interface.cpp",
