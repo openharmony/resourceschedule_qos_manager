@@ -35,8 +35,24 @@ ohos_shared_library("concurrentsvc") {
   sanitize = {
     cfi = true
     cfi_cross_dso = true
+    cfi_no_nvcall = true
+    cfi_vcall_ical_only = true
     debug = false
   }
+
+  cflags_cc = [
+    "-fomit-frame-pointer",
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fno-unroll-loops",
+    "-fno-exceptions",
+    "-fno-unwind-tables",
+    "-fno-asynchronous-unwind-tables",
+    "-g0",
+    "-Os",
+  ]
+
+  ldflags = [ "-Wl,--exclude-libs=ALL" ]
   sources = [
     "../common/src/config_reader.cpp",
     "src/concurrent_task_controller.cpp",
