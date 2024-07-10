@@ -60,8 +60,11 @@ TaskController& TaskController::GetInstance()
 
 void TaskController::RequestAuth(const Json::Value& payload)
 {
-    if (!configEnable_ && !ConfigReaderInit()) {
-        return;
+    {
+        std::lock_guard<std::mutex> autolock(configReaderMutex_);
+        if (!configEnable_ && !ConfigReaderInit()) {
+            return;
+        }
     }
     pid_t uid = IPCSkeleton::GetInstance().GetCallingUid();
     auto bundleName = GetProcessNameByToken();
@@ -328,7 +331,11 @@ void TaskController::Init()
     TypeMapInit();
     qosPolicy_.Init();
     TryCreateRsGroup();
-    ConfigReaderInit();
+
+    std::lock_guard<std::mutex> autolock(configReaderMutex_);
+    if (!configEnable_) {
+        ConfigReaderInit();
+    }
 }
 
 bool TaskController::ConfigReaderInit()
@@ -364,6 +371,8 @@ void TaskController::Release()
         renderServiceRenderGrpId_ = -1;
     }
     ddlSceneSchedSwitch_ = false;
+
+    std::lock_guard<std::mutex> autolock(configReaderMutex_);
     configReader_ = nullptr;
 }
 
