@@ -33,7 +33,6 @@ using namespace OHOS::Security::AccessToken;
 namespace OHOS {
 namespace ConcurrentTask {
 namespace {
-    static std::mutex configReaderMutex_;
     const std::string INTERVAL_DDL = "persist.ffrt.interval.renderthread";
     const std::string INTERVAL_APP_RATE = "persist.ffrt.interval.appRate";
     const std::string INTERVAL_RS_RATE = "persist.ffrt.interval.rsRate";
@@ -332,8 +331,11 @@ void TaskController::Init()
     TypeMapInit();
     qosPolicy_.Init();
     TryCreateRsGroup();
+
     std::lock_guard<std::mutex> autolock(configReaderMutex_);
-    ConfigReaderInit();
+    if (!configEnable_) {
+        ConfigReaderInit();
+    }
 }
 
 bool TaskController::ConfigReaderInit()
@@ -369,6 +371,7 @@ void TaskController::Release()
         renderServiceRenderGrpId_ = -1;
     }
     ddlSceneSchedSwitch_ = false;
+
     std::lock_guard<std::mutex> autolock(configReaderMutex_);
     configReader_ = nullptr;
 }
