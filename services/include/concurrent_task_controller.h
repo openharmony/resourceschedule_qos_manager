@@ -95,6 +95,7 @@ private:
     std::mutex rateInfoLock_;
     std::mutex executorStartLock_;
     std::mutex ddlPowerModeLock_;
+    std::mutex configReaderMutex_;
     std::list<ForegroundAppRecord> foregroundApp_ = {};
     std::list<int> rsThreads_ = {};
     std::unordered_map<std::string, int> msgType_ = {};
