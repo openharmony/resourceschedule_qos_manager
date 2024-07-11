@@ -551,20 +551,16 @@ void TaskController::NewForeground(int uid, int pid)
 
 void TaskController::NewForegroundAppRecord(int pid, int uiTid, bool ddlEnabled)
 {
-    ForegroundAppRecord *tempRecord = nullptr;
-    if (pid == curGamePid_) {
-        tempRecord = new ForegroundAppRecord(pid, uiTid, false);
-    } else {
-        tempRecord = new ForegroundAppRecord(pid, uiTid, true);
+    auto appRecord = foregroundApp_.emplace_back(pid, uiTid, pid != curGamePid_);
+    if (foregroundApp_.size() <= 0 || appRecord.GetPid() != pid) {
+        CONCUR_LOGE("pid %{public}d create app record failed", pid);
+        return;
     }
-    if (tempRecord->IsValid()) {
-        foregroundApp_.push_back(*tempRecord);
+    if (appRecord.IsValid()) {
         if (ddlEnabled && pid != curGamePid_) {
-            tempRecord->AddKeyThread(uiTid, PRIO_RT);
+            appRecord.AddKeyThread(uiTid, PRIO_RT);
         }
-        tempRecord->BeginScene();
-    } else {
-        delete tempRecord;
+        appRecord.BeginScene();
     }
 }
 
