@@ -551,7 +551,7 @@ void TaskController::NewForeground(int uid, int pid)
 
 void TaskController::NewForegroundAppRecord(int pid, int uiTid, bool ddlEnabled)
 {
-    auto appRecord = foregroundApp_.emplace_back(pid, uiTid, pid != curGamePid_);
+    ForegroundAppRecord& appRecord = foregroundApp_.emplace_back(pid, uiTid, pid != curGamePid_);
     if (foregroundApp_.size() <= 0 || appRecord.GetPid() != pid) {
         CONCUR_LOGE("pid %{public}d create app record failed", pid);
         return;
@@ -607,7 +607,7 @@ void TaskController::NewAppStart(int uid, int pid, const std::string& bundleName
     authApps_.push_back(pid);
     appBundleName[pid] = bundleName;
     if (ddlSceneSchedSwitch_ && appType != APP_TYPE_INVALID) {
-        appTypeCache_[bundleName] = appType;
+        appTypeCache_[pid] = appType;
     }
 }
 
@@ -635,6 +635,9 @@ void TaskController::AppKilled(int uid, int pid)
         }
     }
     appBundleName.erase(pid);
+    if (ddlSceneSchedSwitch_) {
+        appTypeCache_.erase(pid);
+    }
 }
 
 int TaskController::AuthSystemProcess(int pid)
@@ -708,7 +711,7 @@ void TaskController::DeadlinePerfMode()
 {
     if (ddlPowerModeEnable_) {
         StartTrace(HITRACE_TAG_ACE, "Deadline perf mode");
-        SetAppAndRenderServicRate(uniAppRate_, systemRate_);
+        SetAppAndRenderServiceRate(uniAppRate_, systemRate_);
         ddlPowerModeEnable_ = false;
         CONCUR_LOGI("Deadline switch to perf mode");
         FinishTrace(HITRACE_TAG_ACE);
@@ -725,7 +728,7 @@ void TaskController::DeadlinePowerMode()
             appRate = configReader_->GetDegratationFps(appRate);
             rsRate = configReader_->GetDegratationFps(rsRate);
         }
-        SetAppAndRenderServicRate(appRate, rsRate);
+        SetAppAndRenderServiceRate(appRate, rsRate);
         ddlPowerModeEnable_ = true;
         CONCUR_LOGI("Deadline switch to power mode");
         FinishTrace(HITRACE_TAG_ACE);
@@ -912,7 +915,7 @@ void TaskController::SetRenderServiceRate(const Json::Value& payload)
     }
 }
 
-void TaskController::SetAppAndRenderServicRate(int appRate, int rsRate)
+void TaskController::SetAppAndRenderServiceRate(int appRate, int rsRate)
 {
     bool ret = OHOS::system::SetParameter(INTERVAL_APP_RATE, std::to_string(appRate));
     if (ret == false) {
@@ -1004,13 +1007,12 @@ int TaskController::ParseAppType(const Json::Value& payload)
 
 bool TaskController::IsVideoApp(int pid)
 {
-    if (!ddlSceneSchedSwitch_ || appBundleName.find(pid) == appBundleName.end()) {
+    if (!ddlSceneSchedSwitch_) {
         return false;
     }
-    std::string bundleName = appBundleName[pid];
-    if (appTypeCache_.find(bundleName) != appTypeCache_.end()) {
-        return appTypeCache_[bundleName] == APP_TYPE_VIDEO ||
-            appTypeCache_[bundleName]== APP_TYPE_VIDEO_CLIP;
+    if (appTypeCache_.find(pid) != appTypeCache_.end()) {
+        return appTypeCache_[pid] == APP_TYPE_VIDEO ||
+            appTypeCache_[pid]== APP_TYPE_VIDEO_CLIP;
     }
     return false;
 }
