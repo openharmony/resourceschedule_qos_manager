@@ -98,8 +98,8 @@ ohos_unittest("concurrent_task_controller_test") {
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
-    "jsoncpp:jsoncpp",
     "init:libbegetutil",
+    "jsoncpp:jsoncpp",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
