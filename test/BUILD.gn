@@ -17,8 +17,6 @@ import("//build/test.gni")
 
 module_output_path = "qosmanagertest/"
 
-gtest_public_deps = [ "//third_party/googletest:gtest_main" ]
-
 config("test_config") {
   include_dirs = [
     "../include/",
@@ -57,7 +55,7 @@ ohos_unittest("concurrent_svc_intf_test") {
   ]
 
   if (is_standard_system) {
-    public_deps = gtest_public_deps
+    external_deps += [ "googletest:gtest_main" ]
   }
 
   subsystem_name = "resourceschedule"
@@ -72,14 +70,14 @@ ohos_unittest("concurrent_task_client_test") {
   sources = [ "unittest/phone/concurrent_task_client_test.cpp" ]
   deps = [ "../frameworks/concurrent_task_client:concurrent_task_client" ]
 
-  if (is_standard_system) {
-    public_deps = gtest_public_deps
-  }
-
   external_deps = [
     "hilog:libhilog",
     "ipc:ipc_single",
   ]
+
+  if (is_standard_system) {
+    external_deps += [ "googletest:gtest_main" ]
+  }
 
   subsystem_name = "resourceschedule"
   part_name = "qos_manager"
@@ -95,19 +93,19 @@ ohos_unittest("concurrent_task_controller_test") {
     "../etc/param:ffrt_etc",
     "../frameworks/concurrent_task_client:concurrent_task_client",
     "../services:concurrentsvc",
-    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
     "init:libbegetutil",
+    "jsoncpp:jsoncpp",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
 
   if (is_standard_system) {
-    public_deps = gtest_public_deps
+    external_deps += [ "googletest:gtest_main" ]
   }
 
   subsystem_name = "resourceschedule"
@@ -132,7 +130,7 @@ ohos_unittest("concurrent_task_service_ability_test") {
   ]
 
   if (is_standard_system) {
-    public_deps = gtest_public_deps
+    external_deps += [ "googletest:gtest_main" ]
   }
 
   subsystem_name = "resourceschedule"
@@ -158,7 +156,7 @@ ohos_unittest("qos_interface_test") {
   ]
 
   if (is_standard_system) {
-    public_deps = gtest_public_deps
+    external_deps += [ "googletest:gtest_main" ]
   }
 
   subsystem_name = "resourceschedule"
@@ -183,7 +181,7 @@ ohos_unittest("qos_policy_test") {
   ]
 
   if (is_standard_system) {
-    public_deps = gtest_public_deps
+    external_deps += [ "googletest:gtest_main" ]
   }
 
   subsystem_name = "resourceschedule"
@@ -208,7 +206,7 @@ ohos_unittest("concurrent_task_service_test") {
   ]
 
   if (is_standard_system) {
-    public_deps = gtest_public_deps
+    external_deps += [ "googletest:gtest_main" ]
   }
 
   subsystem_name = "resourceschedule"
@@ -229,7 +227,7 @@ ohos_unittest("qos_test") {
   ]
 
   if (is_standard_system) {
-    public_deps = gtest_public_deps
+    external_deps += [ "googletest:gtest_main" ]
   }
 
   subsystem_name = "resourceschedule"
@@ -253,7 +251,7 @@ ohos_unittest("qos_ndk_test") {
   ]
 
   if (is_standard_system) {
-    public_deps = gtest_public_deps
+    external_deps += [ "googletest:gtest_main" ]
   }
 
   subsystem_name = "resourceschedule"
