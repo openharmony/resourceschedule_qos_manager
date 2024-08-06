@@ -79,7 +79,7 @@ private:
     void SetAppRate(const Json::Value& payload);
     int FindRateFromInfo(int uiTid, const Json::Value& payload);
     void SetRenderServiceRate(const Json::Value& payload);
-    void SetAppAndRenderServicRate(int appRate, int rsRate);
+    void SetAppAndRenderServiceRate(int appRate, int rsRate);
     bool CheckJsonValid(const Json::Value& payload);
     void SetFrameRate(int rtgId, int rate);
     std::list<ForegroundAppRecord>::iterator GetRecordOfPid(int pid);
@@ -119,7 +119,7 @@ private:
     int executorNum_ = 0;
     std::map<int, std::string> appBundleName;
     std::unique_ptr<ConfigReader> configReader_ = nullptr;
-    std::unordered_map<std::string, int> appTypeCache_;
+    std::unordered_map<int, int> appTypeCache_;
 
     const std::string RENDER_SERVICE_PROCESS_NAME = "render_service";
     const std::string RESOURCE_SCHEDULE_PROCESS_NAME = "resource_schedule_service";

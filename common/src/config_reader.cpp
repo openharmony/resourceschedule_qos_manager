@@ -36,6 +36,10 @@ namespace {
     const std::string XML_TAG_SWITCH = "switch";
     const std::string XML_TAG_FPS = "fps";
     const std::string XML_TAG_DEGRADATION_FPS = "degradationfps";
+    const std::string XML_TAG_FPS_HIGH = "120";
+    const std::string XML_TAG_FPS_MEDIUM = "90";
+    const std::string XML_TAG_FPS_STANDARD = "60";
+    constexpr int FPS_OFFSET = 10000;
 }
 
 bool ConfigReader::IsValidNode(const xmlNode* currNode)
@@ -122,7 +126,7 @@ void ConfigReader::ParsePowerMode(const xmlNode* currNode)
     xmlNodePtr currNodePtr = currNode->xmlChildrenNode;
     for (; currNodePtr; currNodePtr = currNodePtr->next) {
         if (xmlStrcmp(currNodePtr->name, reinterpret_cast<const xmlChar*>(XML_TAG_SWITCH.c_str())) == 0) {
-            char* switchValue = reinterpret_cast<char*>(xmlNodeGetContent(currNode));
+            char* switchValue = reinterpret_cast<char*>(xmlNodeGetContent(currNodePtr));
             if (!switchValue) {
                 CONCUR_LOGE("ParsePowerMode:: switch is null!");
                 continue;
@@ -140,18 +144,18 @@ void ConfigReader::ParsePowerMode(const xmlNode* currNode)
         if (xmlStrcmp(currNodePtr->name, reinterpret_cast<const xmlChar*>(XML_TAG_DEGRADATION_FPS.c_str())) == 0) {
             char* fpsValue = reinterpret_cast<char*>(xmlGetProp(currNodePtr,
                 reinterpret_cast<const xmlChar*>(XML_TAG_FPS.c_str())));
-            char* deFpsValue = reinterpret_cast<char*>(xmlNodeGetContent(currNode));
-            if (!fpsValue || !deFpsValue) {
-                CONCUR_LOGE("ParsePowerMode:: fps is null!");
-                continue;
-            }
-            if (IsValidFps(fpsValue) && IsPositiveInt(deFpsValue)) {
+            char* deFpsValue = reinterpret_cast<char*>(xmlNodeGetContent(currNodePtr));
+            if (fpsValue && deFpsValue && IsValidFps(fpsValue) && IsPositiveInt(deFpsValue)) {
                 degradationFpsMap_.insert(std::make_pair(atoi(fpsValue), atoi(deFpsValue)));
             } else {
-                CONCUR_LOGE("ParsePowerMode:: invalid fps value!");
+                CONCUR_LOGE("ParsePowerMode:: fps is null or invalid!");
             }
-            xmlFree(fpsValue);
-            xmlFree(deFpsValue);
+            if (fpsValue) {
+                xmlFree(fpsValue);
+            }
+            if (deFpsValue) {
+                xmlFree(deFpsValue);
+            }
         }
     }
 }
@@ -234,18 +238,18 @@ int ConfigReader::GetDegratationFps(int fps)
     if (degradationFpsMap_.find(fps) == degradationFpsMap_.end()) {
         return fps;
     }
-    return degradationFpsMap_[fps];
+    return degradationFpsMap_[fps] + FPS_OFFSET;
 }
 
 bool ConfigReader::IsValidFps(const std::string& fps)
 {
-    if (fps == "120" || fps == "90" || fps == "60") {
+    if (fps == XML_TAG_FPS_HIGH || fps == XML_TAG_FPS_MEDIUM || fps == XML_TAG_FPS_STANDARD) {
         return true;
     }
     return false;
 }
 
-bool  ConfigReader::IsPositiveInt(const std::string& intStr)
+bool ConfigReader::IsPositiveInt(const std::string& intStr)
 {
     int num = 0;
     try {
