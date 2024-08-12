@@ -724,7 +724,7 @@ void TaskController::DeadlinePowerMode()
         StartTrace(HITRACE_TAG_ACE, "Deadline power mode");
         int appRate = uniAppRate_;
         int rsRate = systemRate_;
-        if (configReader_) {
+        if (configEnable_ && configReader_) {
             appRate = configReader_->GetDegratationFps(appRate);
             rsRate = configReader_->GetDegratationFps(rsRate);
         }
@@ -800,7 +800,7 @@ int TaskController::GetGamePid(const std::string &gameMsg) const
             return -1;
         }
         int ret = sscanf_s(gameMsg.substr(0, pos).c_str(), "{\"gamePid\":\"%d\"", &gamePid);
-        if (ret == -1) {
+        if (ret <= 0) {
             CONCUR_LOGE("[MSG_GAME]message parsing failed, ret is %{public}d", ret);
         } else {
             CONCUR_LOGI("[MSG_GAME]message parsing success");
@@ -848,7 +848,7 @@ void TaskController::SetAppRate(const Json::Value& payload)
     if (appRate > 0 && appRate != uniAppRate_) {
         CONCUR_LOGD("set unified app rate %{public}d", appRate);
         uniAppRate_ = appRate;
-        if (ddlSceneSchedSwitch_ && ddlPowerModeEnable_ && configReader_) {
+        if (ddlSceneSchedSwitch_ && ddlPowerModeEnable_ && configEnable_ && configReader_) {
             appRate = configReader_->GetDegratationFps(appRate);
         }
         bool ret = OHOS::system::SetParameter(INTERVAL_APP_RATE, std::to_string(appRate));
@@ -902,7 +902,7 @@ void TaskController::SetRenderServiceRate(const Json::Value& payload)
                     rsRate, renderServiceMainGrpId_, systemRate_);
         SetFrameRate(renderServiceMainGrpId_, rsRate);
         systemRate_ = rsRate;
-        if (ddlSceneSchedSwitch_ && ddlPowerModeEnable_ && configReader_) {
+        if (ddlSceneSchedSwitch_ && ddlPowerModeEnable_ && configEnable_ && configReader_) {
             rsRate = configReader_->GetDegratationFps(rsRate);
         }
         bool ret = OHOS::system::SetParameter(INTERVAL_RS_RATE, std::to_string(rsRate));
@@ -982,7 +982,7 @@ int TaskController::CreateNewRtgGrp(int prioType, int rtNum)
     }
     grp_data.rtg_cmd = CMD_CREATE_RTG_GRP;
     ret = ioctl(fd, CMD_ID_SET_RTG, &grp_data);
-    if (ret < 0) {
+    if (ret <= 0) {
         CONCUR_LOGE("create rtg grp failed, errno = %{public}d (%{public}s)", errno, strerror(errno));
     } else {
         CONCUR_LOGI("create rtg grp success, get rtg id %{public}d.", ret);
