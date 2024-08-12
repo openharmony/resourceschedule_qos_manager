@@ -131,9 +131,9 @@ void ConfigReader::ParsePowerMode(const xmlNode* currNode)
                 CONCUR_LOGE("ParsePowerMode:: switch is null!");
                 continue;
             }
-            if (strcmp(switchValue, "1") == 0) {
+            if (strncmp(switchValue, "1", 1) == 0) {
                 powerModeSchedSwitch_ = true;
-            } else if (strcmp(switchValue, "0") == 0) {
+            } else if (strncmp(switchValue, "0", 1) == 0) {
                 powerModeSchedSwitch_ = false;
             } else {
                 CONCUR_LOGE("ParsePowerMode:: invalid switch value!");
