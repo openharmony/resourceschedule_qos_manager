@@ -21,7 +21,6 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <concurrent_task_log.h>
 
 #include "qos_interface.h"
