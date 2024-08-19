@@ -149,12 +149,12 @@ std::string TaskController::GetProcessNameByToken()
 void TaskController::QueryUi(int uid, IntervalReply& queryRs)
 {
     pid_t pid = IPCSkeleton::GetInstance().GetCallingPid();
-    auto iter = GetRecordOfPid(pid);
-    if (iter == foregroundApp_.end()) {
+    ForegroundAppRecord* record = GetRecordOfPid(pid);
+    if (!record) {
         CONCUR_LOGD("Query ui with pid %{public}d failed", pid);
         return;
     }
-    int grpId = iter->GetGrpId();
+    int grpId = record->GetGrpId();
     if (grpId <= 0) {
         CONCUR_LOGI("%{public}d Query ui with none grpid", pid);
         queryRs.rtgId = -1;
@@ -167,12 +167,12 @@ void TaskController::QueryUi(int uid, IntervalReply& queryRs)
 void TaskController::QueryRender(int uid, IntervalReply& queryRs)
 {
     pid_t pid = IPCSkeleton::GetInstance().GetCallingPid();
-    auto iter = GetRecordOfPid(pid);
-    if (iter == foregroundApp_.end()) {
+    ForegroundAppRecord* record = GetRecordOfPid(pid);
+    if (!record) {
         CONCUR_LOGD("Query render with pid %{public}d failed", pid);
         return;
     }
-    int grpId = iter->GetGrpId();
+    int grpId = record->GetGrpId();
     if (grpId <= 0) {
         CONCUR_LOGI("%{public}d Query render with none grpid", pid);
         queryRs.rtgId = -1;
@@ -312,12 +312,12 @@ void TaskController::QueryExecutorStart(int uid, int pid, IntervalReply& queryRs
 void TaskController::QueryHwc(int uid, IntervalReply& queryRs)
 {
     pid_t pid = IPCSkeleton::GetInstance().GetCallingPid();
-    auto iter = GetRecordOfPid(pid);
-    if (iter == foregroundApp_.end()) {
+    ForegroundAppRecord* record = GetRecordOfPid(pid);
+    if (!record) {
         CONCUR_LOGD("Query ipc thread with pid %{public}d failed", pid);
         return;
     }
-    int grpId = iter->GetGrpId();
+    int grpId = record->GetGrpId();
     if (grpId <= 0) {
         CONCUR_LOGI("%{public}d Query ipc thread with none grpid", pid);
         queryRs.rtgId = -1;
@@ -498,15 +498,15 @@ void TaskController::DealSystemRequest(int requestType, const Json::Value& paylo
     }
 }
 
-std::list<ForegroundAppRecord>::iterator TaskController::GetRecordOfPid(int pid)
+ForegroundAppRecord* TaskController::GetRecordOfPid(int pid)
 {
     std::lock_guard<std::mutex> lock(appInfoLock_);
     for (auto iter = foregroundApp_.begin(); iter != foregroundApp_.end(); iter++) {
         if (iter->GetPid() == pid) {
-            return iter;
+            return &*iter;
         }
     }
-    return foregroundApp_.end();
+    return nullptr;
 }
 
 void TaskController::NewForeground(int uid, int pid)
@@ -519,6 +519,7 @@ void TaskController::NewForeground(int uid, int pid)
     }
     int ret = AuthGet(pid);
     if (ret != static_cast<int>(AuthStatus::AUTH_STATUS_FOCUS)) {
+        CONCUR_LOGI("pid %{public}d change to foreground.", pid);
         unsigned int pidParam = static_cast<unsigned int>(pid);
         unsigned int uaFlag = AF_RTG_ALL;
         unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOREGROUND);
@@ -528,7 +529,6 @@ void TaskController::NewForeground(int uid, int pid)
         } else {
             CONCUR_LOGE("auth_enable %{public}d fail with ret %{public}d", pid, ret);
         }
-        CONCUR_LOGI("pid %{public}d change to foreground.", pid);
     } else {
         CONCUR_LOGI("pid %{public}d is already focus", pid);
     }
@@ -542,6 +542,7 @@ void TaskController::NewForeground(int uid, int pid)
                 iter->AddKeyThread(uiTid, PRIO_RT);
             }
             iter->BeginScene();
+            break;
         }
     }
     if (!found) {
@@ -624,7 +625,7 @@ void TaskController::AppKilled(int uid, int pid)
     std::lock_guard<std::mutex> lock(appInfoLock_);
     for (auto iter = foregroundApp_.begin(); iter != foregroundApp_.end(); iter++) {
         if (iter->GetPid() == pid) {
-            foregroundApp_.erase(iter++);
+            foregroundApp_.erase(iter);
             break;
         }
     }
