@@ -883,7 +883,7 @@ int TaskController::FindRateFromInfo(int uiTid, const Json::Value& payload)
 {
     int appRate = 0;
     if (payload[std::to_string(uiTid)].isNull()) {
-        CONCUR_LOGI("FindRateFromInfo tid %{public}d is null", uiTid);
+        CONCUR_LOGD("FindRateFromInfo tid %{public}d is null", uiTid);
         return appRate;
     }
     try {
