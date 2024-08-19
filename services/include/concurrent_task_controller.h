@@ -82,7 +82,7 @@ private:
     void SetAppAndRenderServiceRate(int appRate, int rsRate);
     bool CheckJsonValid(const Json::Value& payload);
     void SetFrameRate(int rtgId, int rate);
-    std::list<ForegroundAppRecord>::iterator GetRecordOfPid(int pid);
+    ForegroundAppRecord* GetRecordOfPid(int pid);
     void PrintInfo();
     bool ParsePayload(const Json::Value& payload, int& uid, int& pid, std::string& bundleName);
     std::string GetProcessNameByToken();
