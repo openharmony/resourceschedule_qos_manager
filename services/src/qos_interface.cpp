@@ -203,6 +203,7 @@ int AuthGet(unsigned int pid)
 
     ret = ioctl(fd, BASIC_AUTH_CTRL_OPERATION, &data);
     if (ret < 0) {
+        close(fd);
         return ret;
     }
     close(fd);
