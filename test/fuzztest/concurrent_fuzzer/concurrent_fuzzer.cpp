@@ -956,6 +956,19 @@ bool FuzzTaskControllerCheckJsonValid(const uint8_t* data, size_t size)
     }
     return true;
 }
+
+bool FuzzQosControllerGetThreadQosForOtherThread(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int)) {
+        enum QosLevel level;
+        int32_t tid = GetData<int>();
+        QosController::GetInstance().GetThreadQosForOtherThread(level, tid);
+    }
+    return true;
+}
 } // namespace OHOS
 
 static void TaskControllerFuzzTestSuit(const uint8_t *data, size_t size)
@@ -977,6 +990,7 @@ static void TaskControllerFuzzTestSuit(const uint8_t *data, size_t size)
     OHOS::FuzzTaskControllerModifySystemRate(data, size);
     OHOS::FuzzTaskControllerSetRenderServiceRate(data, size);
     OHOS::FuzzTaskControllerCheckJsonValid(data, size);
+    OHOS::FuzzQosControllerGetThreadQosForOtherThread(data, size);
 }
 
 /* Fuzzer entry point */
