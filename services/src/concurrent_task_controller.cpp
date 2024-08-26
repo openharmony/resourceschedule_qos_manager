@@ -521,7 +521,7 @@ void TaskController::NewForeground(int uid, int pid)
     if (ret != static_cast<int>(AuthStatus::AUTH_STATUS_FOCUS)) {
         CONCUR_LOGI("pid %{public}d change to foreground.", pid);
         unsigned int pidParam = static_cast<unsigned int>(pid);
-        unsigned int uaFlag = AF_RTG_ALL;
+        unsigned int uaFlag = AF_RTG_APP;
         unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOREGROUND);
         int ret = AuthEnable(pidParam, uaFlag, status);
         if (ret == 0) {
@@ -594,7 +594,7 @@ void TaskController::NewAppStart(int uid, int pid, const std::string& bundleName
 {
     CONCUR_LOGI("pid %{public}d start.", pid);
     unsigned int pidParam = static_cast<unsigned int>(pid);
-    unsigned int uaFlag = AF_RTG_ALL;
+    unsigned int uaFlag = AF_RTG_APP;
     unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_DEFAULT);
 
     int ret = AuthEnable(pidParam, uaFlag, status);
@@ -671,7 +671,7 @@ void TaskController::ContinuousTaskProcess(int uid, int pid, int status)
 void TaskController::FocusStatusProcess(int uid, int pid, int status)
 {
     int ret = -1;
-    unsigned int rtgFlag = AF_RTG_ALL;
+    unsigned int rtgFlag = AF_RTG_APP;
     unsigned int qosFlag = AF_QOS_DELEGATED;
     if (status == static_cast<int>(MSG_GET_FOCUS)) {
         ret = AuthSwitch(pid, rtgFlag, qosFlag, static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOCUS));
