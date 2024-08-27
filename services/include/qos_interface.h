@@ -163,6 +163,7 @@ enum QosCtrlCmdid {
  */
 #define AF_RTG_ALL          0x1fff
 #define AF_RTG_DELEGATED    0x1fff
+#define AF_RTG_APP          0x10b8
 
 struct RtgEnableData {
     int enable;
