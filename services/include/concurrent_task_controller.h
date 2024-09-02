@@ -111,7 +111,7 @@ private:
     int uniAppRate_ = 0;
     bool rtgEnabled_ = false;
     bool configEnable_ = false;
-    bool rsAuthed_ = false;
+    int authedRSPid_ = 0;
     bool ddlSceneSchedSwitch_ = false;
     bool ddlPowerModeEnable_ = false;
     bool isVideoApp_ = false;
