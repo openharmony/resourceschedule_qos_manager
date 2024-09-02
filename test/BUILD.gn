@@ -178,7 +178,6 @@ ohos_unittest("qos_policy_test") {
   ]
   external_deps = [
     "c_utils:utils",
-    "frame_aware_sched:rtg_interface",
     "hilog:libhilog",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
