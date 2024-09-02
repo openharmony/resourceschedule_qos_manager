@@ -216,14 +216,14 @@ void TaskController::QueryRenderService(int uid, IntervalReply& queryRs)
 
 void TaskController::QueryRenderServiceMain(int uid, int pid, IntervalReply& queryRs)
 {
-    if (GetProcessNameByToken() != RENDER_SERVICE_PROCESS_NAME) {
+    if (uid != RS_UID) {
         return;
     }
-    if (!rsAuthed_) {
+    if (authedRSPid_ != pid) {
         if (AuthSystemProcess(pid) != 0) {
             return;
         }
-        rsAuthed_ = true;
+        authedRSPid_ = pid;
     }
     if (renderServiceMainGrpId_ <= 0) {
         TryCreateRSMainGrp();
@@ -246,7 +246,7 @@ void TaskController::QueryRenderServiceMain(int uid, int pid, IntervalReply& que
  
 void TaskController::QueryRenderServiceRender(int uid, int pid, IntervalReply& queryRs)
 {
-    if (GetProcessNameByToken() != RENDER_SERVICE_PROCESS_NAME) {
+    if (uid != RS_UID) {
         return;
     }
     if (renderServiceRenderGrpId_ <= 0) {
