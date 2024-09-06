@@ -64,15 +64,13 @@ private:
     void DealSystemRequest(int requestType, const Json::Value& payload);
     void NewForeground(int uid, int pid);
     void NewBackground(int uid, int pid);
-    void NewAppStart(int uid, int pid, const std::string& bundleName, int appType);
+    void NewAppStart(int uid, int pid, const std::string& bundleName);
     void AppKilled(int uid, int pid);
     void ContinuousTaskProcess(int uid, int pid, int status);
     void FocusStatusProcess(int uid, int pid, int status);
     void InteractionSceneProcess(int status);
     void DeadlinePerfMode();
     void DeadlinePowerMode();
-    bool IsVideoApp(int pid);
-    int ParseAppType(const Json::Value& payload);
     int AuthSystemProcess(int pid);
     bool ConfigReaderInit();
     bool ModifySystemRate(const Json::Value& payload);
@@ -114,12 +112,10 @@ private:
     int authedRSPid_ = 0;
     bool ddlSceneSchedSwitch_ = false;
     bool ddlPowerModeEnable_ = false;
-    bool isVideoApp_ = false;
     std::atomic<int> curGamePid_ = -1;
     int executorNum_ = 0;
     std::map<int, std::string> appBundleName;
     std::unique_ptr<ConfigReader> configReader_ = nullptr;
-    std::unordered_map<int, int> appTypeCache_;
 
     const std::string RENDER_SERVICE_PROCESS_NAME = "render_service";
     const std::string RESOURCE_SCHEDULE_PROCESS_NAME = "resource_schedule_service";
