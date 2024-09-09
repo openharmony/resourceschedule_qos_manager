@@ -44,9 +44,6 @@ namespace {
     constexpr int RTG_TYPE_MAX = 3;
     constexpr int RS_UID = 1003;
     constexpr int EXECUTOR_LIMIT_NUM = 3;
-    constexpr int APP_TYPE_VIDEO = 10067;
-    constexpr int APP_TYPE_VIDEO_CLIP = 10026;
-    constexpr int APP_TYPE_INVALID = -1;
 }
 
 #define CMD_ID_SET_RTG \
@@ -361,7 +358,6 @@ bool TaskController::ConfigReaderInit()
 void TaskController::Release()
 {
     msgType_.clear();
-    appTypeCache_.clear();
     if (renderServiceMainGrpId_ > 0) {
         DestroyRtgGrp(renderServiceMainGrpId_);
         renderServiceMainGrpId_ = -1;
@@ -475,7 +471,7 @@ void TaskController::DealSystemRequest(int requestType, const Json::Value& paylo
             NewBackground(uid, pid);
             break;
         case MSG_APP_START:
-            NewAppStart(uid, pid, bundleName, ParseAppType(payload));
+            NewAppStart(uid, pid, bundleName);
             break;
         case MSG_APP_KILLED:
             AppKilled(uid, pid);
@@ -590,7 +586,7 @@ void TaskController::NewBackground(int uid, int pid)
     }
 }
 
-void TaskController::NewAppStart(int uid, int pid, const std::string& bundleName, int appType)
+void TaskController::NewAppStart(int uid, int pid, const std::string& bundleName)
 {
     CONCUR_LOGI("pid %{public}d start.", pid);
     unsigned int pidParam = static_cast<unsigned int>(pid);
@@ -607,9 +603,6 @@ void TaskController::NewAppStart(int uid, int pid, const std::string& bundleName
     std::lock_guard<std::mutex> lock(appInfoLock_);
     authApps_.push_back(pid);
     appBundleName[pid] = bundleName;
-    if (ddlSceneSchedSwitch_ && appType != APP_TYPE_INVALID) {
-        appTypeCache_[pid] = appType;
-    }
 }
 
 void TaskController::AppKilled(int uid, int pid)
@@ -636,9 +629,6 @@ void TaskController::AppKilled(int uid, int pid)
         }
     }
     appBundleName.erase(pid);
-    if (ddlSceneSchedSwitch_) {
-        appTypeCache_.erase(pid);
-    }
 }
 
 int TaskController::AuthSystemProcess(int pid)
@@ -676,18 +666,9 @@ void TaskController::FocusStatusProcess(int uid, int pid, int status)
     if (status == static_cast<int>(MSG_GET_FOCUS)) {
         ret = AuthSwitch(pid, rtgFlag, qosFlag, static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOCUS));
         CONCUR_LOGI("pid %{public}d get focus. ret %{public}d", pid, ret);
-        if (ddlSceneSchedSwitch_) {
-            if (IsVideoApp(pid)) {
-                isVideoApp_ = true;
-                CONCUR_LOGD("video app bundleName %{public}s get focus", appBundleName[pid].c_str());
-            } else {
-                isVideoApp_ = false;
-            }
-        }
     } else if (status == static_cast<int>(MSG_LOSE_FOCUS)) {
         ret = AuthSwitch(pid, rtgFlag, qosFlag, static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOREGROUND));
         CONCUR_LOGI("pid %{public}d lose focus. ret %{public}d", pid, ret);
-        isVideoApp_ = false;
     } else {
         CONCUR_LOGE("Invalid focus status %{public}d", status);
     }
@@ -700,9 +681,6 @@ void TaskController::InteractionSceneProcess(int status)
         if (status ==  MSG_ENTER_INTERACTION_SCENE) {
             DeadlinePerfMode();
         } else if (status == MSG_EXIT_INTERACTION_SCENE) {
-            if (isVideoApp_) {
-                return;
-            }
             DeadlinePowerMode();
         }
     }
@@ -990,32 +968,6 @@ int TaskController::CreateNewRtgGrp(int prioType, int rtNum)
     }
     close(fd);
     return ret;
-}
-
-int TaskController::ParseAppType(const Json::Value& payload)
-{
-    int appType = APP_TYPE_INVALID;
-    if (payload.isMember("appType") && payload["appType"].isString()) {
-        try {
-            appType = stoi(payload["appType"].asString());
-        } catch (...) {
-            CONCUR_LOGE("Unexpected apptype format");
-            return APP_TYPE_INVALID;
-        }
-    }
-    return appType;
-}
-
-bool TaskController::IsVideoApp(int pid)
-{
-    if (!ddlSceneSchedSwitch_) {
-        return false;
-    }
-    if (appTypeCache_.find(pid) != appTypeCache_.end()) {
-        return appTypeCache_[pid] == APP_TYPE_VIDEO ||
-            appTypeCache_[pid]== APP_TYPE_VIDEO_CLIP;
-    }
-    return false;
 }
 
 ForegroundAppRecord::ForegroundAppRecord(int pid, int uiTid, bool createGrp)

@@ -816,7 +816,7 @@ bool FuzzTaskControllerNewAppStart(const uint8_t* data, size_t size)
         int pid = GetData<int>();
         int uid = GetData<int>();
         std::string bundleName = std::to_string(GetData<int>());
-        TaskController::GetInstance().NewAppStart(uid, pid, bundleName, -1);
+        TaskController::GetInstance().NewAppStart(uid, pid, bundleName);
     }
     return true;
 }
