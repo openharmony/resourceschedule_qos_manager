@@ -236,7 +236,7 @@ bool ConfigReader::GetPowerModeSchedSwitch()
 int ConfigReader::GetDegratationFps(int fps)
 {
     if (degradationFpsMap_.find(fps) == degradationFpsMap_.end()) {
-        return fps;
+        return fps + FPS_OFFSET;
     }
     return degradationFpsMap_[fps] + FPS_OFFSET;
 }
