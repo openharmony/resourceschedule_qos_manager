@@ -15,7 +15,6 @@
 
 #include "gtest/gtest.h"
 #include "concurrent_task_service.h"
-#include "concurrent_task_controller.h"
 
 namespace OHOS {
 namespace FFRT_TEST {

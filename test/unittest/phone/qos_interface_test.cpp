@@ -74,69 +74,6 @@ HWTEST_F(QosInterfaceTest, EnableRtgTest, TestSize.Level1)
 }
 
 /**
- * @tc.name: AuthEnableTest
- * @tc.desc: Test whether the OnRemoteRequest interface are normal.
- * @tc.type: FUNC
- */
-HWTEST_F(QosInterfaceTest, AuthEnableTest, TestSize.Level1)
-{
-    unsigned int pid = getpid();
-    unsigned int uaFlag = AF_RTG_ALL;
-    unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_BACKGROUND);
-    int ret = AuthEnable(pid, uaFlag, status);
-    EXPECT_EQ(ret, 0);
-}
-
-/**
- * @tc.name: AuthSwitchTest
- * @tc.desc: Test whether the AuthSwitch interface are normal.
- * @tc.type: FUNC
- */
-HWTEST_F(QosInterfaceTest, AuthSwitchTest, TestSize.Level1)
-{
-    unsigned int pid = getpid();
-    unsigned int rtgFlag = AF_RTG_ALL;
-    unsigned int qosFlag = AF_QOS_ALL;
-    unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_BACKGROUND);
-    AuthEnable(pid, rtgFlag, status);
-    status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOREGROUND);
-    int ret = AuthSwitch(pid, rtgFlag, qosFlag, status);
-    EXPECT_EQ(ret, 0);
-}
-
-/**
- * @tc.name: AuthDeleteTest
- * @tc.desc: Test whether the AuthDelete interface are normal.
- * @tc.type: FUNC
- */
-HWTEST_F(QosInterfaceTest, AuthDeleteTest, TestSize.Level1)
-{
-    unsigned int pid = getpid();
-    unsigned int uaFlag = AF_RTG_ALL;
-    unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_BACKGROUND);
-    AuthEnable(pid, uaFlag, status);
-    int ret = AuthDelete(pid);
-    EXPECT_EQ(ret, 0);
-    AuthEnable(pid, uaFlag, status);
-}
-
-/**
- * @tc.name: AuthPauseTest
- * @tc.desc: Test whether the AuthPause interface are normal.
- * @tc.type: FUNC
- */
-HWTEST_F(QosInterfaceTest, AuthPauseTest, TestSize.Level1)
-{
-    unsigned int pid = getpid();
-    unsigned int uaFlag = AF_RTG_ALL;
-    unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_BACKGROUND);
-    AuthEnable(pid, uaFlag, status);
-    int ret = AuthPause(pid);
-    EXPECT_EQ(ret, 0);
-    AuthEnable(pid, uaFlag, status);
-}
-
-/**
  * @tc.name: QosApplyTest
  * @tc.desc: Test whether the QosApply interface are normal.
  * @tc.type: FUNC
@@ -151,44 +88,6 @@ HWTEST_F(QosInterfaceTest, QosApplyTest, TestSize.Level1)
 #else
     (void)ret;
 #endif
-}
-
-/**
- * @tc.name: AuthGetTest
- * @tc.desc: Test whether the AuthGet interface are normal.
- * @tc.type: FUNC
- */
-HWTEST_F(QosInterfaceTest, AuthGetTest, TestSize.Level1)
-{
-    unsigned int pid = getpid();
-    unsigned int uaFlag1 = 0;
-    unsigned int *uaFlag = &uaFlag1;
-    unsigned int status1 = 0;
-    unsigned int *status = &status1;
-    int ret = AuthGet(pid);
-    if (!IsLinuxOs()) {
-        return;
-    }
-    EXPECT_GE(ret, 0);
-    pid = -1;
-    ret = AuthGet(pid);
-    EXPECT_EQ(ret, -1);
-}
-
-/**
- * @tc.name: AuthEnhanceTest
- * @tc.desc: Test whether the AuthEnhance interface are normal.
- * @tc.type: FUNC
- */
-HWTEST_F(QosInterfaceTest, AuthEnhanceTest, TestSize.Level1)
-{
-    unsigned int pid = getpid();
-    bool enhanceStatus = false;
-    int ret = AuthEnhance(pid, enhanceStatus);
-    EXPECT_EQ(ret, 0);
-    enhanceStatus = false;
-    ret = AuthEnhance(pid, enhanceStatus);
-    EXPECT_EQ(ret, 0);
 }
 
 /**
@@ -271,11 +170,6 @@ HWTEST_F(QosInterfaceTest, QosPolicyTest, TestSize.Level1)
     ret = QosPolicySet(policyDatas);
     EXPECT_EQ(ret, -1);
 #if defined(ARM64_TEST) && ARM64_TEST
-    unsigned int pid = getpid();
-    unsigned int rtgFlag = AF_RTG_ALL;
-    unsigned int qosFlag = AF_QOS_ALL;
-    unsigned int status = static_cast<unsigned int>(AuthStatus::AUTH_STATUS_FOREGROUND);
-    ret = AuthSwitch(pid, rtgFlag, qosFlag, status);
     EXPECT_EQ(ret, 0);
     ret = QosPolicySet(&g_defaultQosPolicy);
     EXPECT_EQ(ret, 0);

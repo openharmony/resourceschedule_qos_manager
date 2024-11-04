@@ -48,17 +48,16 @@ ohos_shared_library("concurrentsvc") {
     "-fno-exceptions",
     "-fno-unwind-tables",
     "-fno-asynchronous-unwind-tables",
-    "-g0",
     "-Os",
   ]
 
   ldflags = [ "-Wl,--exclude-libs=ALL" ]
   sources = [
-    "../common/src/config_reader.cpp",
-    "src/concurrent_task_controller.cpp",
+    "src/concurrent_task_controller_interface.cpp",
     "src/concurrent_task_service.cpp",
     "src/concurrent_task_service_ability.cpp",
     "src/concurrent_task_service_stub.cpp",
+    "src/func_loader.cpp",
     "src/qos_interface.cpp",
     "src/qos_policy.cpp",
   ]
