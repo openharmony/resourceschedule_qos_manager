@@ -53,7 +53,7 @@ void ConcurrentTaskServiceProxy::QueryInterval(int queryItem, IntervalReply& que
         CONCUR_LOGE("Write interface token failed in QueryInterval Proxy");
         return;
     }
-    if (!data.WriteInt32(queryItem) || !data.WriteInt32(queryRs.tid)) {
+    if (!data.WriteInt32(queryItem) || !data.WriteInt32(queryRs.tid) || !data.WriteInt32(queryRs.paramA)) {
         CONCUR_LOGE("Write info failed in QueryInterval Proxy");
         return;
     }

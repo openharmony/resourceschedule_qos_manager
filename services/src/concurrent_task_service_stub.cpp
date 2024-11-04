@@ -71,7 +71,7 @@ int32_t ConcurrentTaskServiceStub::QueryIntervalInner(MessageParcel& data, [[may
     queryRs.tid = -1;
     queryRs.paramA = -1;
     queryRs.paramB = -1;
-    if (!data.ReadInt32(item) || !data.ReadInt32(queryRs.tid)) {
+    if (!data.ReadInt32(item) || !data.ReadInt32(queryRs.tid) || !data.ReadInt32(queryRs.paramA)) {
         CONCUR_LOGE("Read info failed in QueryInterval Stub");
         return IPC_STUB_ERR;
     }
