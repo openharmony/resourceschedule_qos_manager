@@ -15,7 +15,7 @@
 
 #include "concurrent_task_service_ability.h"
 #include "concurrent_task_log.h"
-#include "concurrent_task_controller.h"
+#include "concurrent_task_controller_interface.h"
 #include "concurrent_task_service.h"
 #include "system_ability_definition.h"
 
@@ -25,7 +25,7 @@ REGISTER_SYSTEM_ABILITY_BY_ID(ConcurrentTaskServiceAbility, CONCURRENT_TASK_SERV
 
 void ConcurrentTaskServiceAbility::OnStart()
 {
-    TaskController::GetInstance().Init();
+    TaskControllerInterface::GetInstance().Init();
     if (!service_) {
         try {
             service_ = new ConcurrentTaskService();
@@ -41,7 +41,7 @@ void ConcurrentTaskServiceAbility::OnStart()
 
 void ConcurrentTaskServiceAbility::OnStop()
 {
-    TaskController::GetInstance().Release();
+    TaskControllerInterface::GetInstance().Release();
     CONCUR_LOGI("ConcurrentTaskServiceAbility::OnStop!");
 }
 

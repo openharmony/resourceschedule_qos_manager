@@ -14,28 +14,29 @@
  */
 
 #include "concurrent_task_service.h"
-#include "concurrent_task_controller.h"
+
+#include "concurrent_task_controller_interface.h"
 
 namespace OHOS {
 namespace ConcurrentTask {
 void ConcurrentTaskService::ReportData(uint32_t resType, int64_t value, const Json::Value& payload)
 {
-    TaskController::GetInstance().ReportData(resType, value, payload);
+    TaskControllerInterface::GetInstance().ReportData(resType, value, payload);
 }
 
 void ConcurrentTaskService::QueryInterval(int queryItem, IntervalReply& queryRs)
 {
-    TaskController::GetInstance().QueryInterval(queryItem, queryRs);
+    TaskControllerInterface::GetInstance().QueryInterval(queryItem, queryRs);
 }
 
 void ConcurrentTaskService::QueryDeadline(int queryItem, DeadlineReply& queryRs, const Json::Value& payload)
 {
-    TaskController::GetInstance().QueryDeadline(queryItem, queryRs, payload);
+    TaskControllerInterface::GetInstance().QueryDeadline(queryItem, queryRs, payload);
 }
 
 void ConcurrentTaskService::RequestAuth(const Json::Value& payload)
 {
-    TaskController::GetInstance().RequestAuth(payload);
+    TaskControllerInterface::GetInstance().RequestAuth(payload);
 }
 
 } // namespace ConcurrentTask

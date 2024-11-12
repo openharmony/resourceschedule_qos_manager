@@ -12,7 +12,7 @@
 # limitations under the License.
 
 ffrt.interval.ui=false
-persist.ffrt.interval.renderthread=true
+ffrt.interval.renderthread=true
 ffrt.interval.renderservice=false
 ffrt.interval.slide=false
 ffrt.interval.limit=false

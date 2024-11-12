@@ -83,12 +83,42 @@ ohos_unittest("concurrent_task_client_test") {
   part_name = "qos_manager"
 }
 
-ohos_unittest("concurrent_task_controller_test") {
+ohos_unittest("func_loader_test") {
   module_out_path = module_output_path
 
   configs = [ ":test_config" ]
 
-  sources = [ "unittest/phone/concurrent_task_controller_test.cpp" ]
+  sources = [ "unittest/phone/func_loader_test.cpp" ]
+  deps = [
+    "../etc/param:ffrt_etc",
+    "../frameworks/concurrent_task_client:concurrent_task_client",
+    "../services:concurrentsvc",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "frame_aware_sched:rtg_interface",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "jsoncpp:jsoncpp",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  if (is_standard_system) {
+    external_deps += [ "googletest:gtest_main" ]
+  }
+
+  subsystem_name = "resourceschedule"
+  part_name = "qos_manager"
+}
+
+ohos_unittest("concurrent_task_controller_interface_test") {
+  module_out_path = module_output_path
+
+  configs = [ ":test_config" ]
+
+  sources = [ "unittest/phone/concurrent_task_controller_interface_test.cpp" ]
   deps = [
     "../etc/param:ffrt_etc",
     "../frameworks/concurrent_task_client:concurrent_task_client",
@@ -264,26 +294,6 @@ ohos_unittest("qos_ndk_test") {
   part_name = "qos_manager"
 }
 
-ohos_unittest("config_reader_test") {
-  module_out_path = module_output_path
-  configs = [ ":test_config" ]
-
-  sources = [ "unittest/phone/config_reader_test.cpp" ]
-  deps = [ "../services:concurrentsvc" ]
-
-  external_deps = [
-    "c_utils:utils",
-    "config_policy:configpolicy_util",
-    "frame_aware_sched:rtg_interface",
-    "hilog:libhilog",
-    "init:libbegetutil",
-    "libxml2:libxml2",
-  ]
-
-  subsystem_name = "resourceschedule"
-  part_name = "qos_manager"
-}
-
 group("concurrent_unittest") {
   testonly = true
   deps = []
@@ -291,10 +301,10 @@ group("concurrent_unittest") {
     deps += [
       ":concurrent_svc_intf_test",
       ":concurrent_task_client_test",
-      ":concurrent_task_controller_test",
+      ":concurrent_task_controller_interface_test",
       ":concurrent_task_service_ability_test",
       ":concurrent_task_service_test",
-      ":config_reader_test",
+      ":func_loader_test",
       ":qos_interface_test",
       ":qos_ndk_test",
       ":qos_policy_test",
