@@ -17,7 +17,7 @@
 #define private public
 #include "concurrent_task_client.h"
 #include "concurrent_task_service_ability.h"
-#include "concurrent_task_controller.h"
+#include "concurrent_task_controller_interface.h"
 #undef private
 #include "concurrent_task_service_proxy.h"
 #include "concurrent_task_service.h"
@@ -279,72 +279,6 @@ bool FuzzQosInterfaceEnableRtg(const uint8_t* data, size_t size)
     if (size > sizeof(int) + sizeof(int)) {
         bool flag = GetData<bool>();
         EnableRtg(flag);
-    }
-    return true;
-}
-
-bool FuzzQosInterfaceAuthEnable(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(unsigned int) + sizeof(unsigned int) + sizeof(unsigned int)) {
-        unsigned int pid = GetData<unsigned int>();
-        unsigned int uaFlag = GetData<unsigned int>();
-        unsigned int status = GetData<unsigned int>();
-        AuthEnable(pid, uaFlag, status);
-    }
-    return true;
-}
-
-bool FuzzQosInterfaceAuthSwitch(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > QUADRUPLE * sizeof(unsigned int)) {
-        unsigned int pid = GetData<unsigned int>();
-        unsigned int rtgFlag = GetData<unsigned int>();
-        unsigned int qosFlag = GetData<unsigned int>();
-        unsigned int status = GetData<unsigned int>();
-        AuthSwitch(pid, rtgFlag, qosFlag, status);
-    }
-    return true;
-}
-
-bool FuzzQosInterfaceAuthPause(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(unsigned int) + sizeof(unsigned int)) {
-        unsigned int pid = GetData<unsigned int>();
-        AuthPause(pid);
-    }
-    return true;
-}
-
-bool FuzzQosInterfaceAuthGet(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(unsigned int) + sizeof(unsigned int)) {
-        unsigned int pid = GetData<unsigned int>();
-        AuthGet(pid);
-    }
-    return true;
-}
-
-bool FuzzQosInterfaceAuthEnhance(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(unsigned int) + sizeof(unsigned int)) {
-        unsigned int pid = GetData<unsigned int>();
-        bool enhanceStatus = GetData<bool>();
-        AuthEnhance(pid, enhanceStatus);
     }
     return true;
 }
@@ -704,256 +638,80 @@ bool FuzzConcurrentTaskServiceProxyRequestAuth(const uint8_t* data, size_t size)
     return true;
 }
 
-bool FuzzTaskControllerQueryRenderService(const uint8_t* data, size_t size)
+
+bool FuzzConcurrentTaskControllerInterfaceReportData(const uint8_t* data, size_t size)
 {
     g_baseFuzzData = data;
     g_baseFuzzSize = size;
     g_baseFuzzPos = 0;
-    if (size > sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int)) {
-        int uid = GetData<int>();
+    if (size > sizeof(uint32_t) + sizeof(int64_t) + sizeof(uint32_t) + sizeof(uint32_t)) {
+        uint32_t resType = GetData<uint32_t>();
+        int64_t value = GetData<int64_t>();
+        Json::Value jsValue;
+        jsValue["1111"] = std::to_string(GetData<uint32_t>());
+        jsValue["2222"] = std::to_string(GetData<uint32_t>());
+        TaskControllerInterface::GetInstance().ReportData(resType, value, jsValue);
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskControllerInterfaceQueryInterval(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        ConcurrentTaskService s = ConcurrentTaskService();
+        int queryItem = GetData<int>();
+        queryItem = queryItem % (QURRY_TYPE_MAX + 1);
         IntervalReply queryRs;
-        queryRs.tid = GetData<int>();
-        queryRs.rtgId = GetData<int>();
-        queryRs.paramA = 1;
-        queryRs.paramB = 1;
-        TaskController::GetInstance().renderServiceMainGrpId_ = GetData<int>();
-        TaskController::GetInstance().QueryRenderService(uid, queryRs);
+        TaskControllerInterface::GetInstance().QueryInterval(queryItem, queryRs);
     }
     return true;
 }
 
-bool FuzzTaskControllerQueryExecutorStart(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(int) + sizeof(int) + sizeof(int) + sizeof(int)) {
-        int uid = GetData<int>();
-        IntervalReply queryRs;
-        queryRs.tid = GetData<int>();
-        queryRs.rtgId = GetData<int>();
-        queryRs.paramA = 1;
-        queryRs.paramB = 1;
-        TaskController::GetInstance().renderServiceMainGrpId_ = GetData<int>();
-        TaskController::GetInstance().QueryRenderService(uid, queryRs);
-    }
-    return true;
-}
-
-bool FuzzTaskControllerGetRequestType(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(int)) {
-        std::string msgType = std::to_string(GetData<int>());
-        TaskController::GetInstance().GetRequestType(msgType);
-    }
-    return true;
-}
-
-bool FuzzTaskControllerDealSystemRequest(const uint8_t* data, size_t size)
+bool FuzzConcurrentTaskControllerInterfaceQueryDeadline(const uint8_t* data, size_t size)
 {
     g_baseFuzzData = data;
     g_baseFuzzSize = size;
     g_baseFuzzPos = 0;
     if (size > sizeof(int) + sizeof(int) + sizeof(int)) {
-        Json::Value payload;
-        payload["pid"] = GetData<int>();
-        payload["uid"] = GetData<int>();
-        int requestType = GetData<int>();
-        TaskController::GetInstance().DealSystemRequest(requestType, payload);
+        int deadlineType = GetData<int>();
+        deadlineType = deadlineType % (MSG_GAME + 1);
+        DeadlineReply queryRs;
+        Json::Value jsValue;
+        jsValue["2123"] = std::to_string(GetData<int>());
+        jsValue["2333"] = std::to_string(GetData<int>());
+        ConcurrentTaskService s = ConcurrentTaskService();
+        TaskControllerInterface::GetInstance().QueryDeadline(deadlineType, queryRs, jsValue);
     }
     return true;
 }
 
-bool FuzzTaskControllerNewForeground(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(int) + sizeof(int)) {
-        int uid = GetData<int>();
-        int pid = GetData<int>();
-        TaskController::GetInstance().NewForeground(uid, pid);
-    }
-    return true;
-}
-
-bool FuzzTaskControllerNewForegroundAppRecord(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(int) + sizeof(int) + sizeof(int)) {
-        int pid = GetData<int>();
-        int uiPid = GetData<int>();
-        bool ddlEnable = GetData<bool>();
-        TaskController::GetInstance().NewForegroundAppRecord(pid, uiPid, ddlEnable);
-    }
-    return true;
-}
-
-bool FuzzTaskControllerNewBackground(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(int) + sizeof(int)) {
-        int pid = GetData<int>();
-        int uid = GetData<int>();
-        TaskController::GetInstance().NewBackground(uid, pid);
-    }
-    return true;
-}
-
-bool FuzzTaskControllerNewAppStart(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(int) + sizeof(int) + sizeof(int)) {
-        int pid = GetData<int>();
-        int uid = GetData<int>();
-        std::string bundleName = std::to_string(GetData<int>());
-        TaskController::GetInstance().NewAppStart(uid, pid, bundleName);
-    }
-    return true;
-}
-
-bool FuzzTaskControllerAppKilled(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(int) + sizeof(int)) {
-        int pid = GetData<int>();
-        int uid = GetData<int>();
-        TaskController::GetInstance().AppKilled(uid, pid);
-    }
-    return true;
-}
-
-bool FuzzTaskControllerAuthSystemProcess(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(int)) {
-        int pid = GetData<int>();
-        TaskController::GetInstance().AuthSystemProcess(pid);
-    }
-    return true;
-}
-
-bool FuzzTaskControllerContinuousTaskProcess(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(int) + sizeof(int) + sizeof(int)) {
-        int pid = GetData<int>();
-        int uid = GetData<int>();
-        int status = GetData<int>();
-        TaskController::GetInstance().ContinuousTaskProcess(uid, pid, status);
-    }
-    return true;
-}
-
-bool FuzzTaskControllerFocusStatusProcess(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(int) + sizeof(int) + sizeof(int)) {
-        int pid = GetData<int>();
-        int uid = GetData<int>();
-        int status = GetData<int>();
-        TaskController::GetInstance().FocusStatusProcess(uid, pid, status);
-    }
-    return true;
-}
-
-bool FuzzTaskControllerModifyGameState(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(int) + sizeof(int)) {
-        const char* str1 = reinterpret_cast<const char*>(data + g_baseFuzzPos);
-        size_t size1 = (size - g_baseFuzzPos) > LEN ? LEN : (size - g_baseFuzzPos);
-        std::string gameMsg(str1, size1);
-        Json::Value payload;
-        payload["gameMsg"] = gameMsg.c_str();
-        TaskController::GetInstance().ModifyGameState(payload);
-    } else {
-        Json::Value payload;
-        payload["gameMsg"] = "gameScene\":\"1";
-        TaskController::GetInstance().ModifyGameState(payload);
-    }
-    return true;
-}
-
-bool FuzzTaskControllerModifySystemRate(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(int) + sizeof(int)) {
-        const char* str1 = reinterpret_cast<const char*>(data + g_baseFuzzPos);
-        size_t size1 = (size - g_baseFuzzPos) > LEN ? LEN : (size - g_baseFuzzPos);
-        std::string gameMsg(str1, size1);
-        Json::Value payload;
-        payload["gameMsg"] = gameMsg.c_str();
-        TaskController::GetInstance().ModifyGameState(payload);
-    } else {
-        Json::Value payload;
-        payload["gameMsg"] = "gameScene\":\"1";
-        TaskController::GetInstance().ModifyGameState(payload);
-    }
-    return true;
-}
-
-bool FuzzTaskControllerSetAppRate(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(int) + sizeof(int) + sizeof(int)) {
-        Json::Value payload;
-        payload[std::to_string(GetData<int>()).c_str()] = std::to_string(GetData<int>()).c_str();
-        TaskController::GetInstance().SetAppRate(payload);
-    } else {
-        Json::Value payload;
-        payload["-1"] = std::to_string(GetData<int>()).c_str();
-        TaskController::GetInstance().SetAppRate(payload);
-    }
-    return true;
-}
-
-bool FuzzTaskControllerSetRenderServiceRate(const uint8_t* data, size_t size)
-{
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
-    if (size > sizeof(int) + sizeof(int) + sizeof(int)) {
-        Json::Value payload;
-        payload[std::to_string(GetData<int>()).c_str()] = std::to_string(GetData<int>()).c_str();
-        TaskController::GetInstance().SetRenderServiceRate(payload);
-    }
-    return true;
-}
-
-bool FuzzTaskControllerCheckJsonValid(const uint8_t* data, size_t size)
+bool FuzzConcurrentTaskControllerInterfaceRequestAuth(const uint8_t* data, size_t size)
 {
     g_baseFuzzData = data;
     g_baseFuzzSize = size;
     g_baseFuzzPos = 0;
     if (size > sizeof(int) + sizeof(int)) {
         Json::Value payload;
-        payload[std::to_string(GetData<int>()).c_str()] = std::to_string(GetData<int>()).c_str();
-        TaskController::GetInstance().CheckJsonValid(payload);
+        payload["2187"] = std::to_string(GetData<int>());
+        payload["2376"] = std::to_string(GetData<int>());
+        ConcurrentTaskService s = ConcurrentTaskService();
+        TaskControllerInterface::GetInstance().RequestAuth(payload);
     }
+    return true;
+}
+
+bool FuzzConcurrentTaskControllerInterfaceInit(const uint8_t* data, size_t size)
+{
+    TaskControllerInterface::GetInstance().Init();
+    return true;
+}
+
+bool FuzzConcurrentTaskControllerInterfaceRelease(const uint8_t* data, size_t size)
+{
+    TaskControllerInterface::GetInstance().Release();
     return true;
 }
 
@@ -973,23 +731,6 @@ bool FuzzQosControllerGetThreadQosForOtherThread(const uint8_t* data, size_t siz
 
 static void TaskControllerFuzzTestSuit(const uint8_t *data, size_t size)
 {
-    OHOS::FuzzTaskControllerQueryRenderService(data, size);
-    OHOS::FuzzTaskControllerQueryExecutorStart(data, size);
-    OHOS::FuzzTaskControllerGetRequestType(data, size);
-    OHOS::FuzzTaskControllerDealSystemRequest(data, size);
-    OHOS::FuzzTaskControllerNewForeground(data, size);
-    OHOS::FuzzTaskControllerNewForegroundAppRecord(data, size);
-    OHOS::FuzzTaskControllerNewBackground(data, size);
-    OHOS::FuzzTaskControllerNewAppStart(data, size);
-    OHOS::FuzzTaskControllerAppKilled(data, size);
-    OHOS::FuzzTaskControllerAuthSystemProcess(data, size);
-    OHOS::FuzzTaskControllerContinuousTaskProcess(data, size);
-    OHOS::FuzzTaskControllerFocusStatusProcess(data, size);
-    OHOS::FuzzTaskControllerModifyGameState(data, size);
-    OHOS::FuzzTaskControllerSetAppRate(data, size);
-    OHOS::FuzzTaskControllerModifySystemRate(data, size);
-    OHOS::FuzzTaskControllerSetRenderServiceRate(data, size);
-    OHOS::FuzzTaskControllerCheckJsonValid(data, size);
     OHOS::FuzzQosControllerGetThreadQosForOtherThread(data, size);
 }
 
@@ -1009,11 +750,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::FuzzConcurrentTaskServiceQueryDeadline(data, size);
     OHOS::FuzzQosPolicyInit(data, size);
     OHOS::FuzzQosInterfaceEnableRtg(data, size);
-    OHOS::FuzzQosInterfaceAuthEnable(data, size);
-    OHOS::FuzzQosInterfaceAuthSwitch(data, size);
-    OHOS::FuzzQosInterfaceAuthGet(data, size);
-    OHOS::FuzzQosInterfaceAuthEnhance(data, size);
-    OHOS::FuzzQosInterfaceAuthPause(data, size);
     OHOS::FuzzQosInterfaceQosLeave(data, size);
     OHOS::FuzzConcurrentTaskServiceStubReportData(data, size);
     OHOS::FuzzConcurrentTaskServiceStubQueryInterval(data, size);

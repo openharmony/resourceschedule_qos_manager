@@ -28,58 +28,10 @@ constexpr int ROOT_UID = 0;
 constexpr int NR_QOS = 7;
 constexpr unsigned int SET_RTG_ENABLE = 1;
 constexpr unsigned int QOS_CTRL_IPC_MAGIC = 0xCC;
-constexpr unsigned int AUTH_CTRL_IPC_MAGIC = 0xCD;
 constexpr unsigned int RTG_SCHED_IPC_MAGIC = 0xAB;
 
 constexpr unsigned int AF_QOS_ALL = 0x0003;
 constexpr unsigned int AF_QOS_DELEGATED = 0x0001;
-
-/*
- * auth_ctrl
- */
-struct AuthCtrlData {
-    unsigned int pid;
-    unsigned int type;
-    unsigned int rtgUaFlag;
-    unsigned int qosUaFlag;
-    unsigned int status;
-#ifdef QOS_EXT_ENABLE
-    bool enhanceStatus;
-#endif
-};
-
-enum class AuthManipulateType {
-    AUTH_ENABLE = 1,
-    AUTH_DELETE,
-    AUTH_GET,
-    AUTH_SWITCH,
-    AUTH_MAX_NR,
-};
-
-enum class AuthStatus {
-    AUTH_STATUS_DEFAULT = 1,
-    AUTH_STATUS_SYSTEM_SERVER = 2,
-    AUTH_STATUS_FOREGROUND = 3,
-    AUTH_STATUS_BACKGROUND = 4,
-    AUTH_STATUS_FOCUS = 5,
-    AUTH_STATUS_DEAD,
-};
-
-enum AuthCtrlCmdid {
-    BASIC_AUTH_CTRL = 1,
-#ifdef QOS_EXT_ENABLE
-    ENHANCE_AUTH_CTRL = 2,
-#endif
-    AUTH_CTRL_MAX_NR
-};
-
-#define BASIC_AUTH_CTRL_OPERATION \
-    _IOWR(AUTH_CTRL_IPC_MAGIC, BASIC_AUTH_CTRL, struct AuthCtrlData)
-
-#ifdef QOS_EXT_ENABLE
-#define ENHANCE_AUTH_CTRL_OPERATION \
-    _IOWR(AUTH_CTRL_IPC_MAGIC, ENHANCE_AUTH_CTRL, struct AuthCtrlData)
-#endif
 
 /*
  * qos ctrl
@@ -97,10 +49,9 @@ struct QosCtrlData {
     unsigned int level;
     int qos;
 #ifdef QOS_EXT_ENABLE
-    int qos;
     int staticQos;
     int dynamicQos;
-    bool tagSchedEnable = true;
+    bool tagSchedEnable = false;
 #endif
 };
 
@@ -158,13 +109,6 @@ enum QosCtrlCmdid {
 #define QOS_CTRL_POLICY_OPERATION \
     _IOWR(QOS_CTRL_IPC_MAGIC, QOS_POLICY, struct QosPolicyDatas)
 
-/*
- * RTG
- */
-#define AF_RTG_ALL          0x1fff
-#define AF_RTG_DELEGATED    0x1fff
-#define AF_RTG_APP          0x10b8
-
 struct RtgEnableData {
     int enable;
     int len;
@@ -178,12 +122,6 @@ struct RtgEnableData {
  * interface
  */
 int EnableRtg(bool flag);
-int AuthEnable(unsigned int pid, unsigned int uaFlag, unsigned int status);
-int AuthPause(unsigned int pid);
-int AuthDelete(unsigned int pid);
-int AuthGet(unsigned int pid);
-int AuthSwitch(unsigned int pid, unsigned int rtgFlag, unsigned int qosFlag, unsigned int status);
-int AuthEnhance(unsigned int pid, bool enhanceStatus);
 int QosApply(unsigned int level);
 int QosApplyForOther(unsigned int level, int tid);
 int QosLeave(void);
