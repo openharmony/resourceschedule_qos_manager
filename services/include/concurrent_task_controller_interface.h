@@ -23,6 +23,7 @@
 
 #include "concurrent_task_type.h"
 #include "func_loader.h"
+#include "qos_policy.h"
 
 namespace OHOS {
 namespace ConcurrentTask {
@@ -51,6 +52,7 @@ private:
     FuncLoader funcLoader_;
     std::mutex funcLoaderLock_;
     bool inited_ = false;
+    QosPolicy qosPolicy_;
 
     ReportDataFunc reportDataFunc_ = nullptr;
     QueryIntervalFunc queryIntervalFunc_ = nullptr;
