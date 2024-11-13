@@ -87,6 +87,7 @@ void TaskControllerInterface::Init()
         return;
     }
     if (!LoadFunc()) {
+        qosPolicy_.Init();
         CONCUR_LOGE("TaskControllerInterface load function failed.");
         return;
     }
