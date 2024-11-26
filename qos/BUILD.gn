@@ -19,6 +19,7 @@ config("qos_config") {
     "../include/",
     "../interfaces/inner_api/",
     "../services/include/",
+    "../common/include/",
   ]
 }
 
@@ -38,6 +39,7 @@ ohos_shared_library("qos") {
   ]
   public_configs = [ ":qos_config" ]
   sources = [
+    "../common/src/concurrent_task_utils.cpp",
     "../services/src/qos_interface.cpp",
     "qos.cpp",
   ]

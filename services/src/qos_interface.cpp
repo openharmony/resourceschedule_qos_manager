@@ -27,6 +27,7 @@
 #include <sys/ioctl.h>
 
 #include "concurrent_task_log.h"
+#include "concurrent_task_utils.h"
 
 static int TrivalOpenRtgNode(void)
 {
@@ -61,13 +62,14 @@ int EnableRtg(bool flag)
     if (fd < 0) {
         return fd;
     }
+    fdsan_exchange_owner_tag(fd, 0, GetAddrTag((void*)&fd));
 
     int ret = ioctl(fd, CMD_ID_SET_ENABLE, &enableData);
     if (ret < 0) {
         CONCUR_LOGE("set rtg config enable failed.");
     }
 
-    close(fd);
+    fdsan_close_with_tag(fd, GetAddrTag((void*)&fd));
 
     return 0;
 };
@@ -85,6 +87,7 @@ int QosApplyForOther(unsigned int level, int tid)
     if (fd < 0) {
         return fd;
     }
+    fdsan_exchange_owner_tag(fd, 0, GetAddrTag((void*)&fd));
 
     struct QosCtrlData data;
     data.level = level;
@@ -95,7 +98,7 @@ int QosApplyForOther(unsigned int level, int tid)
     if (ret < 0) {
         CONCUR_LOGE("[Interface] task %{public}d apply qos failed, errno = %{public}d", tid, errno);
     }
-    close(fd);
+    fdsan_close_with_tag(fd, GetAddrTag((void*)&fd));
     return ret;
 }
 
@@ -105,6 +108,7 @@ int QosLeave(void)
     if (fd < 0) {
         return fd;
     }
+    fdsan_exchange_owner_tag(fd, 0, GetAddrTag((void*)&fd));
 
     struct QosCtrlData data;
     data.type = static_cast<unsigned int>(QosManipulateType::QOS_LEAVE);
@@ -114,7 +118,7 @@ int QosLeave(void)
     if (ret < 0) {
         CONCUR_LOGE("[Interface] task %{public}d leave qos failed, errno = %{public}d", gettid(), errno);
     }
-    close(fd);
+    fdsan_close_with_tag(fd, GetAddrTag((void*)&fd));
     return ret;
 }
 
@@ -124,6 +128,7 @@ int QosLeaveForOther(int tid)
     if (fd < 0) {
         return fd;
     }
+    fdsan_exchange_owner_tag(fd, 0, GetAddrTag((void*)&fd));
 
     struct QosCtrlData data;
     data.type = static_cast<unsigned int>(QosManipulateType::QOS_LEAVE);
@@ -133,7 +138,7 @@ int QosLeaveForOther(int tid)
     if (ret < 0) {
         CONCUR_LOGE("[Interface] task %{public}d leave qos failed, errno = %{public}d", tid, errno);
     }
-    close(fd);
+    fdsan_close_with_tag(fd, GetAddrTag((void*)&fd));
     return ret;
 }
 
@@ -143,12 +148,13 @@ int QosPolicySet(const struct QosPolicyDatas* policyDatas)
     if (fd < 0) {
         return fd;
     }
+    fdsan_exchange_owner_tag(fd, 0, GetAddrTag((void*)&fd));
 
     int ret = ioctl(fd, QOS_CTRL_POLICY_OPERATION, policyDatas);
     if (ret < 0) {
         CONCUR_LOGE("[Interface] set qos policy failed, errno = %{public}d", errno);
     }
-    close(fd);
+    fdsan_close_with_tag(fd, GetAddrTag((void*)&fd));
     return ret;
 }
 
@@ -164,6 +170,7 @@ int QosGetForOther(int tid, int& level)
     if (fd < 0) {
         return fd;
     }
+    fdsan_exchange_owner_tag(fd, 0, GetAddrTag((void*)&fd));
 
     struct QosCtrlData data;
     data.type = static_cast<unsigned int>(QosManipulateType::QOS_GET);
@@ -176,6 +183,6 @@ int QosGetForOther(int tid, int& level)
     }
     level = data.qos;
 
-    close(fd);
+    fdsan_close_with_tag(fd, GetAddrTag((void*)&fd));
     return ret;
 }
