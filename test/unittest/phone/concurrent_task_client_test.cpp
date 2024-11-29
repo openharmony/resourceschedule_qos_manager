@@ -68,6 +68,20 @@ HWTEST_F(ConcurrentTaskClientTest, ReportDataTest, TestSize.Level1)
  * @tc.desc: Test whether the PushTask interface are normal.
  * @tc.type: FUNC
  */
+HWTEST_F(ConcurrentTaskClientTest, ReportSceneInfoTest, TestSize.Level1)
+{
+    uint32_t type = 0;
+    std::unordered_map<std::string, std::string> payload;
+    payload["uid"] = "3587";
+    payload["value"] = "12345";
+    ConcurrentTaskClient::GetInstance().ReportSceneInfo(type, payload);
+}
+
+/**
+ * @tc.name: PushTaskTest
+ * @tc.desc: Test whether the PushTask interface are normal.
+ * @tc.type: FUNC
+ */
 HWTEST_F(ConcurrentTaskClientTest, QueryIntervalTest, TestSize.Level1)
 {
     int queryItem = 3;

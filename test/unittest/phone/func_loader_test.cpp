@@ -72,6 +72,7 @@ HWTEST_F(FuncLoaderTest, LoadSymbolTest, TestSize.Level1)
     funcLoader.LoadSymbol("Init");
     funcLoader.LoadSymbol("Release");
     funcLoader.LoadSymbol("ReportData");
+    funcLoader.LoadSymbol("ReportSceneInfo");
     funcLoader.LoadSymbol("QueryInterval");
     funcLoader.LoadSymbol("QueryDeadline");
     funcLoader.LoadSymbol("RequestAuth");

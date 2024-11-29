@@ -28,6 +28,7 @@ public:
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.ResourceSchedule.ConcurrentTaskService");
 
     virtual void ReportData(uint32_t resType, int64_t value, const Json::Value& payload) = 0;
+    virtual void ReportSceneInfo(uint32_t type, const Json::Value& payload) = 0;
     virtual void QueryInterval(int queryItem, IntervalReply& queryRs) = 0;
     virtual void QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload) = 0;
     virtual void RequestAuth(const Json::Value& payload) = 0;

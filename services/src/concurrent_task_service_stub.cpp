@@ -60,6 +60,25 @@ int32_t ConcurrentTaskServiceStub::ReportDataInner(MessageParcel& data, [[maybe_
     return ERR_OK;
 }
 
+int32_t ConcurrentTaskServiceStub::ReportSceneInfoInner(MessageParcel& data, [[maybe_unused]] MessageParcel& reply)
+{
+    if (!IsValidToken(data)) {
+        return ERR_CONCURRENT_TASK_PARCEL_ERROR;
+    }
+
+    uint32_t type = 0;
+    std::string payload;
+    if (!data.ReadUint32(type) || !data.ReadString(payload)) {
+        CONCUR_LOGE("Read info failed in ReportSceneInfoInner Stub");
+        return IPC_STUB_ERR;
+    }
+    if (payload.empty()) {
+        return ERR_OK;
+    }
+    ReportSceneInfo(type, StringToJson(payload));
+    return ERR_OK;
+}
+
 int32_t ConcurrentTaskServiceStub::QueryIntervalInner(MessageParcel& data, [[maybe_unused]] MessageParcel& reply)
 {
     if (!IsValidToken(data)) {
@@ -168,6 +187,8 @@ void ConcurrentTaskServiceStub::Init()
     funcMap_ = {
         { static_cast<uint32_t>(ConcurrentTaskInterfaceCode::REPORT_DATA),
             [this](auto& data, auto& reply) {return ReportDataInner(data, reply); } },
+        { static_cast<uint32_t>(ConcurrentTaskInterfaceCode::REPORT_SCENE_INFO),
+            [this](auto& data, auto& reply) {return ReportSceneInfoInner(data, reply); } },
         { static_cast<uint32_t>(ConcurrentTaskInterfaceCode::QUERY_INTERVAL),
             [this](auto& data, auto& reply) {return QueryIntervalInner(data, reply); } },
         { static_cast<uint32_t>(ConcurrentTaskInterfaceCode::QUERY_DEADLINE),
