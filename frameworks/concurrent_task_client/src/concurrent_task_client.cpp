@@ -43,6 +43,19 @@ void ConcurrentTaskClient::ReportData(uint32_t resType, int64_t value,
     clientService_->ReportData(resType, value, payload);
 }
 
+void ConcurrentTaskClient::ReportSceneInfo(uint32_t type,
+                                           const std::unordered_map<std::string, std::string>& mapPayload)
+{
+    if (TryConnect() != ERR_OK) {
+        return;
+    }
+    Json::Value payload;
+    for (auto it = mapPayload.begin(); it != mapPayload.end(); ++it) {
+        payload[it->first] = it->second;
+    }
+    clientService_->ReportSceneInfo(type, payload);
+}
+
 void ConcurrentTaskClient::QueryInterval(int queryItem, IntervalReply& queryRs)
 {
     if (TryConnect() != ERR_OK) {

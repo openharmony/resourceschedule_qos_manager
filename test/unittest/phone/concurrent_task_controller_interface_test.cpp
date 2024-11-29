@@ -76,6 +76,19 @@ HWTEST_F(ConcurrentTaskControllerInterfaceTest, ReportDataTest, TestSize.Level1)
 }
 
 /**
+ * @tc.name: ReportSceneInfoTest
+ * @tc.desc: Test whether the ReportSceneInfoTest interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskControllerInterfaceTest, ReportSceneInfoTest, TestSize.Level1)
+{
+    uint32_t resType = 0;
+    const Json::Value payload;
+    TaskControllerInterface repData;
+    repData.ReportSceneInfo(resType, payload);
+}
+
+/**
  * @tc.name: QueryDeadlineTest
  * @tc.desc: Test whether the QueryDeadlineTest interface are normal.
  * @tc.type: FUNC

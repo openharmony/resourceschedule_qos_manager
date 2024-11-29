@@ -24,6 +24,7 @@ enum class ConcurrentTaskInterfaceCode {
     QUERY_INTERVAL = 2,
     QUERY_DEADLINE = 3,
     REQUEST_AUTH = 4,
+    REPORT_SCENE_INFO = 5,
 };
 } // namespace ConcurrentTask
 } // namespace OHOS
