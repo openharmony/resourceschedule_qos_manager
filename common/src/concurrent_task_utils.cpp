@@ -18,7 +18,8 @@
 #include "concurrent_task_utils.h"
 
 
-uint64_t GetAddrTag(void* addr) {
+uint64_t GetAddrTag(void* addr)
+{
     uint64_t tag = 0;
     if (addr != nullptr) {
         tag = fdsan_create_owner_tag(FDSAN_OWNER_TYPE_FILE, (uint64_t)addr);
