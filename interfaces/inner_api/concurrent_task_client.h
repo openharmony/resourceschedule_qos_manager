@@ -48,6 +48,14 @@ public:
     void ReportData(uint32_t resType, int64_t value, const std::unordered_map<std::string, std::string>& mapPayload);
 
     /**
+     * @brief Report scene info to the concurrent task service through inter-process communication.
+     *
+     * @param type Indicates the resource type, default is 0.
+     * @param mapPayload Indicates the context info of the scene data.
+     */
+    void ReportSceneInfo(uint32_t type, const std::unordered_map<std::string, std::string>& mapPayload);
+
+    /**
      * @brief Query rtg id and other info provided by concurrent task service.
      *
      * @param queryItem Information of the corresponding query module.

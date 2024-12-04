@@ -24,6 +24,11 @@ void ConcurrentTaskService::ReportData(uint32_t resType, int64_t value, const Js
     TaskControllerInterface::GetInstance().ReportData(resType, value, payload);
 }
 
+void ConcurrentTaskService::ReportSceneInfo(uint32_t type, const Json::Value& payload)
+{
+    TaskControllerInterface::GetInstance().ReportSceneInfo(type, payload);
+}
+
 void ConcurrentTaskService::QueryInterval(int queryItem, IntervalReply& queryRs)
 {
     TaskControllerInterface::GetInstance().QueryInterval(queryItem, queryRs);

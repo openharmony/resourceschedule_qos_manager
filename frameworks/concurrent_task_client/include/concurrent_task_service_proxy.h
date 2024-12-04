@@ -29,6 +29,7 @@ public:
     virtual ~ConcurrentTaskServiceProxy() {}
 
     void ReportData(uint32_t resType, int64_t value, const Json::Value& payload) override;
+    void ReportSceneInfo(uint32_t type, const Json::Value& payload) override;
     void QueryInterval(int queryItem, IntervalReply& queryRs) override;
     void QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload) override;
     void RequestAuth(const Json::Value& payload) override;

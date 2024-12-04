@@ -28,6 +28,7 @@
 namespace OHOS {
 namespace ConcurrentTask {
 using ReportDataFunc = void (*)(uint32_t resType, int64_t value, const Json::Value& payload);
+using ReportSceneInfoFunc = void (*)(uint32_t type, const Json::Value& payload);
 using QueryIntervalFunc = void (*)(int queryItem, IntervalReply& queryRs);
 using QueryDeadlineFunc = void (*)(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload);
 using RequestAuthFunc = void (*)(const Json::Value& payload);
@@ -42,6 +43,7 @@ public:
     virtual ~TaskControllerInterface() = default;
     void RequestAuth(const Json::Value& payload);
     void ReportData(uint32_t resType, int64_t value, const Json::Value& payload);
+    void ReportSceneInfo(uint32_t type, const Json::Value& payload);
     void QueryInterval(int queryItem, IntervalReply& queryRs);
     void QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload);
     void Init();
@@ -55,6 +57,7 @@ private:
     QosPolicy qosPolicy_;
 
     ReportDataFunc reportDataFunc_ = nullptr;
+    ReportSceneInfoFunc reportSceneInfoFunc_ = nullptr;
     QueryIntervalFunc queryIntervalFunc_ = nullptr;
     QueryDeadlineFunc queryDeadlineFunc_ = nullptr;
     RequestAuthFunc requestAuthFunc_ = nullptr;
