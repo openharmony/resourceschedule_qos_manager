@@ -62,6 +62,15 @@ void TaskControllerInterface::ReportData(uint32_t resType, int64_t value, const 
     reportDataFunc_(resType, value, payload);
 }
 
+void TaskControllerInterface::ReportSceneInfo(uint32_t type, const Json::Value& payload)
+{
+    if (!inited_) {
+        CONCUR_LOGE("[TaskControllerInterface] ReportSceneInfo failed, funcLoader_ load func failed");
+        return;
+    }
+    reportSceneInfoFunc_(type, payload);
+}
+
 void TaskControllerInterface::QueryInterval(int queryItem, IntervalReply& queryRs)
 {
     if (!inited_) {
@@ -108,6 +117,7 @@ void TaskControllerInterface::Release()
 bool TaskControllerInterface::LoadFunc()
 {
     reportDataFunc_ = ReportDataFunc(funcLoader_.LoadSymbol("ReportData"));
+    reportSceneInfoFunc_ = ReportSceneInfoFunc(funcLoader_.LoadSymbol("ReportSceneInfo"));
     queryIntervalFunc_ = QueryIntervalFunc(funcLoader_.LoadSymbol("QueryInterval"));
     queryDeadlineFunc_ = QueryDeadlineFunc(funcLoader_.LoadSymbol("QueryDeadline"));
     requestAuthFunc_ = RequestAuthFunc(funcLoader_.LoadSymbol("RequestAuth"));

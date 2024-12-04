@@ -47,6 +47,8 @@ public:
     virtual ~ConcurrentTaskServiceStubFuzer() = default;
     void ReportData(uint32_t resType, int64_t value, const Json::Value& payload) override
     {}
+    void ReportSceneInfo(uint32_t type, const Json::Value& payload) override
+    {}
     void QueryInterval(int queryItem, IntervalReply& queryRs) override
     {}
     void QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload) override
@@ -110,6 +112,30 @@ bool FuzzConcurrentTaskServiceReportData(const uint8_t* data, size_t size)
         MessageParcel reply;
         MessageOption option;
         uint32_t code = static_cast<uint32_t>(ConcurrentTaskInterfaceCode::REPORT_DATA);
+        ConcurrentTaskService s = ConcurrentTaskService();
+        s.OnRemoteRequest(code, data1, reply, option);
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceReportSceneInfo(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        MessageParcel data1;
+        Parcel parcel;
+        sptr<IRemoteObject> iremoteobject = IRemoteObject::Unmarshalling(parcel);
+        int intdata = GetData<int>();
+        void *voiddata = &intdata;
+        size_t size1 = sizeof(int);
+        data1.WriteRemoteObject(iremoteobject);
+        data1.WriteRawData(voiddata, size1);
+        data1.ReadRawData(size1);
+        MessageParcel reply;
+        MessageOption option;
+        uint32_t code = static_cast<uint32_t>(ConcurrentTaskInterfaceCode::REPORT_SCENE_INFO);
         ConcurrentTaskService s = ConcurrentTaskService();
         s.OnRemoteRequest(code, data1, reply, option);
     }
@@ -383,6 +409,22 @@ bool FuzzConcurrentTaskServiceStubReportData(const uint8_t* data, size_t size)
     return true;
 }
 
+bool FuzzConcurrentTaskServiceStubReportSceneInfo(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t)) {
+        ConcurrentTaskService s = ConcurrentTaskService();
+        uint32_t type = GetData<uint32_t>();
+        Json::Value jsValue;
+        jsValue["1111"] = std::to_string(GetData<uint32_t>());
+        jsValue["2222"] = std::to_string(GetData<uint32_t>());
+        s.ReportSceneInfo(type, jsValue);
+    }
+    return true;
+}
+
 bool FuzzConcurrentTaskServiceStubQueryInterval(const uint8_t* data, size_t size)
 {
     g_baseFuzzData = data;
@@ -575,6 +617,24 @@ bool FuzzConcurrentTaskServiceProxyReportData(const uint8_t* data, size_t size)
     return true;
 }
 
+bool FuzzConcurrentTaskServiceProxyReportSceneInfo(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size >= sizeof(uint32_t) + sizeof(int32_t)) {
+        uint32_t intdata1 = GetData<int32_t>();
+        Json::Value payload;
+        payload["2123"] = std::to_string(GetData<int32_t>());
+        sptr<ISystemAbilityManager> systemAbilityManager =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(CONCURRENT_TASK_SERVICE_ID);
+        ConcurrentTaskServiceProxy s = ConcurrentTaskServiceProxy(remoteObject);
+        s.ReportSceneInfo(intdata1, payload);
+    }
+    return true;
+}
+
 bool FuzzConcurrentTaskServiceProxyQueryInterval(const uint8_t* data, size_t size)
 {
     g_baseFuzzData = data;
@@ -651,6 +711,21 @@ bool FuzzConcurrentTaskControllerInterfaceReportData(const uint8_t* data, size_t
         jsValue["1111"] = std::to_string(GetData<uint32_t>());
         jsValue["2222"] = std::to_string(GetData<uint32_t>());
         TaskControllerInterface::GetInstance().ReportData(resType, value, jsValue);
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskControllerInterfaceReportSceneInfo(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t)) {
+        uint32_t resType = GetData<uint32_t>();
+        Json::Value jsValue;
+        jsValue["1111"] = std::to_string(GetData<uint32_t>());
+        jsValue["2222"] = std::to_string(GetData<uint32_t>());
+        TaskControllerInterface::GetInstance().ReportSceneInfo(resType, jsValue);
     }
     return true;
 }
@@ -740,6 +815,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     /* Run your code on data */
     OHOS::FuzzConcurrentTaskTryConnect(data, size);
     OHOS::FuzzConcurrentTaskServiceReportData(data, size);
+    OHOS::FuzzConcurrentTaskServiceReportSceneInfo(data, size);
     OHOS::FuzzConcurrentTaskServiceRequestAuth(data, size);
     OHOS::FuzzConcurrentTaskServiceQueryInterval(data, size);
     OHOS::FuzzConcurrentTaskServiceStopRemoteObject(data, size);
@@ -752,6 +828,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::FuzzQosInterfaceEnableRtg(data, size);
     OHOS::FuzzQosInterfaceQosLeave(data, size);
     OHOS::FuzzConcurrentTaskServiceStubReportData(data, size);
+    OHOS::FuzzConcurrentTaskServiceStubReportSceneInfo(data, size);
     OHOS::FuzzConcurrentTaskServiceStubQueryInterval(data, size);
     OHOS::FuzzConcurrentTaskServiceStubQueryDeadline(data, size);
     OHOS::FuzzConcurrentTaskServiceStubRequestAuth(data, size);
@@ -768,6 +845,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::FuzzConcurrentTaskClientTryConnect(data, size);
     OHOS::FuzzConcurrentTaskClientStopRemoteObject(data, size);
     OHOS::FuzzConcurrentTaskServiceProxyReportData(data, size);
+    OHOS::FuzzConcurrentTaskServiceProxyReportSceneInfo(data, size);
     OHOS::FuzzConcurrentTaskServiceProxyQueryInterval(data, size);
     OHOS::FuzzConcurrentTaskServiceProxyQueryDeadline(data, size);
     OHOS::FuzzConcurrentTaskServiceProxyRequestAuth(data, size);
