@@ -25,7 +25,7 @@ config("concurrent_task_config") {
     "../include",
     "../frameworks/concurrent_task_client/include/",
     "../interfaces/inner_api/",
-    "../common/include",
+    "../common/include/",
   ]
 }
 
@@ -53,6 +53,7 @@ ohos_shared_library("concurrentsvc") {
 
   ldflags = [ "-Wl,--exclude-libs=ALL" ]
   sources = [
+    "../common/src/concurrent_task_utils.cpp",
     "src/concurrent_task_controller_interface.cpp",
     "src/concurrent_task_service.cpp",
     "src/concurrent_task_service_ability.cpp",
