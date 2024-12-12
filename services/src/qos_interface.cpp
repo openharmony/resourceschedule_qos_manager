@@ -75,8 +75,9 @@ int EnableRtg(bool flag)
     }
 #if !defined(CROSS_PLATFORM)
     fdsan_close_with_tag(fd, GetAddrTag(static_cast<void*>(&fd)));
-#endif
+#elif
     close(fd);
+#endif
 
     return 0;
 };
@@ -109,8 +110,9 @@ int QosApplyForOther(unsigned int level, int tid)
     }
 #if !defined(CROSS_PLATFORM)
     fdsan_close_with_tag(fd, GetAddrTag(static_cast<void*>(&fd)));
-#endif
+#elif
     close(fd);
+#endif
     return ret;
 }
 
@@ -134,8 +136,9 @@ int QosLeave(void)
     }
 #if !defined(CROSS_PLATFORM)
     fdsan_close_with_tag(fd, GetAddrTag(static_cast<void*>(&fd)));
-#endif
+#elif
     close(fd)
+#endif
     return ret;
 }
 
@@ -159,8 +162,9 @@ int QosLeaveForOther(int tid)
     }
 #if !defined(CROSS_PLATFORM)
     fdsan_close_with_tag(fd, GetAddrTag(static_cast<void*>(&fd)));
-#endif
+#elif
     close(fd);
+#endif
     return ret;
 }
 
@@ -180,8 +184,9 @@ int QosPolicySet(const struct QosPolicyDatas* policyDatas)
     }
 #if !defined(CROSS_PLATFORM)
     fdsan_close_with_tag(fd, GetAddrTag(static_cast<void*>(&fd)));
-#endif
+#elif
     close(fd);
+#endif
     return ret;
 }
 
@@ -213,7 +218,8 @@ int QosGetForOther(int tid, int& level)
     level = data.qos;
 #if !defined(CROSS_PLATFORM)
     fdsan_close_with_tag(fd, GetAddrTag(static_cast<void*>(&fd)));
-#endif
+#elif
     close(fd);
+#endif
     return ret;
 }
