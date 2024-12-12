@@ -42,7 +42,7 @@ FuncLoader::~FuncLoader()
 void FuncLoader::LoadFile(const char* fileName)
 {
     if (!fileName || strlen(fileName) == 0 || strlen(fileName) > PATH_MAX) {
-        CONCUR_LOGE("%{public}s, load %{pulibc}s file fail", __func__, fileName);
+        CONCUR_LOGE("%{public}s, load %{public}s file fail", __func__, fileName);
         return;
     }
     const char* preFix = "lib";
@@ -56,7 +56,7 @@ void FuncLoader::LoadFile(const char* fileName)
         CONCUR_LOGE("dlopen %{public}s ffail", fileName);
         return;
     }
-    CONCUR_LOGD("%{public}s, load %{pulibc}s file success", __func__, fileName);
+    CONCUR_LOGD("%{public}s, load %{public}s file success", __func__, fileName);
     enable_ = true;
 }
 
