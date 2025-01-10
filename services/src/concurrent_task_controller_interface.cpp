@@ -103,6 +103,7 @@ void TaskControllerInterface::Init()
     CONCUR_LOGI("TaskControllerInterface load function success.");
     inited_ = true;
     initFunc_();
+    qosPolicy_.Init();
 }
 
 void TaskControllerInterface::Release()
