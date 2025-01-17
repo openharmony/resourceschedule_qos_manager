@@ -58,6 +58,7 @@ HWTEST_F(FuncLoaderTest, LoadFileTest, TestSize.Level1)
 {
     FuncLoader funcLoader("111");
     funcLoader.LoadFile("222");
+    EXPECT_FALSE(funcLoader.enable_);
 }
 
 /**
@@ -75,7 +76,8 @@ HWTEST_F(FuncLoaderTest, LoadSymbolTest, TestSize.Level1)
     funcLoader.LoadSymbol("ReportSceneInfo");
     funcLoader.LoadSymbol("QueryInterval");
     funcLoader.LoadSymbol("QueryDeadline");
-    funcLoader.LoadSymbol("RequestAuth");
+    void* funcSym = funcLoader.LoadSymbol("RequestAuth");
+    EXPECT_TRUE(funcSym == nullptr);
 }
 
 /**
