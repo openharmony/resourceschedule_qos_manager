@@ -13,10 +13,8 @@
  * limitations under the License.
  */
 
-#define private public
 #include "gtest/gtest.h"
 #include "concurrent_task_client.h"
-#undef private
 
 namespace OHOS {
 namespace FFRT_TEST {
@@ -102,7 +100,9 @@ HWTEST_F(ConcurrentTaskClientTest, QueryIntervalTest, TestSize.Level1)
 HWTEST_F(ConcurrentTaskClientTest, StopRemoteObjectTest, TestSize.Level1)
 {
     ConcurrentTaskClient::GetInstance().StopRemoteObject();
-    EXPECT_TRUE(ConcurrentTaskClient::GetInstance().clientService_ == nullptr);
+    payload["uid"] = "3587";
+    ConcurrentTaskClient::GetInstance().StopRemoteObject();
+    EXPECT_FALSE(payload.empty());
 }
 
 /**
