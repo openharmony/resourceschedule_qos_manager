@@ -62,6 +62,7 @@ HWTEST_F(ConcurrentTaskServiceAbilityTest, OnStartTest, TestSize.Level1)
     concurrenttaskserviceability.OnStart();
     concurrenttaskserviceability.OnStart();
     concurrenttaskserviceability.OnStop();
+    EXPECT_TRUE(concurrenttaskserviceability.service_ != nullptr);
 }
 
 /**
@@ -79,6 +80,7 @@ HWTEST_F(ConcurrentTaskServiceAbilityTest, OnAddSystemAbilityTest, TestSize.Leve
     concurrenttaskserviceability.OnStart();
     concurrenttaskserviceability.OnAddSystemAbility(systemAbilityId, deviceId);
     concurrenttaskserviceability.OnRemoveSystemAbility(systemAbilityId, deviceId);
+    EXPECT_TRUE(concurrenttaskserviceability.service_ != nullptr);
     concurrenttaskserviceability.OnStop();
 }
 }

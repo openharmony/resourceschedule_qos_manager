@@ -61,6 +61,7 @@ HWTEST_F(ConcurrentTaskClientTest, ReportDataTest, TestSize.Level1)
     payload["pid"] = "12345";
     payload["type"] = "appStart";
     ConcurrentTaskClient::GetInstance().ReportData(resType, value, payload);
+    EXPECT_FALSE(payload.empty());
 }
 
 /**
@@ -75,6 +76,7 @@ HWTEST_F(ConcurrentTaskClientTest, ReportSceneInfoTest, TestSize.Level1)
     payload["uid"] = "3587";
     payload["value"] = "12345";
     ConcurrentTaskClient::GetInstance().ReportSceneInfo(type, payload);
+    EXPECT_FALSE(payload.empty());
 }
 
 /**
@@ -87,6 +89,7 @@ HWTEST_F(ConcurrentTaskClientTest, QueryIntervalTest, TestSize.Level1)
     int queryItem = 3;
     IntervalReply queryRs = {87, 657, 357, 214};
     ConcurrentTaskClient::GetInstance().QueryInterval(queryItem, queryRs);
+    EXPECT_TRUE(queryRs.tid != -1);
 }
 
 /**
@@ -97,6 +100,7 @@ HWTEST_F(ConcurrentTaskClientTest, QueryIntervalTest, TestSize.Level1)
 HWTEST_F(ConcurrentTaskClientTest, StopRemoteObjectTest, TestSize.Level1)
 {
     ConcurrentTaskClient::GetInstance().StopRemoteObject();
+    EXPECT_TRUE(ConcurrentTaskClient::GetInstance().clientService_ == nullptr);
 }
 
 /**
@@ -112,6 +116,7 @@ HWTEST_F(ConcurrentTaskClientTest, QueryDeadlineTest, TestSize.Level1)
     payload[1111] = 60;
     payload[2222] = 90;
     ConcurrentTaskClient::GetInstance().QueryDeadline(queryItem, ddlReply, payload);
+    EXPECT_FALSE(payload.empty());
 }
 
 /**
@@ -125,6 +130,7 @@ HWTEST_F(ConcurrentTaskClientTest, RequestAuthTest, TestSize.Level1)
     payload["uid"] = "3587";
     payload["pid"] = "12345";
     ConcurrentTaskClient::GetInstance().RequestAuth(payload);
+    EXPECT_FALSE(payload.empty());
 }
 }
 }
