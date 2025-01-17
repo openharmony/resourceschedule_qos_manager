@@ -102,7 +102,6 @@ HWTEST_F(ConcurrentTaskClientTest, StopRemoteObjectTest, TestSize.Level1)
     std::unordered_map<std::string, std::string> payload;
     ConcurrentTaskClient::GetInstance().StopRemoteObject();
     payload["uid"] = "3587";
-    ConcurrentTaskClient::GetInstance().StopRemoteObject();
     EXPECT_FALSE(payload.empty());
 }
 
