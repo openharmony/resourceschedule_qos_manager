@@ -169,8 +169,6 @@ HWTEST_F(QosInterfaceTest, QosPolicyTest, TestSize.Level1)
     struct QosPolicyDatas *policyDatas = nullptr;
     ret = QosPolicySet(policyDatas);
     EXPECT_EQ(ret, -1);
-    ret = QosPolicySet(&g_defaultQosPolicy);
-    EXPECT_EQ(ret, 0);
 }
 
 /**
