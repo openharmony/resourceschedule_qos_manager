@@ -58,6 +58,7 @@ HWTEST_F(ConcurrentTaskServiceTest, QueryIntervalTest, TestSize.Level1)
     IntervalReply queryRs = {87, 657, 357, 214};
     ConcurrentTaskService queInt;
     queInt.QueryInterval(queryItem, queryRs);
+    EXPECT_NE(queryRs.tid, -1);
 }
 
 /**
@@ -74,6 +75,7 @@ HWTEST_F(ConcurrentTaskServiceTest, QueryDeadlineTest, TestSize.Level1)
     payload["2222"] = "90";
     ConcurrentTaskService queInt;
     queInt.QueryDeadline(queryItem, ddlReply, payload);
+    EXPECT_FALSE(payload.empty());
 }
 }
 }

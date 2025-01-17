@@ -59,6 +59,7 @@ HWTEST_F(ConcurrentTaskControllerInterfaceTest, RequestAuthTest, TestSize.Level1
     const Json::Value payload;
     TaskControllerInterface repData;
     repData.RequestAuth(payload);
+    EXPECT_TRUE(payload.empty());
 }
 
 /**
@@ -73,6 +74,7 @@ HWTEST_F(ConcurrentTaskControllerInterfaceTest, ReportDataTest, TestSize.Level1)
     const Json::Value payload;
     TaskControllerInterface repData;
     repData.ReportData(resType, value, payload);
+    EXPECT_TRUE(payload.empty());
 }
 
 /**
@@ -86,6 +88,7 @@ HWTEST_F(ConcurrentTaskControllerInterfaceTest, ReportSceneInfoTest, TestSize.Le
     const Json::Value payload;
     TaskControllerInterface repData;
     repData.ReportSceneInfo(resType, payload);
+    EXPECT_TRUE(payload.empty());
 }
 
 /**
@@ -99,6 +102,7 @@ HWTEST_F(ConcurrentTaskControllerInterfaceTest, QueryDeadlineTest, TestSize.Leve
     DeadlineReply ddlReply = {false};
     const Json::Value payload;
     TaskControllerInterface::GetInstance().QueryDeadline(queryItem, ddlReply, payload);
+    EXPECT_TRUE(payload.empty());
 }
 
 /**
@@ -120,6 +124,7 @@ HWTEST_F(ConcurrentTaskControllerInterfaceTest, QueryIntervalTest, TestSize.Leve
     queInt.QueryInterval(queryItem, queryRs);
     queryItem = QURRY_TYPE_MAX;
     queInt.QueryInterval(queryItem, queryRs);
+    EXPECT_FALSE(queInt.inited_);
 }
 
 /**
@@ -130,6 +135,7 @@ HWTEST_F(ConcurrentTaskControllerInterfaceTest, QueryIntervalTest, TestSize.Leve
 HWTEST_F(ConcurrentTaskControllerInterfaceTest, InitTest, TestSize.Level1)
 {
     TaskControllerInterface::GetInstance().Init();
+    EXPECT_FALSE(TaskControllerInterface::GetInstance().inited_);
 }
 
 /**
@@ -140,6 +146,7 @@ HWTEST_F(ConcurrentTaskControllerInterfaceTest, InitTest, TestSize.Level1)
 HWTEST_F(ConcurrentTaskControllerInterfaceTest, ReleaseTest, TestSize.Level1)
 {
     TaskControllerInterface::GetInstance().Release();
+    EXPECT_FALSE(TaskControllerInterface::GetInstance().inited_);
 }
 } // namespace FFRT_TEST
 } // namespace OHOS
