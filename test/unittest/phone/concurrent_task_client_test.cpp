@@ -13,8 +13,10 @@
  * limitations under the License.
  */
 
+#define private public
 #include "gtest/gtest.h"
 #include "concurrent_task_client.h"
+#undef private
 
 namespace OHOS {
 namespace FFRT_TEST {
