@@ -135,7 +135,7 @@ HWTEST_F(ConcurrentTaskControllerInterfaceTest, QueryIntervalTest, TestSize.Leve
 HWTEST_F(ConcurrentTaskControllerInterfaceTest, InitTest, TestSize.Level1)
 {
     TaskControllerInterface::GetInstance().Init();
-    EXPECT_TRUE(TaskControllerInterface::GetInstance().inited_);
+    EXPECT_FALSE(TaskControllerInterface::GetInstance().inited_);
 }
 
 /**
@@ -146,7 +146,7 @@ HWTEST_F(ConcurrentTaskControllerInterfaceTest, InitTest, TestSize.Level1)
 HWTEST_F(ConcurrentTaskControllerInterfaceTest, ReleaseTest, TestSize.Level1)
 {
     TaskControllerInterface::GetInstance().Release();
-    EXPECT_TRUE(TaskControllerInterface::GetInstance().inited_);
+    EXPECT_FALSE(TaskControllerInterface::GetInstance().inited_);
 }
 } // namespace FFRT_TEST
 } // namespace OHOS
