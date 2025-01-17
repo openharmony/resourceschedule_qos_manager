@@ -58,6 +58,8 @@ HWTEST_F(QosPolicyTest, TaskHandleTest, TestSize.Level1)
 {
     QosPolicy qosPolicy;
     qosPolicy.Init();
+    struct QosPolicyDatas test = {};
+    EXPECT_EQ(qosPolicy.SetQosPolicy(&test), -1);
 }
 }
 }
