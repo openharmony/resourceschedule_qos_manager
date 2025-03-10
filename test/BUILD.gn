@@ -15,7 +15,7 @@ import("//build/ohos.gni")
 import("//build/ohos_var.gni")
 import("//build/test.gni")
 
-module_output_path = "qosmanagertest/"
+module_output_path = "qos_manager/qos_manager"
 
 config("test_config") {
   include_dirs = [
