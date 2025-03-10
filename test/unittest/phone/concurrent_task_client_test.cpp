@@ -73,6 +73,7 @@ HWTEST_F(ConcurrentTaskClientTest, ReportSceneInfoTest, TestSize.Level1)
 {
     uint32_t type = 0;
     std::unordered_map<std::string, std::string> payload;
+    ConcurrentTaskClient::GetInstance().ReportSceneInfo(type, payload);
     payload["uid"] = "3587";
     payload["value"] = "12345";
     ConcurrentTaskClient::GetInstance().ReportSceneInfo(type, payload);
