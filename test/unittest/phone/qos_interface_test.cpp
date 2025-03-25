@@ -69,74 +69,95 @@ extern "C" {
 HWTEST_F(QosInterfaceTest, EnableRtgTest, TestSize.Level1)
 {
     bool flag = true;
-    int ret = EnableRtg(flag);
-    EXPECT_EQ(ret, 0);
+    int val = EnableRtg(flag);
+    EXPECT_EQ(val, 0);
 }
 
 /**
- * @tc.name: QosApplyTest1
+ * @tc.name: QosApplyTest
  * @tc.desc: Test whether the QosApply interface are normal.
  * @tc.type: FUNC
  */
 HWTEST_F(QosInterfaceTest, QosApplyTest1, TestSize.Level1)
 {
     unsigned int level = 1;
-    int ret = -1;
-    ret = QosApply(level);
+    int val = -1;
+    val = QosApply(level);
 #if defined(ARM64_TEST) && ARM64_TEST
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(val, 0);
 #else
-    (void)ret;
+    (void)val;
 #endif
 }
 
 /**
- * @tc.name: QosApplyTest2
+ * @tc.name: QosApplyFuncTest
  * @tc.desc: Test whether the QosApply interface are normal.
  * @tc.type: FUNC
  */
-HWTEST_F(QosInterfaceTest, QosApplyTest2, TestSize.Level1)
+HWTEST_F(QosInterfaceTest, QosApplyFuncTest0, TestSize.Level0)
 {
     unsigned int level = 0;
-    int ret = -1;
-    ret = QosApply(level);
-    EXPECT_EQ(ret, 0);
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+}
 
-    level = 1;
-    ret = QosApply(level);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosApplyFuncTest1, TestSize.Level0)
+{
+    unsigned int level = 1;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+}
 
-    level = 2;
-    ret = QosApply(level);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosApplyFuncTest2, TestSize.Level0)
+{
+    unsigned int level = 2;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+}
 
-    level = 3;
-    ret = QosApply(level);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosApplyFuncTest3, TestSize.Level0)
+{
+    unsigned int level = 3;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+}
 
-    level = 4;
-    ret = QosApply(level);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosApplyFuncTest4, TestSize.Level0)
+{
+    unsigned int level = 4;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+}
 
-    level = 5;
-    ret = QosApply(level);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosApplyFuncTest5, TestSize.Level0)
+{
+    unsigned int level = 5;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+}
 
-    level = 6;
-    ret = QosApply(level);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosApplyFuncTest6, TestSize.Level1)
+{
+    unsigned int level = 6;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+}
 
-    level = 7;
-    ret = QosApply(level);
-    EXPECT_EQ(ret, -1);
+
+HWTEST_F(QosInterfaceTest, QosApplyFuncTestExt, TestSize.Level1)
+{
+    unsigned int level = 7;
+    int val = QosApply(level);
+    EXPECT_EQ(val, -1);
 
     level = 1024;
-    ret = QosApply(level);
-    EXPECT_EQ(ret, -1);
+    val = QosApply(level);
+    EXPECT_EQ(val, -1);
 }
 
 /**
- * @tc.name: QosApplyForOtherTest1
+ * @tc.name: QosApplyForOtherTest
  * @tc.desc: Test whether the QosApplyForOther interface are normal.
  * @tc.type: FUNC
  */
@@ -144,193 +165,283 @@ HWTEST_F(QosInterfaceTest, QosApplyForOtherTest1, TestSize.Level1)
 {
     unsigned int level = 1;
     int tid = gettid();
-    int ret = -1;
-    ret = QosApplyForOther(level, tid);
+    int val = -1;
+    val = QosApplyForOther(level, tid);
 #if defined(ARM64_TEST) && ARM64_TEST
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(val, 0);
 #else
-    (void)ret;
+    (void)val;
 #endif
 }
 
 /**
- * @tc.name: QosApplyForOtherTest2
+ * @tc.name: QosApplyForOtherFuncTest
  * @tc.desc: Test whether the QosApplyForOther interface are normal.
  * @tc.type: FUNC
  */
-HWTEST_F(QosInterfaceTest, QosApplyForOtherTest2, TestSize.Level1)
+HWTEST_F(QosInterfaceTest, QosApplyForOtherFuncTest0, TestSize.Level0)
 {
     unsigned int level = 0;
     int tid = gettid();
-    int ret = -1;
-    ret = QosApplyForOther(level, tid);
-    EXPECT_EQ(ret, 0);
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
+}
 
-    level = 1;
-    ret = QosApplyForOther(level, tid);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosApplyForOtherFuncTest1, TestSize.Level0)
+{
+    unsigned int level = 1;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
+}
 
-    level = 2;
-    ret = QosApplyForOther(level, tid);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosApplyForOtherFuncTest2, TestSize.Level0)
+{
+    unsigned int level = 2;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
+}
 
-    level = 3;
-    ret = QosApplyForOther(level, tid);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosApplyForOtherFuncTest3, TestSize.Level0)
+{
+    unsigned int level = 3;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
+}
 
-    level = 4;
-    ret = QosApplyForOther(level, tid);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosApplyForOtherFuncTest4, TestSize.Level0)
+{
+    unsigned int level = 4;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
+}
 
-    level = 5;
-    ret = QosApplyForOther(level, tid);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosApplyForOtherFuncTest5, TestSize.Level0)
+{
+    unsigned int level = 5;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
+}
 
-    level = 6;
-    ret = QosApplyForOther(level, tid);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosApplyForOtherFuncTest6, TestSize.Level1)
+{
+    unsigned int level = 6;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
+}
 
-    level = 7;
-    ret = QosApplyForOther(level, tid);
-    EXPECT_EQ(ret, -1);
+HWTEST_F(QosInterfaceTest, QosApplyForOtherFuncTestExt, TestSize.Level1)
+{
+    unsigned int level = 7;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, -1);
 
     level = 1024;
-    ret = QosApplyForOther(level, tid);
-    EXPECT_EQ(ret, -1);
+    val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, -1);
 }
 
 /**
- * @tc.name: QosLeaveTest1
+ * @tc.name: QosLeaveTest
  * @tc.desc: Test whether the QosLeave interface are normal.
  * @tc.type: FUNC
  */
-HWTEST_F(QosInterfaceTest, QosLeaveTest1, TestSize.Level1)
+HWTEST_F(QosInterfaceTest, QosLeaveTest, TestSize.Level1)
 {
-    int ret = -1;
-    ret = QosLeave();
+    int val = -1;
+    val = QosLeave();
 #if defined(ARM64_TEST) && ARM64_TEST
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(val, 0);
 #else
-    (void)ret;
+    (void)val;
 #endif
 }
 
 /**
- * @tc.name: QosLeaveTest2
+ * @tc.name: QosLeaveFuncTest
  * @tc.desc: Test whether the QosLeave interface are normal.
  * @tc.type: FUNC
  */
-HWTEST_F(QosInterfaceTest, QosLeaveTest2, TestSize.Level1)
+HWTEST_F(QosInterfaceTest, QosLeaveFuncTestExt0, TestSize.Level0)
 {
-    int ret = -1;
-    ret = QosApply(0);
-    EXPECT_EQ(ret, 0);
-    ret = QosLeave();
-    EXPECT_EQ(ret, 0);
+    int level = 0;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+    val = QosLeave();
+    EXPECT_EQ(val, 0);
+}
 
-    ret = QosApply(1);
-    EXPECT_EQ(ret, 0);
-    ret = QosLeave();
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosLeaveFuncTestExt1, TestSize.Level0)
+{
+    int level = 1;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+    val = QosLeave();
+    EXPECT_EQ(val, 0);
+}
 
-    ret = QosApply(2);
-    EXPECT_EQ(ret, 0);
-    ret = QosLeave();
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosLeaveFuncTestExt2, TestSize.Level0)
+{
+    int level = 2;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+    val = QosLeave();
+    EXPECT_EQ(val, 0);
+}
 
-    ret = QosApply(3);
-    EXPECT_EQ(ret, 0);
-    ret = QosLeave();
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosLeaveFuncTestExt3, TestSize.Level0)
+{
+    int level = 3;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+    val = QosLeave();
+    EXPECT_EQ(val, 0);
+}
 
-    ret = QosApply(4);
-    EXPECT_EQ(ret, 0);
-    ret = QosLeave();
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosLeaveFuncTestExt4, TestSize.Level0)
+{
+    int level = 4;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+    val = QosLeave();
+    EXPECT_EQ(val, 0);
+}
 
-    ret = QosApply(5);
-    EXPECT_EQ(ret, 0);
-    ret = QosLeave();
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosLeaveFuncTestExt5, TestSize.Level0)
+{
+    int level = 5;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+    val = QosLeave();
+    EXPECT_EQ(val, 0);
+}
 
-    ret = QosApply(6);
-    EXPECT_EQ(ret, 0);
-    ret = QosLeave();
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosLeaveFuncTestExt6, TestSize.Level1)
+{
+    int level = 6;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+    val = QosLeave();
+    EXPECT_EQ(val, 0);
+}
 
-    ret = QosApply(7);
-    EXPECT_EQ(ret, -1);
-    ret = QosLeave();
-    EXPECT_EQ(ret, -1);
+HWTEST_F(QosInterfaceTest, QosLeaveFuncTestExt, TestSize.Level1)
+{
+    int val = -1;
+    val = QosApply(7);
+    EXPECT_EQ(val, -1);
+    val = QosLeave();
+    EXPECT_EQ(val, -1);
 }
 
 /**
- * @tc.name: QosLeaveForOtherTest1
+ * @tc.name: QosLeaveForOtherTest
  * @tc.desc: Test whether the QosLeaveForOther interface are normal.
  * @tc.type: FUNC
  */
-HWTEST_F(QosInterfaceTest, QosLeaveForOtherTest1, TestSize.Level1)
+HWTEST_F(QosInterfaceTest, QosLeaveForOtherTest, TestSize.Level1)
 {
-    int ret = -1;
+    int val = -1;
     int tid = gettid();
     int level = 1;
-    ret = QosApplyForOther(level, tid);
-    ret = QosLeaveForOther(tid);
+    val = QosApplyForOther(level, tid);
+    val = QosLeaveForOther(tid);
 #if defined(ARM64_TEST) && ARM64_TEST
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(val, 0);
 #else
-    (void)ret;
+    (void)val;
 #endif
 }
 
 /**
- * @tc.name: QosLeaveForOtherTest2
+ * @tc.name: QosLeaveForOtherFuncTest
  * @tc.desc: Test whether the QosLeaveForOther interface are normal.
  * @tc.type: FUNC
  */
-HWTEST_F(QosInterfaceTest, QosLeaveForOtherTest2, TestSize.Level1)
+HWTEST_F(QosInterfaceTest, QosLeaveForOtherFuncTest0, TestSize.Level0)
 {
-    int ret = -1;
+    int level = 0;
     int tid = gettid();
-    ret = QosApplyForOther(0, tid);
-    EXPECT_EQ(ret, 0);
-    ret = QosLeaveForOther(tid);
-    EXPECT_EQ(ret, 0);
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
+    val = QosLeaveForOther(tid);
+    EXPECT_EQ(val, 0);
+}
 
-    ret = QosApplyForOther(1, tid);
-    EXPECT_EQ(ret, 0);
-    ret = QosLeaveForOther(tid);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosLeaveForOtherFuncTest1, TestSize.Level0)
+{
+    int level = 1;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
+    val = QosLeaveForOther(tid);
+    EXPECT_EQ(val, 0);
+}
 
-    ret = QosApplyForOther(2, tid);
-    EXPECT_EQ(ret, 0);
-    ret = QosLeaveForOther(tid);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosLeaveForOtherFuncTest2, TestSize.Level0)
+{
+    int level = 2;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
+    val = QosLeaveForOther(tid);
+    EXPECT_EQ(val, 0);
+}
 
-    ret = QosApplyForOther(3, tid);
-    EXPECT_EQ(ret, 0);
-    ret = QosLeaveForOther(tid);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosLeaveForOtherFuncTest3, TestSize.Level0)
+{
+    int level = 3;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
+    val = QosLeaveForOther(tid);
+    EXPECT_EQ(val, 0);
+}
 
-    ret = QosApplyForOther(4, tid);
-    EXPECT_EQ(ret, 0);
-    ret = QosLeaveForOther(tid);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosLeaveForOtherFuncTest4, TestSize.Level0)
+{
+    int level = 4;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
+    val = QosLeaveForOther(tid);
+    EXPECT_EQ(val, 0);
+}
 
-    ret = QosApplyForOther(5, tid);
-    EXPECT_EQ(ret, 0);
-    ret = QosLeaveForOther(tid);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosLeaveForOtherFuncTest5, TestSize.Level0)
+{
+    int level = 5;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
+    val = QosLeaveForOther(tid);
+    EXPECT_EQ(val, 0);
+}
 
-    ret = QosApplyForOther(6, tid);
-    EXPECT_EQ(ret, 0);
-    ret = QosLeaveForOther(tid);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosLeaveForOtherFuncTest6, TestSize.Level1)
+{
+    int level = 6;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
+    val = QosLeaveForOther(tid);
+    EXPECT_EQ(val, 0);
+}
 
-    ret = QosApplyForOther(7, tid);
-    EXPECT_EQ(ret, -1);
-    ret = QosLeaveForOther(tid);
-    EXPECT_EQ(ret, -1);
+HWTEST_F(QosInterfaceTest, QosLeaveForOtherFuncTest, TestSize.Level1)
+{
+    int level = 7;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, -1);
+    val = QosLeaveForOther(tid);
+    EXPECT_EQ(val, -1);
 }
 
 /**
@@ -355,10 +466,10 @@ static struct QosPolicyDatas g_defaultQosPolicy = {
 
 HWTEST_F(QosInterfaceTest, QosPolicyTest, TestSize.Level1)
 {
-    int ret = -1;
+    int val = -1;
     struct QosPolicyDatas *policyDatas = nullptr;
-    ret = QosPolicySet(policyDatas);
-    EXPECT_EQ(ret, -1);
+    val = QosPolicySet(policyDatas);
+    EXPECT_EQ(val, -1);
 }
 
 /**
@@ -370,161 +481,196 @@ HWTEST_F(QosInterfaceTest, QosGetTest1, TestSize.Level1)
 {
     int qos;
     unsigned int level = 4;
-    int ret = QosApply(level);
-    EXPECT_EQ(ret, 0);
-    ret = QosGet(qos);
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+    val = QosGet(qos);
     sleep(5);
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(val, 0);
     EXPECT_EQ(qos, level);
 }
 
 /**
- * @tc.name: QosGetTest2
+ * @tc.name: QosGetFuncTest
  * @tc.desc: Test whether the QosGet interface are normal.
  * @tc.type: FUNC
  */
-HWTEST_F(QosInterfaceTest, QosGetTest2, TestSize.Level1)
+HWTEST_F(QosInterfaceTest, QosGetFuncTest0, TestSize.Level0)
 {
-    int qos;
+    int qos = -1;
     unsigned int level = 0;
-    int ret = QosApply(level);
-    EXPECT_EQ(ret, 0);
-    ret = QosGet(qos);
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+    val = QosGet(qos);
     sleep(1);
-    EXPECT_EQ(ret, 0);
-    EXPECT_EQ(qos, level);
-
-    level = 1;
-    ret = QosApply(level);
-    EXPECT_EQ(ret, 0);
-    ret = QosGet(qos);
-    sleep(1);
-    EXPECT_EQ(ret, 0);
-    EXPECT_EQ(qos, level);
-
-    level = 2;
-    ret = QosApply(level);
-    EXPECT_EQ(ret, 0);
-    ret = QosGet(qos);
-    sleep(1);
-    EXPECT_EQ(ret, 0);
-    EXPECT_EQ(qos, level);
-
-    level = 3;
-    ret = QosApply(level);
-    EXPECT_EQ(ret, 0);
-    ret = QosGet(qos);
-    sleep(1);
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(val, 0);
     EXPECT_EQ(qos, level);
 }
 
-/**
- * @tc.name: QosGetTest3
- * @tc.desc: Test whether the QosGet interface are normal.
- * @tc.type: FUNC
- */
-HWTEST_F(QosInterfaceTest, QosGetTest3, TestSize.Level1)
+HWTEST_F(QosInterfaceTest, QosGetFuncTest1, TestSize.Level0)
 {
-    int qos;
+    int qos = -1;
+    unsigned int level = 1;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+    val = QosGet(qos);
+    sleep(1);
+    EXPECT_EQ(val, 0);
+    EXPECT_EQ(qos, level);
+}
+
+HWTEST_F(QosInterfaceTest, QosGetFuncTest2, TestSize.Level0)
+{
+    int qos = -1;
+    unsigned int level = 2;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+    val = QosGet(qos);
+    sleep(1);
+    EXPECT_EQ(val, 0);
+    EXPECT_EQ(qos, level);
+}
+
+HWTEST_F(QosInterfaceTest, QosGetFuncTest3, TestSize.Level0)
+{
+    int qos = -1;
+    unsigned int level = 3;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+    val = QosGet(qos);
+    sleep(1);
+    EXPECT_EQ(val, 0);
+    EXPECT_EQ(qos, level);
+}
+
+HWTEST_F(QosInterfaceTest, QosGetFuncTest4, TestSize.Level0)
+{
+    int qos = -1;
     unsigned int level = 4;
-    int ret = QosApply(level);
-    EXPECT_EQ(ret, 0);
-    ret = QosGet(qos);
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+    val = QosGet(qos);
     sleep(1);
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(val, 0);
     EXPECT_EQ(qos, level);
+}
 
-    level = 5;
-    ret = QosApply(level);
-    EXPECT_EQ(ret, 0);
-    ret = QosGet(qos);
+HWTEST_F(QosInterfaceTest, QosGetFuncTest5, TestSize.Level0)
+{
+    int qos = -1;
+    unsigned int level = 5;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+    val = QosGet(qos);
     sleep(1);
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(val, 0);
     EXPECT_EQ(qos, level);
+}
 
-    level = 6;
-    ret = QosApply(level);
-    EXPECT_EQ(ret, 0);
-    ret = QosGet(qos);
+HWTEST_F(QosInterfaceTest, QosGetFuncTest6, TestSize.Level1)
+{
+    int qos = -1;
+    unsigned int level = 6;
+    int val = QosApply(level);
+    EXPECT_EQ(val, 0);
+    val = QosGet(qos);
     sleep(1);
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(val, 0);
     EXPECT_EQ(qos, level);
 }
 
 /**
- * @tc.name: QosGetForOtherTest1
+ * @tc.name: QosGetForOtherFuncTest
  * @tc.desc: Test whether the QosGetForOther interface are normal.
  * @tc.type: FUNC
  */
-HWTEST_F(QosInterfaceTest, QosGetForOtherTest1, TestSize.Level1)
+HWTEST_F(QosInterfaceTest, QosGetForOtherTest0, TestSize.Level0)
 {
-    int qos;
+    int qos = -1;
     unsigned int level = 0;
     int tid = gettid();
-    int ret = QosApplyForOther(level, tid);
-    EXPECT_EQ(ret, 0);
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
     sleep(1);
-    ret = QosGetForOther(tid, qos);
-    EXPECT_EQ(ret, 0);
-    EXPECT_EQ(qos, level);
-
-    level = 1;
-    ret = QosApplyForOther(level, tid);
-    EXPECT_EQ(ret, 0);
-    sleep(1);
-    ret = QosGetForOther(tid, qos);
-    EXPECT_EQ(ret, 0);
-    EXPECT_EQ(qos, level);
-
-    level = 2;
-    ret = QosApplyForOther(level, tid);
-    EXPECT_EQ(ret, 0);
-    sleep(1);
-    ret = QosGetForOther(tid, qos);
-    EXPECT_EQ(ret, 0);
-    EXPECT_EQ(qos, level);
-
-    level = 3;
-    ret = QosApplyForOther(level, tid);
-    EXPECT_EQ(ret, 0);
-    sleep(1);
-    ret = QosGetForOther(tid, qos);
-    EXPECT_EQ(ret, 0);
+    val = QosGetForOther(tid, qos);
+    EXPECT_EQ(val, 0);
     EXPECT_EQ(qos, level);
 }
 
-/**
- * @tc.name: QosGetForOtherTest2
- * @tc.desc: Test whether the QosGetForOther interface are normal.
- * @tc.type: FUNC
- */
-HWTEST_F(QosInterfaceTest, QosGetForOtherTest2, TestSize.Level1)
+HWTEST_F(QosInterfaceTest, QosGetForOtherTest1, TestSize.Level0)
 {
-    int qos;
+    int qos = -1;
+    unsigned int level = 1;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
+    sleep(1);
+    val = QosGetForOther(tid, qos);
+    EXPECT_EQ(val, 0);
+    EXPECT_EQ(qos, level);
+}
+
+HWTEST_F(QosInterfaceTest, QosGetForOtherTest2, TestSize.Level0)
+{
+    int qos = -1;
+    unsigned int level = 2;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
+    sleep(1);
+    val = QosGetForOther(tid, qos);
+    EXPECT_EQ(val, 0);
+    EXPECT_EQ(qos, level);
+}
+
+HWTEST_F(QosInterfaceTest, QosGetForOtherTest3, TestSize.Level0)
+{
+    int qos = -1;
+    unsigned int level = 3;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
+    sleep(1);
+    val = QosGetForOther(tid, qos);
+    EXPECT_EQ(val, 0);
+    EXPECT_EQ(qos, level);
+}
+
+HWTEST_F(QosInterfaceTest, QosGetForOtherTest4, TestSize.Level0)
+{
+    int qos = -1;
     unsigned int level = 4;
     int tid = gettid();
-    int ret = QosApplyForOther(level, tid);
-    EXPECT_EQ(ret, 0);
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
     sleep(1);
-    ret = QosGetForOther(tid, qos);
-    EXPECT_EQ(ret, 0);
+    val = QosGetForOther(tid, qos);
+    EXPECT_EQ(val, 0);
     EXPECT_EQ(qos, level);
+}
 
-    level = 5;
-    ret = QosApplyForOther(level, tid);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosGetForOtherTest5, TestSize.Level0)
+{
+    int qos = -1;
+    unsigned int level = 5;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
     sleep(1);
-    ret = QosGetForOther(tid, qos);
-    EXPECT_EQ(ret, 0);
+    val = QosGetForOther(tid, qos);
+    EXPECT_EQ(val, 0);
     EXPECT_EQ(qos, level);
+}
 
-    level = 6;
-    ret = QosApplyForOther(level, tid);
-    EXPECT_EQ(ret, 0);
+HWTEST_F(QosInterfaceTest, QosGetForOtherTest6, TestSize.Level0)
+{
+    int qos = -1;
+    unsigned int level = 6;
+    int tid = gettid();
+    int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, 0);
     sleep(1);
-    ret = QosGetForOther(tid, qos);
-    EXPECT_EQ(ret, 0);
+    val = QosGetForOther(tid, qos);
+    EXPECT_EQ(val, 0);
     EXPECT_EQ(qos, level);
 }
 }
