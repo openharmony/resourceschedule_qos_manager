@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -11,8 +11,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//build/config/components/idl_tool/idl.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
+
+idl_gen_interface("qos_manager_interface") {
+  src_idl = rebase_path("./idl/IConcurrentTaskService.idl")
+  sources_common = [ "ConcurrentTaskIdlTypes.idl" ]
+}
 
 config("client_private_config") {
   cflags_cc = [ "-fexceptions" ]
@@ -28,7 +34,39 @@ config("client_public_config") {
   include_dirs = [
     "include",
     "../../interfaces/inner_api/",
+    "${target_gen_dir}",
   ]
+}
+
+ohos_source_set("concurrent_task_idl") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+  output_values = get_target_outputs(":qos_manager_interface")
+  sources = filter_include(output_values, [ "*_stub.cpp" ])
+  sources += filter_include(output_values, [ "*_types.cpp" ])
+  public_configs = [ ":client_public_config" ]
+  deps = [ ":qos_manager_interface" ]
+  external_deps = [
+    "c_utils:utils",
+    "ipc:ipc_core",
+  ]
+  cflags_cc = [
+    "-fomit-frame-pointer",
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fno-unroll-loops",
+    "-fno-exceptions",
+    "-fno-unwind-tables",
+    "-fno-asynchronous-unwind-tables",
+    "-g0",
+    "-Os",
+  ]
+  subsystem_name = "resourceschedule"
+  part_name = "qos_manager"
 }
 
 ohos_shared_library("concurrent_task_client") {
@@ -45,22 +83,26 @@ ohos_shared_library("concurrent_task_client") {
     "-fno-exceptions",
     "-fno-unwind-tables",
     "-fno-asynchronous-unwind-tables",
-    "-g0",
     "-Os",
   ]
 
   ldflags = [ "-Wl,--exclude-libs=ALL" ]
-  sources = [
-    "src/concurrent_task_client.cpp",
-    "src/concurrent_task_service_proxy.cpp",
-  ]
 
-  public_external_deps = [ "jsoncpp:jsoncpp" ]
+  output_values = get_target_outputs(":qos_manager_interface")
+
+  sources = [ "src/concurrent_task_client.cpp" ]
+
+  sources += filter_include(output_values, [ "*_proxy.cpp" ])
+  sources += filter_include(output_values, [ "*_types.cpp" ])
+
+  deps = [ ":qos_manager_interface" ]
 
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
+    "ipc:ipc_core",
     "ipc:ipc_single",
+    "jsoncpp:jsoncpp",
     "samgr:samgr_proxy",
   ]
 
