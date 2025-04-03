@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <unordered_map>
 #include "concurrent_task_client.h"
 #include <cinttypes>
 #include "if_system_ability_manager.h"
@@ -19,9 +20,41 @@
 #include "concurrent_task_log.h"
 #include "concurrent_task_errors.h"
 #include "system_ability_definition.h"
+#include "iconcurrent_task_service.h"
+#include "concurrent_task_idl_types.h"
 
 namespace OHOS {
 namespace ConcurrentTask {
+
+static IntervalReply IpcToQueryRs(const IpcIntervalReply& IpcQueryRs)
+{
+    IntervalReply queryRs;
+    queryRs.rtgId = IpcQueryRs.rtgId;
+    queryRs.tid = IpcQueryRs.tid;
+    queryRs.paramA = IpcQueryRs.paramA;
+    queryRs.paramB = IpcQueryRs.paramB;
+    queryRs.bundleName = IpcQueryRs.bundleName;
+    return queryRs;
+}
+
+static IpcIntervalReply QueryRsToIpc(const IntervalReply& queryRs)
+{
+    IpcIntervalReply IpcQueryRs;
+    IpcQueryRs.rtgId = queryRs.rtgId;
+    IpcQueryRs.tid = queryRs.tid;
+    IpcQueryRs.paramA = queryRs.paramA;
+    IpcQueryRs.paramB = queryRs.paramB;
+    IpcQueryRs.bundleName = queryRs.bundleName;
+    return IpcQueryRs;
+}
+
+static const IpcDeadlineReply DdlReplyToIpc(const DeadlineReply& ddlreply)
+{
+    IpcDeadlineReply IpcDdlReply;
+    IpcDdlReply.setStatus = ddlreply.setStatus;
+    return IpcDdlReply;
+}
+
 ConcurrentTaskClient& ConcurrentTaskClient::GetInstance()
 {
     static ConcurrentTaskClient instance;
@@ -36,11 +69,7 @@ void ConcurrentTaskClient::ReportData(uint32_t resType, int64_t value,
     if (TryConnect() != ERR_OK) {
         return;
     }
-    Json::Value payload;
-    for (auto it = mapPayload.begin(); it != mapPayload.end(); ++it) {
-        payload[it->first] = it->second;
-    }
-    clientService_->ReportData(resType, value, payload);
+    clientService_->ReportData(resType, value, mapPayload);
 }
 
 void ConcurrentTaskClient::ReportSceneInfo(uint32_t type,
@@ -49,11 +78,7 @@ void ConcurrentTaskClient::ReportSceneInfo(uint32_t type,
     if (TryConnect() != ERR_OK) {
         return;
     }
-    Json::Value payload;
-    for (auto it = mapPayload.begin(); it != mapPayload.end(); ++it) {
-        payload[it->first] = it->second;
-    }
-    clientService_->ReportSceneInfo(type, payload);
+    clientService_->ReportSceneInfo(type, mapPayload);
 }
 
 void ConcurrentTaskClient::QueryInterval(int queryItem, IntervalReply& queryRs)
@@ -62,7 +87,9 @@ void ConcurrentTaskClient::QueryInterval(int queryItem, IntervalReply& queryRs)
         CONCUR_LOGE("QueryInterval connnect fail");
         return;
     }
-    clientService_->QueryInterval(queryItem, queryRs);
+    IpcIntervalReply IpcQueryRs = QueryRsToIpc(queryRs);
+    clientService_->QueryInterval(queryItem, IpcQueryRs);
+    queryRs = IpcToQueryRs(IpcQueryRs);
     return;
 }
 
@@ -72,11 +99,12 @@ void ConcurrentTaskClient::QueryDeadline(int queryItem, DeadlineReply& ddlReply,
     if (TryConnect() != ERR_OK) {
         return;
     }
-    Json::Value payload;
+    std::unordered_map<std::string, std::string> payload;
     for (auto it = mapPayload.begin(); it != mapPayload.end(); ++it) {
         payload[std::to_string(it->first)] = std::to_string(it->second);
     }
-    clientService_->QueryDeadline(queryItem, ddlReply, payload);
+    const IpcDeadlineReply& IpcDdlReply = DdlReplyToIpc(ddlReply);
+    clientService_->QueryDeadline(queryItem, IpcDdlReply, payload);
     return;
 }
 
@@ -85,11 +113,7 @@ void ConcurrentTaskClient::RequestAuth(const std::unordered_map<std::string, std
     if (TryConnect() != ERR_OK) {
         return;
     }
-    Json::Value payload;
-    for (auto it = mapPayload.begin(); it != mapPayload.end(); ++it) {
-        payload[it->first] = it->second;
-    }
-    clientService_->RequestAuth(payload);
+    clientService_->RequestAuth(mapPayload);
     return;
 }
 
@@ -99,11 +123,8 @@ void ConcurrentTaskClient::QueryDeadline(int queryItem, DeadlineReply& ddlReply,
     if (TryConnect() != ERR_OK) {
         return;
     }
-    Json::Value payload;
-    for (auto it = mapPayload.begin(); it != mapPayload.end(); ++it) {
-        payload[it->first] = it->second;
-    }
-    clientService_->QueryDeadline(queryItem, ddlReply, payload);
+    const IpcDeadlineReply& IpcDdlReply = DdlReplyToIpc(ddlReply);
+    clientService_->QueryDeadline(queryItem, IpcDdlReply, mapPayload);
     return;
 }
 

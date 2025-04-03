@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,8 +16,11 @@
 #ifndef CONCURRENT_TASK_SERVICES_CONCURRENTSEVICE_INCLUDE_CONCURRENT_TASK_SEVICE_H
 #define CONCURRENT_TASK_SERVICES_CONCURRENTSEVICE_INCLUDE_CONCURRENT_TASK_SEVICE_H
 
+#include <unordered_map>
+#include "json/json.h"
+#include "concurrent_task_type.h"
+#include "concurrent_task_idl_types.h"
 #include "concurrent_task_service_stub.h"
-#include "concurrent_task_log.h"
 
 namespace OHOS {
 namespace ConcurrentTask {
@@ -26,11 +29,18 @@ public:
     ConcurrentTaskService() {}
     ~ConcurrentTaskService() override = default;
 
-    void ReportData(uint32_t resType, int64_t value, const Json::Value& payload) override;
-    void ReportSceneInfo(uint32_t type, const Json::Value& payload) override;
-    void QueryInterval(int queryItem, IntervalReply& queryRs) override;
-    void QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload) override;
-    void RequestAuth(const Json::Value& payload) override;
+    ErrCode ReportData(uint32_t resType, int64_t value,
+                       const std::unordered_map<std::string, std::string>& payload) override;
+    ErrCode ReportSceneInfo(uint32_t type, const std::unordered_map<std::string, std::string>& payload) override;
+    ErrCode QueryInterval(int queryItem, IpcIntervalReply& IpcQueryRs) override;
+    ErrCode QueryDeadline(int queryItem, const IpcDeadlineReply& IpcDdlReply,
+                          const std::unordered_map<std::string, std::string>& payload) override;
+    ErrCode RequestAuth(const std::unordered_map<std::string, std::string>& payload) override;
+
+    Json::Value MapToJson(const std::unordered_map<std::string, std::string>& dataMap);
+    IntervalReply IpcToQueryRs(const IpcIntervalReply& IpcQueryRs);
+    IpcIntervalReply QueryRsToIpc(const IntervalReply& queryRs);
+    DeadlineReply IpcToDdlReply(const IpcDeadlineReply& IpcDdlReply);
 private:
     DISALLOW_COPY_AND_MOVE(ConcurrentTaskService);
 };
