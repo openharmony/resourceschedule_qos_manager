@@ -18,8 +18,7 @@
 
 #include <unordered_map>
 #include "iremote_object.h"
-#include "iconcurrent_task_service.h"
-#include "concurrent_task_service_ipc_interface_code.h"
+#include <concurrent_task_type.h>
 
 namespace OHOS {
 namespace ConcurrentTask {
@@ -28,7 +27,7 @@ namespace ConcurrentTask {
  * but through ConcurrentTaskClient, you don't need to get IConcurrentTaskService from samgr,
  * just use the functions is ok.
  */
-
+class IConcurrentTaskService;
 class ConcurrentTaskClient {
 public:
     /**
@@ -89,6 +88,7 @@ public:
      * @param mapPayload Indicates the context info of the auth request data.
      */
     void RequestAuth(const std::unordered_map<std::string, std::string>& mapPayload);
+
     /**
      * @brief Stop remote object and reset ConcurrentTaskClient.
      */
