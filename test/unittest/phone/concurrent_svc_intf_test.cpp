@@ -71,7 +71,29 @@ void ConcurrentSvcIntfTest::TearDown()
  */
 HWTEST_F(ConcurrentSvcIntfTest, QueryBeforeGetPriv, TestSize.Level1)
 {
-    int grpId = QueryInterval(QUERY_RENDER);
+    int grpId = QueryInterval(QUERY_UI);
+    EXPECT_EQ(grpId, -1);
+    grpId = QueryInterval(QUERY_RENDER);
+    EXPECT_EQ(grpId, -1);
+    grpId = QueryInterval(QUERY_RENDER_SERVICE);
+    EXPECT_EQ(grpId, -1);
+    grpId = QueryInterval(QUERY_COMPOSER);
+    EXPECT_EQ(grpId, -1);
+    grpId = QueryInterval(QUERY_HARDWARE);
+    EXPECT_EQ(grpId, -1);
+    grpId = QueryInterval(QUERY_EXECUTOR_START);
+    EXPECT_EQ(grpId, -1);
+    grpId = QueryInterval(QUERY_RENDER_SERVICE_RENDER);
+    EXPECT_EQ(grpId, -1);
+    grpId = QueryInterval(QUERY_SELF_RENDER_REMOVE_THREAD);
+    EXPECT_EQ(grpId, -1);
+    grpId = QueryInterval(QUERY_SELF_RENDER_ADD_THREAD);
+    EXPECT_EQ(grpId, -1);
+    grpId = QueryInterval(QUERY_MODIFIER_DRAW);
+    EXPECT_EQ(grpId, -1);
+    grpId = QueryInterval(QUERY_SELF_RENDER_FRAME_START);
+    EXPECT_EQ(grpId, -1);
+    grpId = QueryInterval(QUERY_SELF_RENDER_FRAME_END);
     EXPECT_EQ(grpId, -1);
 }
 

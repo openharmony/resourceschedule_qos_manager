@@ -249,6 +249,16 @@ HWTEST_F(QosTest, ResetThreadQosTestExt, TestSize.Level1)
     EXPECT_EQ(val, 0);
     val = ResetThreadQos();
     EXPECT_EQ(val, 0);
+
+    val = SetThreadQos(QosLevel(-1));
+    EXPECT_EQ(val, -1);
+    val = ResetThreadQos();
+    EXPECT_EQ(val, -1);
+ 
+    val = SetThreadQos(QosLevel(1024));
+    EXPECT_EQ(val, -1);
+    val = ResetThreadQos();
+    EXPECT_EQ(val, -1);
 }
 
 /**
@@ -326,6 +336,16 @@ HWTEST_F(QosTest, ResetQosForOtherThreadTestExt, TestSize.Level0)
     EXPECT_EQ(val, 0);
     val = ResetQosForOtherThread(gettid());
     EXPECT_EQ(val, 0);
+
+    val = SetQosForOtherThread(QosLevel(-1), gettid());
+    EXPECT_EQ(val, -1);
+    val = ResetQosForOtherThread(gettid());
+    EXPECT_EQ(val, -1);
+ 
+    val = SetQosForOtherThread(QosLevel(1024), gettid());
+    EXPECT_EQ(val, -1);
+    val = ResetQosForOtherThread(gettid());
+    EXPECT_EQ(val, -1);
 }
 
 /**
@@ -407,10 +427,24 @@ HWTEST_F(QosTest, GetThreadQosTestExt, TestSize.Level1)
 {
     int val = SetThreadQos(QosLevel::QOS_MAX);
     EXPECT_NE(val, 0);
-    enum QosLevel level;
-    val = GetThreadQos(level);
+    enum QosLevel level2;
+    val = GetThreadQos(level2);
     EXPECT_EQ(val, 0);
-    EXPECT_NE(static_cast<unsigned int>(level), static_cast<unsigned int>(QosLevel::QOS_MAX));
+    EXPECT_NE(static_cast<unsigned int>(level2), static_cast<unsigned int>(QosLevel::QOS_MAX));
+ 
+    val = SetThreadQos((QosLevel)-1);
+    EXPECT_NE(val, 0);
+    enum QosLevel level3;
+    val = GetThreadQos(level3);
+    EXPECT_EQ(val, 0);
+    EXPECT_NE(static_cast<unsigned int>(level3), static_cast<unsigned int>((QosLevel)-1));
+ 
+    val = SetThreadQos((QosLevel)1024);
+    EXPECT_NE(val, 0);
+    enum QosLevel level4;
+    val = GetThreadQos(level4);
+    EXPECT_EQ(val, 0);
+    EXPECT_NE(static_cast<unsigned int>(level4), static_cast<unsigned int>((QosLevel)1024));
 }
 
 /**
