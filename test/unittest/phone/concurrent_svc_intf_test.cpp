@@ -85,16 +85,6 @@ HWTEST_F(ConcurrentSvcIntfTest, QueryBeforeGetPriv, TestSize.Level1)
     EXPECT_EQ(grpId, -1);
     grpId = QueryInterval(QUERY_RENDER_SERVICE_RENDER);
     EXPECT_EQ(grpId, -1);
-    grpId = QueryInterval(QUERY_SELF_RENDER_REMOVE_THREAD);
-    EXPECT_EQ(grpId, -1);
-    grpId = QueryInterval(QUERY_SELF_RENDER_ADD_THREAD);
-    EXPECT_EQ(grpId, -1);
-    grpId = QueryInterval(QUERY_MODIFIER_DRAW);
-    EXPECT_EQ(grpId, -1);
-    grpId = QueryInterval(QUERY_SELF_RENDER_FRAME_START);
-    EXPECT_EQ(grpId, -1);
-    grpId = QueryInterval(QUERY_SELF_RENDER_FRAME_END);
-    EXPECT_EQ(grpId, -1);
 }
 
 /**

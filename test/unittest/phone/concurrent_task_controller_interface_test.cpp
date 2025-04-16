@@ -130,16 +130,6 @@ HWTEST_F(ConcurrentTaskControllerInterfaceTest, QueryIntervalTest, TestSize.Leve
     queInt.QueryInterval(queryItem, queryRs);
     queryItem = QUERY_RENDER_SERVICE_RENDER;
     queInt.QueryInterval(queryItem, queryRs);
-    queryItem = QUERY_SELF_RENDER_REMOVE_THREAD;
-    queInt.QueryInterval(queryItem, queryRs);
-    queryItem = QUERY_SELF_RENDER_ADD_THREAD;
-    queInt.QueryInterval(queryItem, queryRs);
-    queryItem = QUERY_MODIFIER_DRAW;
-    queInt.QueryInterval(queryItem, queryRs);
-    queryItem = QUERY_SELF_RENDER_FRAME_START;
-    queInt.QueryInterval(queryItem, queryRs);
-    queryItem = QUERY_SELF_RENDER_FRAME_END;
-    queInt.QueryInterval(queryItem, queryRs);
     queryItem = QURRY_TYPE_MAX;
     queInt.QueryInterval(queryItem, queryRs);
     EXPECT_FALSE(queInt.inited_);
