@@ -122,6 +122,14 @@ HWTEST_F(ConcurrentTaskControllerInterfaceTest, QueryIntervalTest, TestSize.Leve
     queInt.QueryInterval(queryItem, queryRs);
     queryItem = QUERY_COMPOSER;
     queInt.QueryInterval(queryItem, queryRs);
+    queryItem = QUERY_HARDWARE;
+    queInt.QueryInterval(queryItem, queryRs);
+    queryItem = QUERY_EXECUTOR_START;
+    queInt.QueryInterval(queryItem, queryRs);
+    queryItem = QUERY_RENDER_SERVICE_MAIN;
+    queInt.QueryInterval(queryItem, queryRs);
+    queryItem = QUERY_RENDER_SERVICE_RENDER;
+    queInt.QueryInterval(queryItem, queryRs);
     queryItem = QURRY_TYPE_MAX;
     queInt.QueryInterval(queryItem, queryRs);
     EXPECT_FALSE(queInt.inited_);

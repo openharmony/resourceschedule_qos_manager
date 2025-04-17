@@ -154,6 +154,10 @@ HWTEST_F(QosInterfaceTest, QosApplyFuncTestExt, TestSize.Level1)
     level = 1024;
     val = QosApply(level);
     EXPECT_EQ(val, -1);
+
+    level = -1;
+    val = QosApply(level);
+    EXPECT_EQ(val, -1);
 }
 
 /**
@@ -243,6 +247,10 @@ HWTEST_F(QosInterfaceTest, QosApplyForOtherFuncTestExt, TestSize.Level1)
     EXPECT_EQ(val, -1);
 
     level = 1024;
+    val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, -1);
+
+    level = -1;
     val = QosApplyForOther(level, tid);
     EXPECT_EQ(val, -1);
 }
@@ -335,6 +343,16 @@ HWTEST_F(QosInterfaceTest, QosLeaveFuncTestExt, TestSize.Level1)
 {
     int val = -1;
     val = QosApply(7);
+    EXPECT_EQ(val, -1);
+    val = QosLeave();
+    EXPECT_EQ(val, -1);
+
+    val = QosApply(1024);
+    EXPECT_EQ(val, -1);
+    val = QosLeave();
+    EXPECT_EQ(val, -1);
+ 
+    val = QosApply(-1);
     EXPECT_EQ(val, -1);
     val = QosLeave();
     EXPECT_EQ(val, -1);
@@ -439,6 +457,20 @@ HWTEST_F(QosInterfaceTest, QosLeaveForOtherFuncTest, TestSize.Level1)
     int level = 7;
     int tid = gettid();
     int val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, -1);
+    val = QosLeaveForOther(tid);
+    EXPECT_EQ(val, -1);
+
+    level = 1024;
+    tid = gettid();
+    val = QosApplyForOther(level, tid);
+    EXPECT_EQ(val, -1);
+    val = QosLeaveForOther(tid);
+    EXPECT_EQ(val, -1);
+ 
+    level = -1;
+    tid = gettid();
+    val = QosApplyForOther(level, tid);
     EXPECT_EQ(val, -1);
     val = QosLeaveForOther(tid);
     EXPECT_EQ(val, -1);
