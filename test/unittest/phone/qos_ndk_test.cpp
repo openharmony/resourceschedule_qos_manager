@@ -152,6 +152,24 @@ HWTEST_F(QoSNdkTest, ResetThreadQoSNdkTest5, TestSize.Level0)
     EXPECT_EQ(val, 0);
 }
 
+HWTEST_F(QoSNdkTest, ResetThreadQoSNdkTestExt, TestSize.Level0)
+{
+    int val = OH_QoS_SetThreadQoS((QoS_Level)-1);
+    EXPECT_EQ(val, -1);
+    val = OH_QoS_ResetThreadQoS();
+    EXPECT_EQ(val, -1);
+ 
+    val = OH_QoS_SetThreadQoS((QoS_Level)6);
+    EXPECT_EQ(val, -1);
+    val = OH_QoS_ResetThreadQoS();
+    EXPECT_EQ(val, -1);
+ 
+    val = OH_QoS_SetThreadQoS((QoS_Level)1024);
+    EXPECT_EQ(val, -1);
+    val = OH_QoS_ResetThreadQoS();
+    EXPECT_EQ(val, -1);
+}
+
 /**
  * @tc.name: GetThreadQoSNdkTest
  * @tc.desc: Verify the Get QoSLevel function.
