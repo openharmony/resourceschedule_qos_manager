@@ -141,10 +141,10 @@ HWTEST_F(ConcurrentTaskServiceTest, IpcToQueryRsTest, TestSize.Level1)
 HWTEST_F(ConcurrentTaskServiceTest, QueryRsToIpcTest, TestSize.Level1)
 {
     IntervalReply queryRs;
-    queryRs.rtgId = 1;
+    queryRs.paramB = 4;
     queryRs.tid = 2;
     queryRs.paramA = 3;
-    queryRs.paramB = 4;
+    queryRs.rtgId = 1;
     queryRs.bundleName = "mockedBundleName";
 
     ConcurrentTaskService service;
