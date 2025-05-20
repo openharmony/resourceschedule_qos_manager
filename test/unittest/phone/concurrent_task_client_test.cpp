@@ -129,10 +129,16 @@ HWTEST_F(ConcurrentTaskClientTest, QueryDeadlineTest, TestSize.Level1)
 */
 HWTEST_F(ConcurrentTaskClientTest, SetAudioDeadlineTest, TestSize.Level1)
 {
-    int queryItem = 0;
-    IntervalReply queryRs = {87, 657, 357, 214};
-    ConcurrentTaskClient::GetInstance().QueryDeadline(queryItem, -1, -1, queryRs);
+    int queryItem = AUDIO_DDL_CREATE_GRP;
+    IntervalReply queryRs = { 0 };
+    ConcurrentTaskClient::GetInstance().SetAudioDeadline(queryItem, -1, -1, queryRs);
     EXPECT_TRUE(queryRs.rtgId != -1);
+    queryItem = AUDIO_DDL_ADD_THREAD;
+    ConcurrentTaskClient::GetInstance().SetAudioDeadline(queryItem, gettid(), queryRs.rtgId, queryRs);
+    EXPECT_TRUE(queryRs.paramA == 0);
+    queryItem = AUDIO_DDL_REMOVE_THREAD;
+    ConcurrentTaskClient::GetInstance().SetAudioDeadline(queryItem, gettid(), queryRs.rtgId, queryRs);
+    EXPECT_TRUE(queryRs.paramA == 0);
 }
 
 /**
