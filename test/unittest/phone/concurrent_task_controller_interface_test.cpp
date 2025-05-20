@@ -150,7 +150,7 @@ HWTEST_F(ConcurrentTaskControllerInterfaceTest, SetAudioDeadlineTest, TestSize.L
     queInt.SetAudioDeadline(queryItem, gettid(), queryRs.rtgId, queryRs);
     queryItem = AUDIO_DDL_REMOVE_THREAD;
     queInt.SetAudioDeadline(queryItem, gettid(), queryRs.rtgId, queryRs);
-    queryItem = AUDIO_DDL_DESTROY_GRP;
+    queryItem = AUDIO_DDL_DESTORY_GRP;
     queInt.SetAudioDeadline(queryItem, gettid(), queryRs.rtgId, queryRs);
     EXPECT_FALSE(queInt.inited_);
 }
