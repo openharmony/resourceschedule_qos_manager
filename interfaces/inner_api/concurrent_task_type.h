@@ -61,6 +61,13 @@ enum QueryIntervalItem {
     QURRY_TYPE_MAX,
 };
 
+enum AudioDeadlineType {
+    AUDIO_DDL_CREATE_GRP = 0,
+    AUDIO_DDL_DESTORY_GRP,
+    AUDIO_DDL_ADD_THREAD,
+    AUDIO_DDL_REMOVE_THREAD,
+};
+
 enum DeadlineType {
     DDL_RATE = 0,
     MSG_GAME = 1,

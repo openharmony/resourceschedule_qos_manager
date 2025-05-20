@@ -76,6 +76,7 @@ HWTEST_F(FuncLoaderTest, LoadSymbolTest, TestSize.Level1)
     funcLoader.LoadSymbol("ReportSceneInfo");
     funcLoader.LoadSymbol("QueryInterval");
     funcLoader.LoadSymbol("QueryDeadline");
+    funcLoader.LoadSymbol("SetAudioDeadline");
     void* funcSym = funcLoader.LoadSymbol("RequestAuth");
     EXPECT_TRUE(funcSym == nullptr);
 }

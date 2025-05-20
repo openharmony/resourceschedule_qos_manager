@@ -44,6 +44,14 @@ ErrCode ConcurrentTaskService::QueryInterval(int queryItem, IpcIntervalReply& Ip
     return ERR_OK;
 }
 
+ErrCode ConcurrentTaskService::SetAudioDeadline(int queryItem, int tid, int grpId, IpcIntervalReply& IpcQueryRs)
+{
+    IntervalReply queryRs = IpcToQueryRs(IpcQueryRs);
+    TaskControllerInterface::GetInstance().SetAudioDeadline(queryItem, tid, grpId, queryRs);
+    IpcQueryRs = QueryRsToIpc(queryRs);
+    return ERR_OK;
+}
+
 ErrCode ConcurrentTaskService::QueryDeadline(
     int queryItem, const IpcDeadlineReply& IpcDdlReply, const std::unordered_map<std::string, std::string>& payload)
 {

@@ -35,6 +35,7 @@ public:
     ErrCode QueryInterval(int queryItem, IpcIntervalReply& IpcQueryRs) override;
     ErrCode QueryDeadline(int queryItem, const IpcDeadlineReply& IpcDdlReply,
                           const std::unordered_map<std::string, std::string>& payload) override;
+    ErrCode SetAudioDeadline(int queryItem, int tid, int grpId, IpcIntervalReply& IpcQueryRs) override;
     ErrCode RequestAuth(const std::unordered_map<std::string, std::string>& payload) override;
 
     Json::Value MapToJson(const std::unordered_map<std::string, std::string>& dataMap);
