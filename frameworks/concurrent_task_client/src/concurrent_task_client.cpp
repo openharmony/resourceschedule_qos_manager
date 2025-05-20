@@ -108,6 +108,18 @@ void ConcurrentTaskClient::QueryDeadline(int queryItem, DeadlineReply& ddlReply,
     return;
 }
 
+void ConcurrentTaskClient::SetAudioDeadline(int queryItem, int tid, int grpId, IntervalReply& queryRs)
+{
+    if (TryConnect() != ERR_OK) {
+        CONCUR_LOGE("QueryInterval connnect fail");
+        return;
+    }
+    IpcIntervalReply IpcQueryRs = QueryRsToIpc(queryRs);
+    clientService_->SetAudioDeadline(queryItem, tid, grpId, IpcQueryRs);
+    queryRs = IpcToQueryRs(IpcQueryRs);
+    return;
+}
+
 void ConcurrentTaskClient::RequestAuth(const std::unordered_map<std::string, std::string>& mapPayload)
 {
     if (TryConnect() != ERR_OK) {

@@ -20,5 +20,6 @@
     [oneway] void ReportSceneInfo([in] unsigned int type, [in] Map<String, String> payload);
     void QueryInterval([in] int queryItem, [inout] IpcIntervalReply queryRs);
     [oneway] void QueryDeadline([in] int queryItem, [in] IpcDeadlineReply IpcDdlReply, [in] Map<String, String> payload);
+    void SetAudioDeadline([in] int queryItem, [in] int tid, [in] int grpId, [inout] IpcIntervalReply queryRs);
     void RequestAuth([in] Map<String, String> payload);
  }

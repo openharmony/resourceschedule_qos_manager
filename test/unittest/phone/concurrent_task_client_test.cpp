@@ -123,6 +123,19 @@ HWTEST_F(ConcurrentTaskClientTest, QueryDeadlineTest, TestSize.Level1)
 }
 
 /**
+ * @tc.name: PushTaskTest
+ * @tc.desc: Test whether the PushTask interface are normal.
+ * @tc.type: FUNC
+*/
+HWTEST_F(ConcurrentTaskClientTest, SetAudioDeadlineTest, TestSize.Level1)
+{
+    int queryItem = 0;
+    IntervalReply queryRs = {87, 657, 357, 214};
+    ConcurrentTaskClient::GetInstance().QueryDeadline(queryItem, -1, -1, queryRs);
+    EXPECT_TRUE(queryRs.rtgId != -1);
+}
+
+/**
  * @tc.name: RequestAuthTest
  * @tc.desc: Test whether the RequestAuth interface are normal.
  * @tc.type: FUNC

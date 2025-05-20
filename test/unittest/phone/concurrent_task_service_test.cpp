@@ -175,5 +175,26 @@ HWTEST_F(ConcurrentTaskServiceTest, IpcToDdlReplyTest, TestSize.Level1)
 
     EXPECT_EQ(expectedDdlReply.setStatus, resultDdlReply.setStatus);
 }
+
+/**
+ * @tc.name: SetAudioDeadline
+ * @tc.desc: Test whether the SetAudioDeadline interface are normal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(ConcurrentTaskServiceTest, SetAudioDeadlineTest, TestSize.Level1)
+{
+    int queryItem = AUDIO_DDL_CREATE_GRP;
+    IpcIntervalReply IpcQueryRs = { 0 };
+    ConcurrentTaskService queInt;
+    queInt.SetAudioDeadline(queryItem, -1, -1, IpcQueryRs);
+    EXPECT_NE(IpcQueryRs.rtgId, -1);
+    queryItem = AUDIO_DDL_ADD_THREAD;
+    queInt.SetAudioDeadline(queryItem, gettid(), IpcQueryRs.rtgId, IpcQueryRs);
+    EXPECT_EQ(IpcQueryRs.paramA, 0);
+    queryItem = AUDIO_DDL_REMOVE_THREAD;
+    queInt.SetAudioDeadline(queryItem, gettid(), IpcQueryRs.rtgId, IpcQueryRs);
+    EXPECT_EQ(IpcQueryRs.paramA, 0);
+}
+
 }  // namespace FFRT_TEST
 }  // namespace OHOS
