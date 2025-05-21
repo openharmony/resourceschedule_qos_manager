@@ -92,7 +92,7 @@ void TaskControllerInterface::QueryDeadline(int queryItem, DeadlineReply& ddlRep
 void TaskControllerInterface::SetAudioDeadline(int queryItem, int tid, int grpId, IntervalReply& queryRs)
 {
     if (!inited_) {
-        CONCUR_LOGE("[TaskControllerInterface] setAudioDeadline failed, funcLoader_ load func failed");
+        CONCUR_LOGE("[TaskControllerInterface] SetAudioDeadline failed, funcLoader_ load func failed");
         return;
     }
     setAudioDeadlineFunc_(queryItem, tid, grpId, queryRs);
