@@ -111,7 +111,7 @@ void ConcurrentTaskClient::QueryDeadline(int queryItem, DeadlineReply& ddlReply,
 void ConcurrentTaskClient::SetAudioDeadline(int queryItem, int tid, int grpId, IntervalReply& queryRs)
 {
     if (TryConnect() != ERR_OK) {
-        CONCUR_LOGE("QueryInterval connnect fail");
+        CONCUR_LOGE("SetAudioDeadline connnect fail");
         return;
     }
     IpcIntervalReply IpcQueryRs = QueryRsToIpc(queryRs);
