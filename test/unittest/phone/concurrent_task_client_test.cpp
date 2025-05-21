@@ -139,6 +139,9 @@ HWTEST_F(ConcurrentTaskClientTest, SetAudioDeadlineTest, TestSize.Level1)
     queryItem = AUDIO_DDL_REMOVE_THREAD;
     ConcurrentTaskClient::GetInstance().SetAudioDeadline(queryItem, gettid(), queryRs.rtgId, queryRs);
     EXPECT_TRUE(queryRs.paramA == 0);
+    queryItem = AUDIO_DDL_DESTROY_GRP;
+    ConcurrentTaskClient::GetInstance().SetAudioDeadline(queryItem, -1, queryRs.rtgId, queryRs);
+    EXPECT_TRUE(queryRs.paramA == 0);
 }
 
 /**
