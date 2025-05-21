@@ -194,6 +194,9 @@ HWTEST_F(ConcurrentTaskServiceTest, SetAudioDeadlineTest, TestSize.Level1)
     queryItem = AUDIO_DDL_REMOVE_THREAD;
     queInt.SetAudioDeadline(queryItem, gettid(), IpcQueryRs.rtgId, IpcQueryRs);
     EXPECT_EQ(IpcQueryRs.paramA, 0);
+    queryItem = AUDIO_DDL_DESTROY_GRP;
+    queInt.SetAudioDeadline(queryItem, -1, IpcQueryRs.rtgId, IpcQueryRs);
+    EXPECT_EQ(IpcQueryRs.paramA, 0);
 }
 
 }  // namespace FFRT_TEST
