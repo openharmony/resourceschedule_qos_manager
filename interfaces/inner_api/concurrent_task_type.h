@@ -63,7 +63,7 @@ enum QueryIntervalItem {
 
 enum AudioDeadlineType {
     AUDIO_DDL_CREATE_GRP = 0,
-    AUDIO_DDL_DESTORY_GRP,
+    AUDIO_DDL_DESTROY_GRP,
     AUDIO_DDL_ADD_THREAD,
     AUDIO_DDL_REMOVE_THREAD,
 };
