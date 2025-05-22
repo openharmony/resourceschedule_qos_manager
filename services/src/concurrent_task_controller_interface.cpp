@@ -89,6 +89,15 @@ void TaskControllerInterface::QueryDeadline(int queryItem, DeadlineReply& ddlRep
     queryDeadlineFunc_(queryItem, ddlReply, payload);
 }
 
+void TaskControllerInterface::SetAudioDeadline(int queryItem, int tid, int grpId, IntervalReply& queryRs)
+{
+    if (!inited_) {
+        CONCUR_LOGE("[TaskControllerInterface] SetAudioDeadline failed, funcLoader_ load func failed");
+        return;
+    }
+    setAudioDeadlineFunc_(queryItem, tid, grpId, queryRs);
+}
+
 void TaskControllerInterface::Init()
 {
     std::lock_guard<std::mutex> autoLock(funcLoaderLock_);
@@ -121,6 +130,7 @@ bool TaskControllerInterface::LoadFunc()
     reportSceneInfoFunc_ = ReportSceneInfoFunc(funcLoader_.LoadSymbol("ReportSceneInfo"));
     queryIntervalFunc_ = QueryIntervalFunc(funcLoader_.LoadSymbol("QueryInterval"));
     queryDeadlineFunc_ = QueryDeadlineFunc(funcLoader_.LoadSymbol("QueryDeadline"));
+    setAudioDeadlineFunc_ = SetAudioDeadlineFunc(funcLoader_.LoadSymbol("SetAudioDeadline"));
     requestAuthFunc_ = RequestAuthFunc(funcLoader_.LoadSymbol("RequestAuth"));
     initFunc_ = InitFunc(funcLoader_.LoadSymbol("Init"));
     releaseFunc_ = ReleaseFunc(funcLoader_.LoadSymbol("Release"));

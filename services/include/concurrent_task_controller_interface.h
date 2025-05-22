@@ -32,6 +32,7 @@ using ReportDataFunc = void (*)(uint32_t resType, int64_t value, const Json::Val
 using ReportSceneInfoFunc = void (*)(uint32_t type, const Json::Value& payload);
 using QueryIntervalFunc = void (*)(int queryItem, IntervalReply& queryRs);
 using QueryDeadlineFunc = void (*)(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload);
+using SetAudioDeadlineFunc = void (*)(int queryItem, int tid, int grpId, IntervalReply& queryRs);
 using RequestAuthFunc = void (*)(const Json::Value& payload);
 using InitFunc = void (*)();
 using ReleaseFunc = void (*)();
@@ -47,6 +48,7 @@ public:
     void ReportSceneInfo(uint32_t type, const Json::Value& payload);
     void QueryInterval(int queryItem, IntervalReply& queryRs);
     void QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload);
+    void SetAudioDeadline(int queryItem, int tid, int grpId, IntervalReply& queryRs);
     void Init();
     void Release();
 
@@ -61,6 +63,7 @@ private:
     ReportSceneInfoFunc reportSceneInfoFunc_ = nullptr;
     QueryIntervalFunc queryIntervalFunc_ = nullptr;
     QueryDeadlineFunc queryDeadlineFunc_ = nullptr;
+    SetAudioDeadlineFunc setAudioDeadlineFunc_ = nullptr;
     RequestAuthFunc requestAuthFunc_ = nullptr;
     InitFunc initFunc_ = nullptr;
     ReleaseFunc releaseFunc_ = nullptr;

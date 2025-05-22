@@ -159,6 +159,30 @@ bool FuzzConcurrentTaskServiceQueryDeadline(const uint8_t* data, size_t size)
     return true;
 }
 
+bool FuzzConcurrentTaskServiceSetAudioDeadline(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        MessageParcel data1;
+        Parcel parcel;
+        sptr<IRemoteObject> iremoteobject = IRemoteObject::Unmarshalling(parcel);
+        int intdata = GetData<int>();
+        void *voiddata = &intdata;
+        size_t size1 = sizeof(int);
+        data1.WriteRemoteObject(iremoteobject);
+        data1.WriteRawData(voiddata, size1);
+        data1.ReadRawData(size1);
+        MessageParcel reply;
+        MessageOption option;
+        uint32_t code = static_cast<uint32_t>(IConcurrentTaskServiceIpcCode::COMMAND_SET_AUDIO_DEADLINE);
+        ConcurrentTaskService s = ConcurrentTaskService();
+        s.OnRemoteRequest(code, data1, reply, option);
+    }
+    return true;
+}
+
 bool FuzzConcurrentTaskServiceRequestAuth(const uint8_t* data, size_t size)
 {
     g_baseFuzzData = data;
@@ -405,6 +429,20 @@ bool FuzzConcurrentTaskClientQueryDeadline(const uint8_t* data, size_t size)
     return true;
 }
 
+bool FuzzConcurrentTaskClientSetAudioDeadline(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        int queryItem = GetData<int>();
+        queryItem = queryItem % (AUDIO_DDL_REMOVE_THREAD + 1);
+        IntervalReply queryRs;
+        ConcurrentTaskClient::GetInstance().SetAudioDeadline(queryItem, 20, 40, queryRs);
+    }
+    return true;
+}
+
 bool FuzzConcurrentTaskClinetRequestAuth(const uint8_t* data, size_t size)
 {
     g_baseFuzzData = data;
@@ -492,6 +530,21 @@ bool FuzzConcurrentTaskControllerInterfaceQueryDeadline(const uint8_t* data, siz
     return true;
 }
 
+bool FuzzConcurrentTaskControllerInterfaceSetAudioDeadline(const uint8_t* data, size_t size)
+{
+    g_baseFuzzData = data;
+    g_baseFuzzSize = size;
+    g_baseFuzzPos = 0;
+    if (size > sizeof(int) + sizeof(int)) {
+        ConcurrentTaskService s = ConcurrentTaskService();
+        int queryItem = GetData<int>();
+        queryItem = queryItem % (AUDIO_DDL_REMOVE_THREAD + 1);
+        IntervalReply queryRs;
+        TaskControllerInterface::GetInstance().SetAudioDeadline(queryItem, 20, 40, queryRs);
+    }
+    return true;
+}
+
 bool FuzzConcurrentTaskControllerInterfaceRequestAuth(const uint8_t* data, size_t size)
 {
     g_baseFuzzData = data;
@@ -546,6 +599,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::FuzzConcurrentTaskServiceReportSceneInfo(data, size);
     OHOS::FuzzConcurrentTaskServiceQueryDeadline(data, size);
     OHOS::FuzzConcurrentTaskServiceQueryInterval(data, size);
+    OHOS::FuzzConcurrentTaskServiceSetAudioDeadline(data, size);
     OHOS::FuzzConcurrentTaskServiceRequestAuth(data, size);
 
     OHOS::FuzzConcurrentTaskServiceStopRemoteObject(data, size);
@@ -566,6 +620,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::FuzzConcurrentTaskClientReportSceneInfo(data, size);
     OHOS::FuzzConcurrentTaskClientQueryDeadline(data, size);
     OHOS::FuzzConcurrentTaskClientQueryInterval(data, size);
+    OHOS::FuzzConcurrentTaskClientSetAudioDeadline(data, size);
     OHOS::FuzzConcurrentTaskClinetRequestAuth(data, size);
     OHOS::FuzzConcurrentTaskClientStopRemoteObject(data, size);
 

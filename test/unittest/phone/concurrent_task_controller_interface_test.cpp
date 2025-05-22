@@ -140,6 +140,26 @@ HWTEST_F(ConcurrentTaskControllerInterfaceTest, QueryIntervalTest, TestSize.Leve
  * @tc.desc: Test whether the PushTask interface are normal.
  * @tc.type: FUNC
  */
+HWTEST_F(ConcurrentTaskControllerInterfaceTest, SetAudioDeadlineTest, TestSize.Level1)
+{
+    TaskControllerInterface queInt;
+    int queryItem = AUDIO_DDL_CREATE_GRP;
+    IntervalReply queryRs = {0};
+    queInt.SetAudioDeadline(queryItem, -1, -1, queryRs);
+    queryItem = AUDIO_DDL_ADD_THREAD;
+    queInt.SetAudioDeadline(queryItem, gettid(), queryRs.rtgId, queryRs);
+    queryItem = AUDIO_DDL_REMOVE_THREAD;
+    queInt.SetAudioDeadline(queryItem, gettid(), queryRs.rtgId, queryRs);
+    queryItem = AUDIO_DDL_DESTROY_GRP;
+    queInt.SetAudioDeadline(queryItem, -1, queryRs.rtgId, queryRs);
+    EXPECT_FALSE(queInt.inited_);
+}
+
+/**
+ * @tc.name: PushTaskTest
+ * @tc.desc: Test whether the PushTask interface are normal.
+ * @tc.type: FUNC
+ */
 HWTEST_F(ConcurrentTaskControllerInterfaceTest, InitTest, TestSize.Level1)
 {
     TaskControllerInterface::GetInstance().Init();
