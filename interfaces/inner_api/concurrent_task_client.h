@@ -83,6 +83,17 @@ public:
         const std::unordered_map<std::string, std::string>& mapPayload);
 
     /**
+     * @brief audio rtg id and other info provided by concurrent task service.
+     *
+     * @param queryItem Information of the corresponding query module.
+     * @param tid Thread number of the audio thread.
+     * @param grpId The group which will be operate.
+     * @param queryRs Indicates the context info of the query message.
+     *
+     */
+    void SetAudioDeadline(int queryItem, int tid, int grpId, IntervalReply& queryRs);
+
+    /**
      * @brief Report auth request data to the concurrent task service.
      *
      * @param mapPayload Indicates the context info of the auth request data.

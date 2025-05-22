@@ -123,6 +123,28 @@ HWTEST_F(ConcurrentTaskClientTest, QueryDeadlineTest, TestSize.Level1)
 }
 
 /**
+ * @tc.name: PushTaskTest
+ * @tc.desc: Test whether the PushTask interface are normal.
+ * @tc.type: FUNC
+*/
+HWTEST_F(ConcurrentTaskClientTest, SetAudioDeadlineTest, TestSize.Level1)
+{
+    int queryItem = AUDIO_DDL_CREATE_GRP;
+    IntervalReply queryRs = { 0 };
+    ConcurrentTaskClient::GetInstance().SetAudioDeadline(queryItem, -1, -1, queryRs);
+    EXPECT_TRUE(queryRs.rtgId != -1);
+    queryItem = AUDIO_DDL_ADD_THREAD;
+    ConcurrentTaskClient::GetInstance().SetAudioDeadline(queryItem, gettid(), queryRs.rtgId, queryRs);
+    EXPECT_TRUE(queryRs.paramA == 0);
+    queryItem = AUDIO_DDL_REMOVE_THREAD;
+    ConcurrentTaskClient::GetInstance().SetAudioDeadline(queryItem, gettid(), queryRs.rtgId, queryRs);
+    EXPECT_TRUE(queryRs.paramA == 0);
+    queryItem = AUDIO_DDL_DESTROY_GRP;
+    ConcurrentTaskClient::GetInstance().SetAudioDeadline(queryItem, -1, queryRs.rtgId, queryRs);
+    EXPECT_TRUE(queryRs.paramA == 0);
+}
+
+/**
  * @tc.name: RequestAuthTest
  * @tc.desc: Test whether the RequestAuth interface are normal.
  * @tc.type: FUNC
