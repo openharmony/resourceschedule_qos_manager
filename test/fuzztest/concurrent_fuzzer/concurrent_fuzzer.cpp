@@ -31,6 +31,8 @@ using namespace OHOS::QOS;
 
 namespace OHOS {
 const uint8_t *g_baseFuzzData = nullptr;
+const int startTime = 20;
+const int endTime = 40;
 size_t g_baseFuzzSize = 0;
 size_t g_baseFuzzPos;
 #define  QUADRUPLE  4
@@ -438,7 +440,7 @@ bool FuzzConcurrentTaskClientSetAudioDeadline(const uint8_t* data, size_t size)
         int queryItem = GetData<int>();
         queryItem = queryItem % (AUDIO_DDL_REMOVE_THREAD + 1);
         IntervalReply queryRs;
-        ConcurrentTaskClient::GetInstance().SetAudioDeadline(queryItem, 20, 40, queryRs);
+        ConcurrentTaskClient::GetInstance().SetAudioDeadline(queryItem, startTime, endTime, queryRs);
     }
     return true;
 }
@@ -540,7 +542,7 @@ bool FuzzConcurrentTaskControllerInterfaceSetAudioDeadline(const uint8_t* data, 
         int queryItem = GetData<int>();
         queryItem = queryItem % (AUDIO_DDL_REMOVE_THREAD + 1);
         IntervalReply queryRs;
-        TaskControllerInterface::GetInstance().SetAudioDeadline(queryItem, 20, 40, queryRs);
+        TaskControllerInterface::GetInstance().SetAudioDeadline(queryItem, startTime, endTime, queryRs);
     }
     return true;
 }
