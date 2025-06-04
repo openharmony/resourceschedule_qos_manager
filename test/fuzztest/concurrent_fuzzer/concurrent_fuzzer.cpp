@@ -25,16 +25,14 @@
 #include "qos_interface.h"
 #include "qos_policy.h"
 #include "system_ability_definition.h"
+#include <fuzzer/FuzzedDataProvider.h>
 
 using namespace OHOS::ConcurrentTask;
 using namespace OHOS::QOS;
 
 namespace OHOS {
-const uint8_t *g_baseFuzzData = nullptr;
 const int START_TIME = 20;
 const int END_TIME = 40;
-size_t g_baseFuzzSize = 0;
-size_t g_baseFuzzPos;
 #define  QUADRUPLE  4
 #define  LEN 4
 
@@ -50,31 +48,14 @@ namespace {
     constexpr int TEST_DATA_TENTH = 10;
 }
 
-template <class T> T GetData()
-{
-    T object{};
-    size_t objectSize = sizeof(object);
-    if (g_baseFuzzData == nullptr || objectSize > g_baseFuzzSize - g_baseFuzzPos) {
-        return object;
-    }
-    ErrCode ret = memcpy_s(&object, objectSize, g_baseFuzzData + g_baseFuzzPos, objectSize);
-    if (ret != ERR_OK) {
-        return {};
-    }
-    g_baseFuzzPos += objectSize;
-    return object;
-}
-
 bool FuzzConcurrentTaskServiceReportData(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(int)) {
         MessageParcel data1;
         Parcel parcel;
         sptr<IRemoteObject> iremoteobject = IRemoteObject::Unmarshalling(parcel);
-        int intdata = GetData<int>();
+        int intdata = fdp.ConsumeIntegral<int>();
         void *voiddata = &intdata;
         size_t size1 = sizeof(int);
         data1.WriteRemoteObject(iremoteobject);
@@ -91,14 +72,12 @@ bool FuzzConcurrentTaskServiceReportData(const uint8_t* data, size_t size)
 
 bool FuzzConcurrentTaskServiceReportSceneInfo(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(int)) {
         MessageParcel data1;
         Parcel parcel;
         sptr<IRemoteObject> iremoteobject = IRemoteObject::Unmarshalling(parcel);
-        int intdata = GetData<int>();
+        int intdata = fdp.ConsumeIntegral<int>();
         void *voiddata = &intdata;
         size_t size1 = sizeof(int);
         data1.WriteRemoteObject(iremoteobject);
@@ -115,14 +94,12 @@ bool FuzzConcurrentTaskServiceReportSceneInfo(const uint8_t* data, size_t size)
 
 bool FuzzConcurrentTaskServiceQueryInterval(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(int)) {
         MessageParcel data1;
         Parcel parcel;
         sptr<IRemoteObject> iremoteobject = IRemoteObject::Unmarshalling(parcel);
-        int intdata = GetData<int>();
+        int intdata = fdp.ConsumeIntegral<int>();
         void *voiddata = &intdata;
         size_t size1 = sizeof(int);
         data1.WriteRemoteObject(iremoteobject);
@@ -139,14 +116,12 @@ bool FuzzConcurrentTaskServiceQueryInterval(const uint8_t* data, size_t size)
 
 bool FuzzConcurrentTaskServiceQueryDeadline(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(int)) {
         MessageParcel data1;
         Parcel parcel;
         sptr<IRemoteObject> iremoteobject = IRemoteObject::Unmarshalling(parcel);
-        int intdata = GetData<int>();
+        int intdata = fdp.ConsumeIntegral<int>();
         void *voiddata = &intdata;
         size_t size1 = sizeof(int);
         data1.WriteRemoteObject(iremoteobject);
@@ -163,14 +138,12 @@ bool FuzzConcurrentTaskServiceQueryDeadline(const uint8_t* data, size_t size)
 
 bool FuzzConcurrentTaskServiceSetAudioDeadline(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(int)) {
         MessageParcel data1;
         Parcel parcel;
         sptr<IRemoteObject> iremoteobject = IRemoteObject::Unmarshalling(parcel);
-        int intdata = GetData<int>();
+        int intdata = fdp.ConsumeIntegral<int>();
         void *voiddata = &intdata;
         size_t size1 = sizeof(int);
         data1.WriteRemoteObject(iremoteobject);
@@ -187,14 +160,12 @@ bool FuzzConcurrentTaskServiceSetAudioDeadline(const uint8_t* data, size_t size)
 
 bool FuzzConcurrentTaskServiceRequestAuth(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(int)) {
         MessageParcel data1;
         Parcel parcel;
         sptr<IRemoteObject> iremoteobject = IRemoteObject::Unmarshalling(parcel);
-        int intdata = GetData<int>();
+        int intdata = fdp.ConsumeIntegral<int>();
         void *voiddata = &intdata;
         size_t size1 = sizeof(int);
         data1.WriteRemoteObject(iremoteobject);
@@ -211,20 +182,15 @@ bool FuzzConcurrentTaskServiceRequestAuth(const uint8_t* data, size_t size)
 
 bool FuzzConcurrentTaskServiceStopRemoteObject(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
     ConcurrentTaskClient::GetInstance().StopRemoteObject();
     return true;
 }
 
 bool FuzzConcurrentTaskServiceSetThreadQos(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(int)) {
-        int level = GetData<int>();
+        int level = fdp.ConsumeIntegral<int>();
         level = level % TEST_DATA_TENTH;
         if (level == TEST_DATA_FIFTH || level == TEST_DATA_SECOND) {
             QOS::SetThreadQos(QOS::QosLevel::QOS_BACKGROUND);
@@ -241,12 +207,10 @@ bool FuzzConcurrentTaskServiceSetThreadQos(const uint8_t* data, size_t size)
 
 bool FuzzConcurrentTaskServiceSetQosForOtherThread(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(int)) {
-        int level = GetData<int>();
-        int tid = GetData<int>();
+        int level = fdp.ConsumeIntegral<int>();
+        int tid = fdp.ConsumeIntegral<int>();
         level = level % TEST_DATA_TENTH;
         if (level == TEST_DATA_FIRST || level == TEST_DATA_SECOND) {
             QOS::SetQosForOtherThread(QOS::QosLevel::QOS_BACKGROUND, tid);
@@ -263,20 +227,15 @@ bool FuzzConcurrentTaskServiceSetQosForOtherThread(const uint8_t* data, size_t s
 
 bool FuzzConcurrentTaskServiceResetThreadQos(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
     QOS::ResetThreadQos();
     return true;
 }
 
 bool FuzzConcurrentTaskServiceResetQosForOtherThread(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(int)) {
-        int tid = GetData<int>();
+        int tid = fdp.ConsumeIntegral<int>();
         QOS::ResetQosForOtherThread(tid);
     }
     return true;
@@ -284,9 +243,6 @@ bool FuzzConcurrentTaskServiceResetQosForOtherThread(const uint8_t* data, size_t
 
 void FuzzQosPolicyInit(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
     QosPolicy qosPolicy;
     qosPolicy.Init();
     return;
@@ -294,11 +250,9 @@ void FuzzQosPolicyInit(const uint8_t* data, size_t size)
 
 bool FuzzQosInterfaceEnableRtg(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(int)) {
-        bool flag = GetData<bool>();
+        bool flag = fdp.ConsumeIntegral<bool>();
         EnableRtg(flag);
     }
     return true;
@@ -306,20 +260,15 @@ bool FuzzQosInterfaceEnableRtg(const uint8_t* data, size_t size)
 
 bool FuzzQosInterfaceQosLeave(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
     QosLeave();
     return true;
 }
 
 bool FuzzConcurrentTaskServiceAbilityOnStart(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int32_t) + sizeof(int32_t)) {
-        int32_t sysAbilityId = GetData<int32_t>();
+        int32_t sysAbilityId = fdp.ConsumeIntegral<int32_t>();
         if ((sysAbilityId > ASSET_SERVICE_ID) && (sysAbilityId < VENDOR_SYS_ABILITY_ID_BEGIN)) {
             bool runOnCreate = true;
             ConcurrentTaskServiceAbility concurrenttaskserviceability =
@@ -332,13 +281,11 @@ bool FuzzConcurrentTaskServiceAbilityOnStart(const uint8_t* data, size_t size)
 
 bool FuzzConcurrentTaskServiceAbilityOnAddSystemAbility(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int32_t) + sizeof(int32_t) + sizeof(int32_t)) {
-        int32_t sysAbilityId = GetData<int32_t>();
-        int32_t taskServiceId = GetData<int32_t>();
-        std::string deviceId = std::to_string(GetData<int32_t>());
+        int32_t sysAbilityId = fdp.ConsumeIntegral<int32_t>();
+        int32_t taskServiceId = fdp.ConsumeIntegral<int32_t>();
+        std::string deviceId = std::to_string(fdp.ConsumeIntegral<int32_t>());
         if ((sysAbilityId > ASSET_SERVICE_ID && sysAbilityId < VENDOR_SYS_ABILITY_ID_BEGIN) &&
             (taskServiceId > ASSET_SERVICE_ID && taskServiceId < VENDOR_SYS_ABILITY_ID_BEGIN)) {
             bool runOnCreate = true;
@@ -352,13 +299,11 @@ bool FuzzConcurrentTaskServiceAbilityOnAddSystemAbility(const uint8_t* data, siz
 
 bool FuzzConcurrentTaskServiceAbilityOnRemoveSystemAbility(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int32_t) + sizeof(int32_t) + sizeof(int32_t)) {
-        int32_t sysAbilityId = GetData<int32_t>();
-        int32_t taskServiceId = GetData<int32_t>();
-        std::string deviceId = std::to_string(GetData<int32_t>());
+        int32_t sysAbilityId = fdp.ConsumeIntegral<int32_t>();
+        int32_t taskServiceId = fdp.ConsumeIntegral<int32_t>();
+        std::string deviceId = std::to_string(fdp.ConsumeIntegral<int32_t>());
         if ((sysAbilityId > ASSET_SERVICE_ID && sysAbilityId < VENDOR_SYS_ABILITY_ID_BEGIN) &&
             (taskServiceId > ASSET_SERVICE_ID && taskServiceId < VENDOR_SYS_ABILITY_ID_BEGIN)) {
             bool runOnCreate = true;
@@ -372,14 +317,12 @@ bool FuzzConcurrentTaskServiceAbilityOnRemoveSystemAbility(const uint8_t* data, 
 
 bool FuzzConcurrentTaskClientReportData(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(pid_t) + sizeof(uint32_t)) {
-        uint32_t resType = GetData<uint32_t>();
-        int64_t value = GetData<int64_t>();
+        uint32_t resType = fdp.ConsumeIntegral<uint32_t>();
+        int64_t value = fdp.ConsumeIntegral<int64_t>();
         std::unordered_map<std::string, std::string> mapPayload;
-        mapPayload["218211"] = std::to_string(GetData<int32_t>());
+        mapPayload["218211"] = std::to_string(fdp.ConsumeIntegral<int32_t>());
         ConcurrentTaskClient::GetInstance().ReportData(resType, value, mapPayload);
     }
     return true;
@@ -387,13 +330,11 @@ bool FuzzConcurrentTaskClientReportData(const uint8_t* data, size_t size)
 
 bool FuzzConcurrentTaskClientReportSceneInfo(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(pid_t) + sizeof(uint32_t)) {
-        uint32_t type = GetData<uint32_t>();
+        uint32_t type = fdp.ConsumeIntegral<uint32_t>();
         std::unordered_map<std::string, std::string> mapPayload;
-        mapPayload["218222"] = std::to_string(GetData<int32_t>());
+        mapPayload["218222"] = std::to_string(fdp.ConsumeIntegral<int32_t>());
         ConcurrentTaskClient::GetInstance().ReportSceneInfo(type, mapPayload);
     }
     return true;
@@ -401,11 +342,9 @@ bool FuzzConcurrentTaskClientReportSceneInfo(const uint8_t* data, size_t size)
 
 bool FuzzConcurrentTaskClientQueryInterval(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(int)) {
-        int queryItem = GetData<int>();
+        int queryItem = fdp.ConsumeIntegral<int>();
         queryItem = queryItem % (QURRY_TYPE_MAX + 1);
         IntervalReply queryRs;
         ConcurrentTaskClient::GetInstance().QueryInterval(queryItem, queryRs);
@@ -415,15 +354,13 @@ bool FuzzConcurrentTaskClientQueryInterval(const uint8_t* data, size_t size)
 
 bool FuzzConcurrentTaskClientQueryDeadline(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(pid_t) + sizeof(uint32_t)) {
-        int queryItem = GetData<int>();
+        int queryItem = fdp.ConsumeIntegral<int>();
         queryItem = queryItem % (QURRY_TYPE_MAX + 1);
         DeadlineReply ddlReply;
-        pid_t pid = GetData<pid_t>();
-        uint32_t qos = GetData<uint32_t>();
+        pid_t pid = fdp.ConsumeIntegral<pid_t>();
+        uint32_t qos = fdp.ConsumeIntegral<uint32_t>();
         std::unordered_map<pid_t, uint32_t> mapPayload;
         mapPayload.insert(std::pair<pid_t, uint32_t>(pid, qos));
         ConcurrentTaskClient::GetInstance().QueryDeadline(queryItem, ddlReply, mapPayload);
@@ -433,11 +370,9 @@ bool FuzzConcurrentTaskClientQueryDeadline(const uint8_t* data, size_t size)
 
 bool FuzzConcurrentTaskClientSetAudioDeadline(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(int)) {
-        int queryItem = GetData<int>();
+        int queryItem = fdp.ConsumeIntegral<int>();
         queryItem = queryItem % (AUDIO_DDL_REMOVE_THREAD + 1);
         IntervalReply queryRs;
         ConcurrentTaskClient::GetInstance().SetAudioDeadline(queryItem, START_TIME, END_TIME, queryRs);
@@ -447,13 +382,11 @@ bool FuzzConcurrentTaskClientSetAudioDeadline(const uint8_t* data, size_t size)
 
 bool FuzzConcurrentTaskClinetRequestAuth(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int32_t)) {
         MessageParcel data1;
         std::unordered_map<std::string, std::string> mapPayload;
-        mapPayload["2182"] = std::to_string(GetData<int32_t>());
+        mapPayload["2182"] = std::to_string(fdp.ConsumeIntegral<int32_t>());
         ConcurrentTaskClient::GetInstance().RequestAuth(mapPayload);
     }
     return true;
@@ -461,24 +394,19 @@ bool FuzzConcurrentTaskClinetRequestAuth(const uint8_t* data, size_t size)
 
 bool FuzzConcurrentTaskClientStopRemoteObject(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
     ConcurrentTaskClient::GetInstance().StopRemoteObject();
     return true;
 }
 
 bool FuzzConcurrentTaskControllerInterfaceReportData(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(uint32_t) + sizeof(int64_t) + sizeof(uint32_t) + sizeof(uint32_t)) {
-        uint32_t resType = GetData<uint32_t>();
-        int64_t value = GetData<int64_t>();
+        uint32_t resType = fdp.ConsumeIntegral<uint32_t>();
+        int64_t value = fdp.ConsumeIntegral<int64_t>();
         Json::Value jsValue;
-        jsValue["1111"] = std::to_string(GetData<uint32_t>());
-        jsValue["2222"] = std::to_string(GetData<uint32_t>());
+        jsValue["1111"] = std::to_string(fdp.ConsumeIntegral<uint32_t>());
+        jsValue["2222"] = std::to_string(fdp.ConsumeIntegral<uint32_t>());
         TaskControllerInterface::GetInstance().ReportData(resType, value, jsValue);
     }
     return true;
@@ -486,14 +414,12 @@ bool FuzzConcurrentTaskControllerInterfaceReportData(const uint8_t* data, size_t
 
 bool FuzzConcurrentTaskControllerInterfaceReportSceneInfo(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t)) {
-        uint32_t resType = GetData<uint32_t>();
+        uint32_t resType = fdp.ConsumeIntegral<uint32_t>();
         Json::Value jsValue;
-        jsValue["1111"] = std::to_string(GetData<uint32_t>());
-        jsValue["2222"] = std::to_string(GetData<uint32_t>());
+        jsValue["1111"] = std::to_string(fdp.ConsumeIntegral<uint32_t>());
+        jsValue["2222"] = std::to_string(fdp.ConsumeIntegral<uint32_t>());
         TaskControllerInterface::GetInstance().ReportSceneInfo(resType, jsValue);
     }
     return true;
@@ -501,12 +427,10 @@ bool FuzzConcurrentTaskControllerInterfaceReportSceneInfo(const uint8_t* data, s
 
 bool FuzzConcurrentTaskControllerInterfaceQueryInterval(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(int)) {
         ConcurrentTaskService s = ConcurrentTaskService();
-        int queryItem = GetData<int>();
+        int queryItem = fdp.ConsumeIntegral<int>();
         queryItem = queryItem % (QURRY_TYPE_MAX + 1);
         IntervalReply queryRs;
         TaskControllerInterface::GetInstance().QueryInterval(queryItem, queryRs);
@@ -516,16 +440,14 @@ bool FuzzConcurrentTaskControllerInterfaceQueryInterval(const uint8_t* data, siz
 
 bool FuzzConcurrentTaskControllerInterfaceQueryDeadline(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(int) + sizeof(int)) {
-        int deadlineType = GetData<int>();
+        int deadlineType = fdp.ConsumeIntegral<int>();
         deadlineType = deadlineType % (MSG_GAME + 1);
         DeadlineReply queryRs;
         Json::Value jsValue;
-        jsValue["2123"] = std::to_string(GetData<int>());
-        jsValue["2333"] = std::to_string(GetData<int>());
+        jsValue["2123"] = std::to_string(fdp.ConsumeIntegral<int>());
+        jsValue["2333"] = std::to_string(fdp.ConsumeIntegral<int>());
         ConcurrentTaskService s = ConcurrentTaskService();
         TaskControllerInterface::GetInstance().QueryDeadline(deadlineType, queryRs, jsValue);
     }
@@ -534,12 +456,10 @@ bool FuzzConcurrentTaskControllerInterfaceQueryDeadline(const uint8_t* data, siz
 
 bool FuzzConcurrentTaskControllerInterfaceSetAudioDeadline(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(int)) {
         ConcurrentTaskService s = ConcurrentTaskService();
-        int queryItem = GetData<int>();
+        int queryItem = fdp.ConsumeIntegral<int>();
         queryItem = queryItem % (AUDIO_DDL_REMOVE_THREAD + 1);
         IntervalReply queryRs;
         TaskControllerInterface::GetInstance().SetAudioDeadline(queryItem, START_TIME, END_TIME, queryRs);
@@ -549,13 +469,11 @@ bool FuzzConcurrentTaskControllerInterfaceSetAudioDeadline(const uint8_t* data, 
 
 bool FuzzConcurrentTaskControllerInterfaceRequestAuth(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(int)) {
         Json::Value payload;
-        payload["2187"] = std::to_string(GetData<int>());
-        payload["2376"] = std::to_string(GetData<int>());
+        payload["2187"] = std::to_string(fdp.ConsumeIntegral<int>());
+        payload["2376"] = std::to_string(fdp.ConsumeIntegral<int>());
         ConcurrentTaskService s = ConcurrentTaskService();
         TaskControllerInterface::GetInstance().RequestAuth(payload);
     }
@@ -576,12 +494,10 @@ bool FuzzConcurrentTaskControllerInterfaceRelease(const uint8_t* data, size_t si
 
 bool FuzzQosControllerGetThreadQosForOtherThread(const uint8_t* data, size_t size)
 {
-    g_baseFuzzData = data;
-    g_baseFuzzSize = size;
-    g_baseFuzzPos = 0;
+    FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int)) {
         enum QosLevel level;
-        int tid = GetData<int>();
+        int tid = fdp.ConsumeIntegral<int>();
         QosController::GetInstance().GetThreadQosForOtherThread(level, tid);
     }
     return true;
