@@ -28,6 +28,7 @@ ohos_shared_library("qos_ndk") {
     "-Os",
   ]
   include_dirs = [
+    "../../include/",
     "../../interfaces/",
     "../../interfaces/kits/c/",
   ]
@@ -35,6 +36,10 @@ ohos_shared_library("qos_ndk") {
   sources = [ "qos_ndk.cpp" ]
 
   deps = [ "../../qos:qos" ]
+
+  external_deps = [
+    "hilog:libhilog"
+  ]
 
   output_name = "qos"
   output_extension = "so"
