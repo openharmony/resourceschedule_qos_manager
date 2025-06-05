@@ -16,6 +16,7 @@
         extern "C++" {
             OHOS::ConcurrentTask::ConcurrentTaskClient::*;
         };
+        CTC_QueryInterval;
     local:
         *;
 };
