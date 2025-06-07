@@ -23,16 +23,14 @@ namespace ConcurrentTask {
 ErrCode ConcurrentTaskService::ReportData(
     uint32_t resType, int64_t value, const std::unordered_map<std::string, std::string>& payload)
 {
-    Json::Value payloadData = MapToJson(payload);
-    TaskControllerInterface::GetInstance().ReportData(resType, value, payloadData);
+    TaskControllerInterface::GetInstance().ReportData(resType, value, payload);
     return ERR_OK;
 }
 
 ErrCode ConcurrentTaskService::ReportSceneInfo(
     uint32_t type, const std::unordered_map<std::string, std::string>& payload)
 {
-    Json::Value payloadData = MapToJson(payload);
-    TaskControllerInterface::GetInstance().ReportSceneInfo(type, payloadData);
+    TaskControllerInterface::GetInstance().ReportSceneInfo(type, payload);
     return ERR_OK;
 }
 
@@ -55,26 +53,15 @@ ErrCode ConcurrentTaskService::SetAudioDeadline(int queryItem, int tid, int grpI
 ErrCode ConcurrentTaskService::QueryDeadline(
     int queryItem, const IpcDeadlineReply& IpcDdlReply, const std::unordered_map<std::string, std::string>& payload)
 {
-    Json::Value payloadData = MapToJson(payload);
     DeadlineReply queryRs = IpcToDdlReply(IpcDdlReply);
-    TaskControllerInterface::GetInstance().QueryDeadline(queryItem, queryRs, payloadData);
+    TaskControllerInterface::GetInstance().QueryDeadline(queryItem, queryRs, payload);
     return ERR_OK;
 }
 
 ErrCode ConcurrentTaskService::RequestAuth(const std::unordered_map<std::string, std::string>& payload)
 {
-    Json::Value payloadData = MapToJson(payload);
-    TaskControllerInterface::GetInstance().RequestAuth(payloadData);
+    TaskControllerInterface::GetInstance().RequestAuth(payload);
     return ERR_OK;
-}
-
-Json::Value ConcurrentTaskService::MapToJson(const std::unordered_map<std::string, std::string>& dataMap)
-{
-    Json::Value root;
-    for (const auto& pair : dataMap) {
-        root[pair.first] = pair.second;
-    }
-    return root;
 }
 
 IntervalReply ConcurrentTaskService::IpcToQueryRs(const IpcIntervalReply& IpcQueryRs)

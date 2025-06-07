@@ -100,7 +100,6 @@ ohos_unittest("func_loader_test") {
     "frame_aware_sched:rtg_interface",
     "hilog:libhilog",
     "init:libbegetutil",
-    "jsoncpp:jsoncpp",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
@@ -130,7 +129,6 @@ ohos_unittest("concurrent_task_controller_interface_test") {
     "frame_aware_sched:rtg_interface",
     "hilog:libhilog",
     "init:libbegetutil",
-    "jsoncpp:jsoncpp",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
@@ -157,7 +155,6 @@ ohos_unittest("concurrent_task_service_ability_test") {
     "c_utils:utils",
     "frame_aware_sched:rtg_interface",
     "hilog:libhilog",
-    "jsoncpp:jsoncpp",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
@@ -237,7 +234,6 @@ ohos_unittest("concurrent_task_service_test") {
     "c_utils:utils",
     "frame_aware_sched:rtg_interface",
     "hilog:libhilog",
-    "jsoncpp:jsoncpp",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]

@@ -44,7 +44,7 @@ TaskControllerInterface& TaskControllerInterface::GetInstance()
     return instance;
 }
 
-void TaskControllerInterface::RequestAuth(const Json::Value& payload)
+void TaskControllerInterface::RequestAuth(const std::unordered_map<std::string, std::string>& payload)
 {
     if (!inited_) {
         CONCUR_LOGE("[TaskControllerInterface] RequestAuth failed, funcLoader_ load func failed");
@@ -53,7 +53,8 @@ void TaskControllerInterface::RequestAuth(const Json::Value& payload)
     requestAuthFunc_(payload);
 }
 
-void TaskControllerInterface::ReportData(uint32_t resType, int64_t value, const Json::Value& payload)
+void TaskControllerInterface::ReportData(
+    uint32_t resType, int64_t value, const std::unordered_map<std::string, std::string> &payload)
 {
     if (!inited_) {
         CONCUR_LOGE("[TaskControllerInterface] ReportData failed, funcLoader_ load func failed");
@@ -62,7 +63,8 @@ void TaskControllerInterface::ReportData(uint32_t resType, int64_t value, const 
     reportDataFunc_(resType, value, payload);
 }
 
-void TaskControllerInterface::ReportSceneInfo(uint32_t type, const Json::Value& payload)
+void TaskControllerInterface::ReportSceneInfo(
+    uint32_t type, const std::unordered_map<std::string, std::string>& payload)
 {
     if (!inited_) {
         CONCUR_LOGE("[TaskControllerInterface] ReportSceneInfo failed, funcLoader_ load func failed");
@@ -80,7 +82,8 @@ void TaskControllerInterface::QueryInterval(int queryItem, IntervalReply& queryR
     queryIntervalFunc_(queryItem, queryRs);
 }
 
-void TaskControllerInterface::QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload)
+void TaskControllerInterface::QueryDeadline(
+    int queryItem, DeadlineReply& ddlReply, const std::unordered_map<std::string, std::string>& payload)
 {
     if (!inited_) {
         CONCUR_LOGE("[TaskControllerInterface] QueryDeadline failed, funcLoader_ load func failed");

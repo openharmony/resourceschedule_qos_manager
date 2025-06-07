@@ -18,9 +18,6 @@
 
 #include <mutex>
 
-#include "json/json.h"
-#include "json/value.h"
-
 #include "concurrent_task_type.h"
 #include "concurrent_task_idl_types.h"
 #include "func_loader.h"
@@ -28,12 +25,14 @@
 
 namespace OHOS {
 namespace ConcurrentTask {
-using ReportDataFunc = void (*)(uint32_t resType, int64_t value, const Json::Value& payload);
-using ReportSceneInfoFunc = void (*)(uint32_t type, const Json::Value& payload);
+using ReportDataFunc = void (*)(
+    uint32_t resType, int64_t value, const std::unordered_map<std::string, std::string>& payload);
+using ReportSceneInfoFunc = void (*)(uint32_t type, const std::unordered_map<std::string, std::string>& payload);
 using QueryIntervalFunc = void (*)(int queryItem, IntervalReply& queryRs);
-using QueryDeadlineFunc = void (*)(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload);
+using QueryDeadlineFunc = void (*)(
+    int queryItem, DeadlineReply& ddlReply, const std::unordered_map<std::string, std::string>& payload);
 using SetAudioDeadlineFunc = void (*)(int queryItem, int tid, int grpId, IntervalReply& queryRs);
-using RequestAuthFunc = void (*)(const Json::Value& payload);
+using RequestAuthFunc = void (*)(const std::unordered_map<std::string, std::string>& payload);
 using InitFunc = void (*)();
 using ReleaseFunc = void (*)();
 using CreateNewRtgGrpFunc = int (*)(int prioType, int rtNum);
@@ -43,11 +42,12 @@ public:
     static TaskControllerInterface& GetInstance();
     TaskControllerInterface();
     virtual ~TaskControllerInterface() = default;
-    void RequestAuth(const Json::Value& payload);
-    void ReportData(uint32_t resType, int64_t value, const Json::Value& payload);
-    void ReportSceneInfo(uint32_t type, const Json::Value& payload);
+    void RequestAuth(const std::unordered_map<std::string, std::string>& payload);
+    void ReportData(uint32_t resType, int64_t value, const std::unordered_map<std::string, std::string>& payload);
+    void ReportSceneInfo(uint32_t type, const std::unordered_map<std::string, std::string>& payload);
     void QueryInterval(int queryItem, IntervalReply& queryRs);
-    void QueryDeadline(int queryItem, DeadlineReply& ddlReply, const Json::Value& payload);
+    void QueryDeadline(
+        int queryItem, DeadlineReply& ddlReply, const std::unordered_map<std::string, std::string>& payload);
     void SetAudioDeadline(int queryItem, int tid, int grpId, IntervalReply& queryRs);
     void Init();
     void Release();
