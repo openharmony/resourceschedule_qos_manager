@@ -31,13 +31,11 @@
                 "hitrace",
                 "init",
                 "ipc",
-                "jsoncpp",
                 "libxml2",
                 "safwk",
                 "samgr"
             ],
             "third_party": [
-                "json"
             ]
         },
         "build": {

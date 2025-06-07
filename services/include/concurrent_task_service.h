@@ -17,7 +17,6 @@
 #define CONCURRENT_TASK_SERVICES_CONCURRENTSEVICE_INCLUDE_CONCURRENT_TASK_SEVICE_H
 
 #include <unordered_map>
-#include "json/json.h"
 #include "concurrent_task_type.h"
 #include "concurrent_task_idl_types.h"
 #include "concurrent_task_service_stub.h"
@@ -38,7 +37,6 @@ public:
     ErrCode SetAudioDeadline(int queryItem, int tid, int grpId, IpcIntervalReply& IpcQueryRs) override;
     ErrCode RequestAuth(const std::unordered_map<std::string, std::string>& payload) override;
 
-    Json::Value MapToJson(const std::unordered_map<std::string, std::string>& dataMap);
     IntervalReply IpcToQueryRs(const IpcIntervalReply& IpcQueryRs);
     IpcIntervalReply QueryRsToIpc(const IntervalReply& queryRs);
     DeadlineReply IpcToDdlReply(const IpcDeadlineReply& IpcDdlReply);
