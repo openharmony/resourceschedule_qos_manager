@@ -81,7 +81,6 @@ ohos_shared_library("concurrentsvc") {
     "hitrace:hitrace_meter",
     "init:libbegetutil",
     "ipc:ipc_single",
-    "jsoncpp:jsoncpp",
     "libxml2:libxml2",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",

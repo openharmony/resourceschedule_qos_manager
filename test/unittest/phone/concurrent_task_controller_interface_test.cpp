@@ -56,7 +56,7 @@ void ConcurrentTaskControllerInterfaceTest::TearDown() {}
  */
 HWTEST_F(ConcurrentTaskControllerInterfaceTest, RequestAuthTest, TestSize.Level1)
 {
-    const Json::Value payload;
+    const std::unordered_map<std::string, std::string> payload;
     TaskControllerInterface repData;
     repData.RequestAuth(payload);
     EXPECT_TRUE(payload.empty());
@@ -71,7 +71,7 @@ HWTEST_F(ConcurrentTaskControllerInterfaceTest, ReportDataTest, TestSize.Level1)
 {
     uint32_t resType = 0;
     int64_t value = 0;
-    const Json::Value payload;
+    const std::unordered_map<std::string, std::string> payload;
     TaskControllerInterface repData;
     repData.ReportData(resType, value, payload);
     EXPECT_TRUE(payload.empty());
@@ -85,7 +85,7 @@ HWTEST_F(ConcurrentTaskControllerInterfaceTest, ReportDataTest, TestSize.Level1)
 HWTEST_F(ConcurrentTaskControllerInterfaceTest, ReportSceneInfoTest, TestSize.Level1)
 {
     uint32_t resType = 0;
-    const Json::Value payload;
+    const std::unordered_map<std::string, std::string> payload;
     TaskControllerInterface repData;
     repData.ReportSceneInfo(resType, payload);
     EXPECT_TRUE(payload.empty());
@@ -100,7 +100,7 @@ HWTEST_F(ConcurrentTaskControllerInterfaceTest, QueryDeadlineTest, TestSize.Leve
 {
     int queryItem = DDL_RATE;
     DeadlineReply ddlReply = {false};
-    const Json::Value payload;
+    const std::unordered_map<std::string, std::string> payload;
     TaskControllerInterface::GetInstance().QueryDeadline(queryItem, ddlReply, payload);
     EXPECT_TRUE(payload.empty());
 }
