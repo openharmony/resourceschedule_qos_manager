@@ -404,10 +404,10 @@ bool FuzzConcurrentTaskControllerInterfaceReportData(const uint8_t* data, size_t
     if (size > sizeof(uint32_t) + sizeof(int64_t) + sizeof(uint32_t) + sizeof(uint32_t)) {
         uint32_t resType = fdp.ConsumeIntegral<uint32_t>();
         int64_t value = fdp.ConsumeIntegral<int64_t>();
-        Json::Value jsValue;
-        jsValue["1111"] = std::to_string(fdp.ConsumeIntegral<uint32_t>());
-        jsValue["2222"] = std::to_string(fdp.ConsumeIntegral<uint32_t>());
-        TaskControllerInterface::GetInstance().ReportData(resType, value, jsValue);
+        std::unordered_map<std::string, std::string> payload;
+        payload["1111"] = std::to_string(fdp.ConsumeIntegral<uint32_t>());
+        payload["2222"] = std::to_string(fdp.ConsumeIntegral<uint32_t>());
+        TaskControllerInterface::GetInstance().ReportData(resType, value, payload);
     }
     return true;
 }
@@ -417,10 +417,10 @@ bool FuzzConcurrentTaskControllerInterfaceReportSceneInfo(const uint8_t* data, s
     FuzzedDataProvider fdp(data, size);
     if (size > sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t)) {
         uint32_t resType = fdp.ConsumeIntegral<uint32_t>();
-        Json::Value jsValue;
-        jsValue["1111"] = std::to_string(fdp.ConsumeIntegral<uint32_t>());
-        jsValue["2222"] = std::to_string(fdp.ConsumeIntegral<uint32_t>());
-        TaskControllerInterface::GetInstance().ReportSceneInfo(resType, jsValue);
+        std::unordered_map<std::string, std::string> payload;
+        payload["1111"] = std::to_string(fdp.ConsumeIntegral<uint32_t>());
+        payload["2222"] = std::to_string(fdp.ConsumeIntegral<uint32_t>());
+        TaskControllerInterface::GetInstance().ReportSceneInfo(resType, payload);
     }
     return true;
 }
@@ -445,11 +445,11 @@ bool FuzzConcurrentTaskControllerInterfaceQueryDeadline(const uint8_t* data, siz
         int deadlineType = fdp.ConsumeIntegral<int>();
         deadlineType = deadlineType % (MSG_GAME + 1);
         DeadlineReply queryRs;
-        Json::Value jsValue;
-        jsValue["2123"] = std::to_string(fdp.ConsumeIntegral<int>());
-        jsValue["2333"] = std::to_string(fdp.ConsumeIntegral<int>());
+        std::unordered_map<std::string, std::string> payload;
+        payload["2123"] = std::to_string(fdp.ConsumeIntegral<int>());
+        payload["2333"] = std::to_string(fdp.ConsumeIntegral<int>());
         ConcurrentTaskService s = ConcurrentTaskService();
-        TaskControllerInterface::GetInstance().QueryDeadline(deadlineType, queryRs, jsValue);
+        TaskControllerInterface::GetInstance().QueryDeadline(deadlineType, queryRs, payload);
     }
     return true;
 }
@@ -471,7 +471,7 @@ bool FuzzConcurrentTaskControllerInterfaceRequestAuth(const uint8_t* data, size_
 {
     FuzzedDataProvider fdp(data, size);
     if (size > sizeof(int) + sizeof(int)) {
-        Json::Value payload;
+        std::unordered_map<std::string, std::string> payload;
         payload["2187"] = std::to_string(fdp.ConsumeIntegral<int>());
         payload["2376"] = std::to_string(fdp.ConsumeIntegral<int>());
         ConcurrentTaskService s = ConcurrentTaskService();

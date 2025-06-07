@@ -102,7 +102,6 @@ ohos_shared_library("concurrent_task_client") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "ipc:ipc_single",
-    "jsoncpp:jsoncpp",
     "samgr:samgr_proxy",
   ]
 

@@ -15,7 +15,6 @@
 
 #include "gtest/gtest.h"
 #include "concurrent_task_service.h"
-#include "json/json.h"
 
 namespace OHOS {
 namespace FFRT_TEST {
@@ -77,29 +76,6 @@ HWTEST_F(ConcurrentTaskServiceTest, QueryDeadlineTest, TestSize.Level1)
     ConcurrentTaskService queInt;
     queInt.QueryDeadline(queryItem, IpcDdlReply, payload);
     EXPECT_FALSE(payload.empty());
-}
-
-/**
- * @tc.name: MapToJsonTest
- * @tc.desc: Test MapToJson function with a non-empty and empty map
- * @tc.type: FUNC
- */
-HWTEST_F(ConcurrentTaskServiceTest, MapToJsonTest, TestSize.Level1)
-{
-    ConcurrentTaskService service;
-
-    std::unordered_map<std::string, std::string> dataMap = {{"key1", "value1"}, {"key2", "value2"}, {"key3", "value3"}};
-    Json::Value expectedJson;
-    expectedJson["key1"] = "value1";
-    expectedJson["key2"] = "value2";
-    expectedJson["key3"] = "value3";
-    Json::Value resultJson = service.MapToJson(dataMap);
-    EXPECT_EQ(expectedJson, resultJson);
-
-    std::unordered_map<std::string, std::string> dataMap2;
-    Json::Value expectedJson2;
-    Json::Value resultJson2 = service.MapToJson(dataMap2);
-    EXPECT_EQ(expectedJson2, resultJson2);
 }
 
 /**
