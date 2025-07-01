@@ -10,5 +10,21 @@
     {
         "first_introduced": "12",
         "name": "OH_QoS_GetThreadQoS"
+    },
+    {
+        "first_introduced": "20",
+        "name": "OH_QoS_Gewu_CreateSession"
+    },
+    {
+        "first_introduced": "20",
+        "name": "OH_QoS_Gewu_DestroySession"
+    },
+    {
+        "first_introduced": "20",
+        "name": "OH_QoS_Gewu_AbortRequest"
+    },
+    {
+        "first_introduced": "20",
+        "name": "OH_QoS_Gewu_SubmitRequest"
     }
 ]
