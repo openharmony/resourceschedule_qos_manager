@@ -12,7 +12,7 @@
     "component": {
         "name": "qos_manager",
         "subsystem": "resourceschedule",
-        "syscap": [],
+        "syscap": [ "SystemCapability.Resourceschedule.QoS.Core" ],
         "features": [],
         "adapted_system_type": [
             "standard"
