@@ -423,7 +423,6 @@ bool FuzzConcurrentTaskClientStopRemoteObject(const uint8_t* data, size_t size)
     if (size > sizeof(int)) {
         ConcurrentTaskClient::GetInstance().StopRemoteObject();
     }
-
     return true;
 }
 
