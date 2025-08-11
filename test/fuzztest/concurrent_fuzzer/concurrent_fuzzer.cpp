@@ -180,12 +180,6 @@ bool FuzzConcurrentTaskServiceRequestAuth(const uint8_t* data, size_t size)
     return true;
 }
 
-bool FuzzConcurrentTaskServiceStopRemoteObject(const uint8_t* data, size_t size)
-{
-    ConcurrentTaskClient::GetInstance().StopRemoteObject();
-    return true;
-}
-
 bool FuzzConcurrentTaskServiceSetThreadQos(const uint8_t* data, size_t size)
 {
     FuzzedDataProvider fdp(data, size);
@@ -227,7 +221,21 @@ bool FuzzConcurrentTaskServiceSetQosForOtherThread(const uint8_t* data, size_t s
 
 bool FuzzConcurrentTaskServiceResetThreadQos(const uint8_t* data, size_t size)
 {
-    QOS::ResetThreadQos();
+    FuzzedDataProvider fdp(data, size);
+    if (size > sizeof(int) + sizeof(int)) {
+        int level = fdp.ConsumeIntegral<int>();
+        level = level % TEST_DATA_TENTH;
+        if (level == TEST_DATA_FIFTH || level == TEST_DATA_SECOND) {
+            QOS::SetThreadQos(QOS::QosLevel::QOS_BACKGROUND);
+        } else if (level == TEST_DATA_THIRD || level == TEST_DATA_FOURTH) {
+            QOS::SetThreadQos(QOS::QosLevel::QOS_UTILITY);
+        } else if (level == TEST_DATA_FIFTH || level == TEST_DATA_SIXTH) {
+            QOS::SetThreadQos(QOS::QosLevel::QOS_DEFAULT);
+        } else if (level == TEST_DATA_SEVENTH || level == TEST_DATA_EIGHTH) {
+            QOS::SetThreadQos(QOS::QosLevel::QOS_USER_INITIATED);
+        }
+        QOS::ResetThreadQos();
+    }
     return true;
 }
 
@@ -243,8 +251,11 @@ bool FuzzConcurrentTaskServiceResetQosForOtherThread(const uint8_t* data, size_t
 
 void FuzzQosPolicyInit(const uint8_t* data, size_t size)
 {
-    QosPolicy qosPolicy;
-    qosPolicy.Init();
+    FuzzedDataProvider fdp(data, size);
+    if (size > sizeof(int)) {
+        QosPolicy qosPolicy;
+        qosPolicy.Init();
+    }
     return;
 }
 
@@ -260,7 +271,21 @@ bool FuzzQosInterfaceEnableRtg(const uint8_t* data, size_t size)
 
 bool FuzzQosInterfaceQosLeave(const uint8_t* data, size_t size)
 {
-    QosLeave();
+    FuzzedDataProvider fdp(data, size);
+    if (size > sizeof(int) + sizeof(int)) {
+        int level = fdp.ConsumeIntegral<int>();
+        level = level % TEST_DATA_TENTH;
+        if (level == TEST_DATA_FIFTH || level == TEST_DATA_SECOND) {
+            QOS::SetThreadQos(QOS::QosLevel::QOS_BACKGROUND);
+        } else if (level == TEST_DATA_THIRD || level == TEST_DATA_FOURTH) {
+            QOS::SetThreadQos(QOS::QosLevel::QOS_UTILITY);
+        } else if (level == TEST_DATA_FIFTH || level == TEST_DATA_SIXTH) {
+            QOS::SetThreadQos(QOS::QosLevel::QOS_DEFAULT);
+        } else if (level == TEST_DATA_SEVENTH || level == TEST_DATA_EIGHTH) {
+            QOS::SetThreadQos(QOS::QosLevel::QOS_USER_INITIATED);
+        }
+        QosLeave();
+    }
     return true;
 }
 
@@ -394,7 +419,11 @@ bool FuzzConcurrentTaskClinetRequestAuth(const uint8_t* data, size_t size)
 
 bool FuzzConcurrentTaskClientStopRemoteObject(const uint8_t* data, size_t size)
 {
-    ConcurrentTaskClient::GetInstance().StopRemoteObject();
+    FuzzedDataProvider fdp(data, size);
+    if (size > sizeof(int)) {
+        ConcurrentTaskClient::GetInstance().StopRemoteObject();
+    }
+
     return true;
 }
 
@@ -520,7 +549,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::FuzzConcurrentTaskServiceSetAudioDeadline(data, size);
     OHOS::FuzzConcurrentTaskServiceRequestAuth(data, size);
 
-    OHOS::FuzzConcurrentTaskServiceStopRemoteObject(data, size);
     OHOS::FuzzConcurrentTaskServiceSetThreadQos(data, size);
     OHOS::FuzzConcurrentTaskServiceSetQosForOtherThread(data, size);
     OHOS::FuzzConcurrentTaskServiceResetThreadQos(data, size);
