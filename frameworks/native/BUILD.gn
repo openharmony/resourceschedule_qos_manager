@@ -38,7 +38,8 @@ ohos_shared_library("qos_ndk") {
   deps = [ "../../qos:qos" ]
 
   external_deps = [
-    "hilog:libhilog"
+    "hilog:libhilog",
+    "ipc:ipc_single",
   ]
 
   output_name = "qos"
