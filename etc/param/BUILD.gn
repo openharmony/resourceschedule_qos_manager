@@ -13,13 +13,6 @@
 
 import("//build/ohos.gni")
 
-group("ffrt_etc") {
-  deps = [
-    ":ffrt.para",
-    ":ffrt.para.dac",
-  ]
-}
-
 ohos_prebuilt_etc("ffrt.para") {
   source = "ffrt.para"
   relative_install_dir = "param"
