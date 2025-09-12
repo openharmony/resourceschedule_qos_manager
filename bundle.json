@@ -41,6 +41,8 @@
         "build": {
             "sub_component": [
                 "//foundation/resourceschedule/qos_manager/etc/init:concurrent_task_service.cfg",
+                "//foundation/resourceschedule/qos_manager/etc/param:ffrt.para",
+                "//foundation/resourceschedule/qos_manager/etc/param:ffrt.para.dac",
                 "//foundation/resourceschedule/qos_manager/sa_profile:concurrent_task_sa_profile",
                 "//foundation/resourceschedule/qos_manager/services:concurrentsvc",
                 "//foundation/resourceschedule/qos_manager/frameworks/concurrent_task_client:concurrent_task_client",

@@ -90,7 +90,6 @@ ohos_unittest("func_loader_test") {
 
   sources = [ "unittest/phone/func_loader_test.cpp" ]
   deps = [
-    "../etc/param:ffrt_etc",
     "../frameworks/concurrent_task_client:concurrent_task_client",
     "../services:concurrentsvc",
   ]
@@ -120,7 +119,6 @@ ohos_unittest("concurrent_task_controller_interface_test") {
 
   sources = [ "unittest/phone/concurrent_task_controller_interface_test.cpp" ]
   deps = [
-    "../etc/param:ffrt_etc",
     "../frameworks/concurrent_task_client:concurrent_task_client",
     "../services:concurrentsvc",
   ]
