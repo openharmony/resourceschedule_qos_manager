@@ -73,14 +73,6 @@ bool FuzzQosInterfaceQosLeave(FuzzedDataProvider &fdp)
     return true;
 }
 
-bool FuzzQosResetQosForOtherThread(FuzzedDataProvider &fdp)
-{
-    
-    int tid = fdp.ConsumeIntegral<int>();
-     QOS::ResetQosForOtherThread(tid);
-    return true;
-}
-
 bool FuzzQosResetThreadQos(FuzzedDataProvider &fdp)
 {
     
@@ -140,7 +132,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     FuzzedDataProvider fdp(data, size);
     OHOS::FuzzQosControllerGetThreadQosForOtherThread(fdp);
     OHOS::FuzzQosInterfaceQosLeave(fdp);
-    OHOS::FuzzQosResetQosForOtherThread(fdp);
     OHOS::FuzzQosResetThreadQos(fdp);
     OHOS::FuzzQosSetQosForOtherThread(fdp);
     OHOS::FuzzQosSetThreadQos(fdp);
