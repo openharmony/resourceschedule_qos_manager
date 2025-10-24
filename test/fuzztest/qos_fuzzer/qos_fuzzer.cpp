@@ -70,7 +70,6 @@ bool FuzzQosInterfaceQosLeave(FuzzedDataProvider &fdp)
 
 bool FuzzQosResetThreadQos(FuzzedDataProvider &fdp)
 {
-    
     int level = fdp.ConsumeIntegral<int>();
     level = level % TEST_DATA_TENTH;
     if (level == TEST_DATA_FIFTH || level == TEST_DATA_SECOND) {
