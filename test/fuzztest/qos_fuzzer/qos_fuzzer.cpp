@@ -14,11 +14,6 @@
  */
 #include <cstddef>
 #include <cstdint>
-#define private public
-#include "concurrent_task_service_ability.h"
-#include "concurrent_task_client.h"
-#include "concurrent_task_controller_interface.h"
-#undef private
 #include "concurrent_task_service.h"
 #include "securec.h"
 #include "qos.h"
