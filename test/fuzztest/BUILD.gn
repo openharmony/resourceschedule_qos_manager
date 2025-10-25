@@ -11,10 +11,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-group("concurrent_fuzztest") {
+group("fuzztest") {
   testonly = true
   deps = [
     # deps file
     "concurrent_fuzzer:ConcurrentFuzzTest",
+    "qos_fuzzer:QosFuzzTest",
   ]
 }
