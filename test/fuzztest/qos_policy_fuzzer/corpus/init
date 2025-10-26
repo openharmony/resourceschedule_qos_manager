@@ -1,0 +1,13 @@
+{
+  "policyType": 1,
+  "policyFlag": 15,
+  "policies": [
+    {"nice": 0, "latencyNice": 0, "uclampMin": 0, "uclampMax": 1024, "rtSchedPriority": 0, "policy": 0},
+    {"nice": -10, "latencyNice": -10, "uclampMin": 100, "uclampMax": 900, "rtSchedPriority": 0, "policy": 0},
+    {"nice": 0, "latencyNice": 0, "uclampMin": 200, "uclampMax": 800, "rtSchedPriority": 0, "policy": 0},
+    {"nice": -5, "latencyNice": -5, "uclampMin": 300, "uclampMax": 700, "rtSchedPriority": 10, "policy": 1},
+    {"nice": -15, "latencyNice": -15, "uclampMin": 400, "uclampMax": 1024, "rtSchedPriority": 50, "policy": 2},
+    {"nice": -19, "latencyNice": -19, "uclampMin": 512, "uclampMax": 1024, "rtSchedPriority": 99, "policy": 1},
+    {"nice": -20, "latencyNice": -20, "uclampMin": 1024, "uclampMax": 1024, "rtSchedPriority": 99, "policy": 2}
+  ]
+}
