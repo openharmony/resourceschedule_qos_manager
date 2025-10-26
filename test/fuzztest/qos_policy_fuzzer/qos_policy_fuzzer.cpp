@@ -25,15 +25,15 @@ using namespace OHOS::ConcurrentTask;
 namespace OHOS {
 
 namespace {
-    constexpr int MIN_QOS_LEVEL = 0;
-    constexpr int MAX_QOS_LEVEL = 6;
+    // constexpr int MIN_QOS_LEVEL = 0;
+    // constexpr int MAX_QOS_LEVEL = 6;
     constexpr int MIN_NICE = -20;
     constexpr int MAX_NICE = 19;
     constexpr int MIN_LATENCY_NICE = -20;
     constexpr int MAX_LATENCY_NICE = 19;
     constexpr int MIN_UCLAMP = 0;
     constexpr int MAX_UCLAMP = 1024;
-    constexpr int MIN_RT_PRIORITY = 1;
+    // constexpr int MIN_RT_PRIORITY = 1;
     constexpr int MAX_RT_PRIORITY = 99;
 }
 
