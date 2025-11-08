@@ -26,8 +26,6 @@ using namespace OHOS::ConcurrentTask;
 namespace OHOS {
 
 namespace {
-    // constexpr int MIN_QOS_LEVEL = 0;
-    // constexpr int MAX_QOS_LEVEL = 6;
     constexpr size_t MIN_FUZZ_INPUT_SIZE = 4;
     constexpr size_t MIN_POLICY_EDGE_BYTES = 32;
     constexpr size_t MIN_POLICY_FLAG_BYTES = 8;
@@ -51,6 +49,9 @@ namespace {
     constexpr int POLICY_RANDOM_MIN = -1;
     constexpr int POLICY_RANDOM_MAX = 10;
     constexpr int POLICY_FUZZ_MIN = -5;
+    constexpr int RANGE_EXPANSION_FACTOR = 2;
+    constexpr int POLICY_TYPE_RANGE_EXTENSION = 5;
+    constexpr int POLICY_TYPE_MARGIN = 2;
     constexpr int MAX_SCHED_POLICY_INDEX = 3;
     constexpr int POLICY_TYPE_RANDOM_MIN = 0;
     constexpr int POLICY_TYPE_RANDOM_MAX = 10;
@@ -238,11 +239,16 @@ bool FuzzQosPolicyDataStructure(FuzzedDataProvider &fdp)
     }
 
     QosPolicyData policyData;
-    policyData.nice = fdp.ConsumeIntegralInRange<int>(MIN_NICE * 2, MAX_NICE * 2);
-    policyData.latencyNice = fdp.ConsumeIntegralInRange<int>(MIN_LATENCY_NICE * 2, MAX_LATENCY_NICE * 2);
-    policyData.uclampMin = fdp.ConsumeIntegralInRange<int>(-UCLAMP_NEGATIVE_MARGIN, MAX_UCLAMP * UCLAMP_MAX_SCALE);
-    policyData.uclampMax = fdp.ConsumeIntegralInRange<int>(-UCLAMP_NEGATIVE_MARGIN, MAX_UCLAMP * UCLAMP_MAX_SCALE);
-    policyData.rtSchedPriority = fdp.ConsumeIntegralInRange<int>(0, MAX_RT_PRIORITY * RT_PRIORITY_MAX_SCALE);
+    policyData.nice = fdp.ConsumeIntegralInRange<int>(MIN_NICE * RANGE_EXPANSION_FACTOR,
+        MAX_NICE * RANGE_EXPANSION_FACTOR);
+    policyData.latencyNice = fdp.ConsumeIntegralInRange<int>(
+        MIN_LATENCY_NICE * RANGE_EXPANSION_FACTOR, MAX_LATENCY_NICE * RANGE_EXPANSION_FACTOR);
+    policyData.uclampMin = fdp.ConsumeIntegralInRange<int>(
+        -UCLAMP_NEGATIVE_MARGIN, MAX_UCLAMP * UCLAMP_MAX_SCALE);
+    policyData.uclampMax = fdp.ConsumeIntegralInRange<int>(
+        -UCLAMP_NEGATIVE_MARGIN, MAX_UCLAMP * UCLAMP_MAX_SCALE);
+    policyData.rtSchedPriority = fdp.ConsumeIntegralInRange<int>(
+        0, MAX_RT_PRIORITY * RT_PRIORITY_MAX_SCALE);
     policyData.policy = fdp.ConsumeIntegralInRange<int>(POLICY_RANDOM_MIN, POLICY_RANDOM_MAX);
 
     // Fuzz with potentially invalid policy combinations
@@ -260,8 +266,8 @@ bool FuzzQosPolicyDatasStructure(FuzzedDataProvider &fdp)
 
     // Fuzz policyType with values outside valid range
     policyDatas.policyType = fdp.ConsumeIntegralInRange<int>(
-        static_cast<int>(QosPolicyType::QOS_POLICY_DEFAULT) - 5,
-        static_cast<int>(QosPolicyType::QOS_POLICY_MAX_NR) + 5
+        static_cast<int>(QosPolicyType::QOS_POLICY_DEFAULT) - POLICY_TYPE_RANGE_EXTENSION,
+        static_cast<int>(QosPolicyType::QOS_POLICY_MAX_NR) + POLICY_TYPE_RANGE_EXTENSION
     );
 
     // Fuzz policyFlag with random bit patterns
@@ -270,9 +276,11 @@ bool FuzzQosPolicyDatasStructure(FuzzedDataProvider &fdp)
     // Fuzz all 7 QoS levels
     for (int i = 0; i < NR_QOS; i++) {
         policyDatas.policys[i].nice =
-            fdp.ConsumeIntegralInRange<int>(MIN_NICE * 2, MAX_NICE * 2);
+            fdp.ConsumeIntegralInRange<int>(MIN_NICE * RANGE_EXPANSION_FACTOR,
+            MAX_NICE * RANGE_EXPANSION_FACTOR);
         policyDatas.policys[i].latencyNice =
-            fdp.ConsumeIntegralInRange<int>(MIN_LATENCY_NICE * 2, MAX_LATENCY_NICE * 2);
+            fdp.ConsumeIntegralInRange<int>(MIN_LATENCY_NICE * RANGE_EXPANSION_FACTOR,
+            MAX_LATENCY_NICE * RANGE_EXPANSION_FACTOR);
         policyDatas.policys[i].uclampMin = fdp.ConsumeIntegralInRange<int>(
             -UCLAMP_NEGATIVE_MARGIN, MAX_UCLAMP * UCLAMP_MAX_SCALE);
         policyDatas.policys[i].uclampMax = fdp.ConsumeIntegralInRange<int>(
@@ -299,8 +307,8 @@ bool FuzzSetQosPolicy(FuzzedDataProvider &fdp)
 
         QosPolicyDatas policyDatas;
         policyDatas.policyType = fdp.ConsumeIntegralInRange<int>(
-            static_cast<int>(QosPolicyType::QOS_POLICY_DEFAULT) - 2,
-            static_cast<int>(QosPolicyType::QOS_POLICY_MAX_NR) + 2);
+            static_cast<int>(QosPolicyType::QOS_POLICY_DEFAULT) - POLICY_TYPE_MARGIN,
+            static_cast<int>(QosPolicyType::QOS_POLICY_MAX_NR) + POLICY_TYPE_MARGIN);
         policyDatas.policyFlag = fdp.ConsumeIntegral<unsigned int>();
 
         for (int i = 0; i < NR_QOS; i++) {
@@ -400,12 +408,18 @@ bool FuzzPolicyFlags(FuzzedDataProvider &fdp)
 
     // Set random policy data
     for (int i = 0; i < NR_QOS; i++) {
-        policyDatas.policys[i].nice = fdp.ConsumeIntegralInRange<int>(MIN_NICE, MAX_NICE);
-        policyDatas.policys[i].latencyNice = fdp.ConsumeIntegralInRange<int>(MIN_LATENCY_NICE, MAX_LATENCY_NICE);
-        policyDatas.policys[i].uclampMin = fdp.ConsumeIntegralInRange<int>(MIN_UCLAMP, MAX_UCLAMP);
-        policyDatas.policys[i].uclampMax = fdp.ConsumeIntegralInRange<int>(MIN_UCLAMP, MAX_UCLAMP);
-        policyDatas.policys[i].rtSchedPriority = fdp.ConsumeIntegralInRange<int>(DEFAULT_RT_PRIORITY_MIN, MAX_RT_PRIORITY);
-        policyDatas.policys[i].policy = fdp.ConsumeIntegralInRange<int>(0, MAX_SCHED_POLICY_INDEX);
+        policyDatas.policys[i].nice =
+            fdp.ConsumeIntegralInRange<int>(MIN_NICE, MAX_NICE);
+        policyDatas.policys[i].latencyNice =
+            fdp.ConsumeIntegralInRange<int>(MIN_LATENCY_NICE, MAX_LATENCY_NICE);
+        policyDatas.policys[i].uclampMin =
+            fdp.ConsumeIntegralInRange<int>(MIN_UCLAMP, MAX_UCLAMP);
+        policyDatas.policys[i].uclampMax =
+            fdp.ConsumeIntegralInRange<int>(MIN_UCLAMP, MAX_UCLAMP);
+        policyDatas.policys[i].rtSchedPriority =
+            fdp.ConsumeIntegralInRange<int>(DEFAULT_RT_PRIORITY_MIN, MAX_RT_PRIORITY);
+        policyDatas.policys[i].policy =
+            fdp.ConsumeIntegralInRange<int>(0, MAX_SCHED_POLICY_INDEX);
     }
 
     QosPolicySet(&policyDatas);
@@ -417,35 +431,36 @@ bool FuzzPolicyFlags(FuzzedDataProvider &fdp)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
-    if (size < MIN_FUZZ_INPUT_SIZE) {
+    if (size < OHOS::MIN_FUZZ_INPUT_SIZE) {
         return 0;
     }
 
     FuzzedDataProvider fdp(data, size);
 
     // Randomly choose which fuzzing function to execute
-    auto choice = static_cast<QosFuzzChoice>(fdp.ConsumeIntegralInRange<int>(0, MAX_FUZZ_DISPATCH_INDEX));
+    auto choice = static_cast<OHOS::QosFuzzChoice>(fdp.ConsumeIntegralInRange<int>(
+        0, OHOS::MAX_FUZZ_DISPATCH_INDEX));
 
     switch (choice) {
-        case QosFuzzChoice::INIT:
+        case OHOS::QosFuzzChoice::INIT:
             OHOS::FuzzQosPolicyInit(fdp);
             break;
-        case QosFuzzChoice::POLICY_DATA_STRUCTURE:
+        case OHOS::QosFuzzChoice::POLICY_DATA_STRUCTURE:
             OHOS::FuzzQosPolicyDataStructure(fdp);
             break;
-        case QosFuzzChoice::POLICY_DATAS_STRUCTURE:
+        case OHOS::QosFuzzChoice::POLICY_DATAS_STRUCTURE:
             OHOS::FuzzQosPolicyDatasStructure(fdp);
             break;
-        case QosFuzzChoice::SET_POLICY:
+        case OHOS::QosFuzzChoice::SET_POLICY:
             OHOS::FuzzSetQosPolicy(fdp);
             break;
-        case QosFuzzChoice::SET_INTERFACE:
+        case OHOS::QosFuzzChoice::SET_INTERFACE:
             OHOS::FuzzQosPolicySetInterface(fdp);
             break;
-        case QosFuzzChoice::POLICY_EDGE_CASES:
+        case OHOS::QosFuzzChoice::POLICY_EDGE_CASES:
             OHOS::FuzzPolicyEdgeCases(fdp);
             break;
-        case QosFuzzChoice::POLICY_FLAGS:
+        case OHOS::QosFuzzChoice::POLICY_FLAGS:
             OHOS::FuzzPolicyFlags(fdp);
             break;
         default:

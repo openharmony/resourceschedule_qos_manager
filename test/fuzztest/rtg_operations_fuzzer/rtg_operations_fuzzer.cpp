@@ -15,8 +15,12 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <array>
 #include <cstring>
+#include <string>
+#include <unordered_map>
 #include <vector>
+#include <limits>
 #include "qos_interface.h"
 #include "concurrent_task_controller_interface.h"
 #include "concurrent_task_type.h"
@@ -25,6 +29,72 @@
 using namespace OHOS::ConcurrentTask;
 
 namespace OHOS {
+
+namespace {
+constexpr size_t MIN_FUZZ_INPUT_SIZE = 4;
+constexpr size_t MIN_ENABLE_RTG_DATA_BYTES = 8;
+constexpr size_t MIN_QUERY_INTERVAL_BYTES = 8;
+constexpr size_t MIN_SET_AUDIO_BYTES = 16;
+constexpr size_t MIN_GROUP_LIFECYCLE_BYTES = 24;
+constexpr size_t MIN_QUERY_DEADLINE_BYTES = 16;
+constexpr size_t MIN_EXTREME_IDS_BYTES = 12;
+constexpr size_t MIN_CONCURRENT_OP_BYTES = 20;
+constexpr size_t MAX_RTG_DATA_LENGTH = 256;
+constexpr size_t INTERVAL_BUNDLE_NAME_MAX = 128;
+constexpr size_t PAYLOAD_KEY_MAX_LEN = 32;
+constexpr size_t PAYLOAD_VALUE_MAX_LEN = 64;
+constexpr int INVALID_QUERY_TYPE = -1;
+constexpr int RESERVED_QUERY_TYPE = 999;
+constexpr int INVALID_QUERY_TYPE_OFFSET = 100;
+constexpr int MAX_QUERY_PAYLOAD_ENTRIES = 10;
+constexpr int MAX_GROUP_CREATE_ATTEMPTS = 5;
+constexpr int MAX_RAPID_ENABLE_OPERATIONS = 10;
+constexpr int MAX_THREAD_OPERATIONS = 10;
+
+enum class TaskControllerOperation : int {
+    SINGLE_INIT = 0,
+    SINGLE_RELEASE,
+    DOUBLE_INIT,
+    DOUBLE_RELEASE
+};
+
+enum class RtgFuzzTarget : int {
+    ENABLE_RTG = 0,
+    ENABLE_RTG_WITH_DATA,
+    QUERY_INTERVAL,
+    SET_AUDIO_DEADLINE,
+    GROUP_LIFECYCLE,
+    QUERY_DEADLINE,
+    INIT_RELEASE,
+    EXTREME_IDS,
+    CONCURRENT_OPS
+};
+
+constexpr int MAX_TASK_CONTROLLER_OPERATION_INDEX = static_cast<int>(TaskControllerOperation::DOUBLE_RELEASE);
+constexpr int MAX_RTG_FUZZ_TARGET_INDEX = static_cast<int>(RtgFuzzTarget::CONCURRENT_OPS);
+
+bool DispatchTaskControllerOperation(TaskControllerOperation operation, TaskControllerInterface &controller)
+{
+    switch (operation) {
+        case TaskControllerOperation::SINGLE_INIT:
+            controller.Init();
+            return true;
+        case TaskControllerOperation::SINGLE_RELEASE:
+            controller.Release();
+            return true;
+        case TaskControllerOperation::DOUBLE_INIT:
+            controller.Init();
+            controller.Init();
+            return true;
+        case TaskControllerOperation::DOUBLE_RELEASE:
+            controller.Release();
+            controller.Release();
+            return true;
+        default:
+            return true;
+    }
+}
+}
 
 // Fuzz EnableRtg with various flags and data
 bool FuzzEnableRtg(FuzzedDataProvider &fdp)
@@ -37,7 +107,7 @@ bool FuzzEnableRtg(FuzzedDataProvider &fdp)
 // Fuzz EnableRtg with custom data string
 bool FuzzEnableRtgWithData(FuzzedDataProvider &fdp)
 {
-    if (fdp.remaining_bytes() < 8) {
+    if (fdp.remaining_bytes() < MIN_ENABLE_RTG_DATA_BYTES) {
         return false;
     }
 
@@ -48,7 +118,7 @@ bool FuzzEnableRtgWithData(FuzzedDataProvider &fdp)
     rtgData.enable = flag ? 1 : 0;
 
     // Fuzz data string
-    std::string dataStr = fdp.ConsumeRandomLengthString(256);
+    std::string dataStr = fdp.ConsumeRandomLengthString(MAX_RTG_DATA_LENGTH);
     rtgData.len = static_cast<int>(dataStr.length());
     rtgData.data = const_cast<char*>(dataStr.c_str());
 
@@ -61,7 +131,7 @@ bool FuzzEnableRtgWithData(FuzzedDataProvider &fdp)
 // Fuzz TaskControllerInterface QueryInterval operations
 bool FuzzTaskControllerQueryInterval(FuzzedDataProvider &fdp)
 {
-    if (fdp.remaining_bytes() < 8) {
+    if (fdp.remaining_bytes() < MIN_QUERY_INTERVAL_BYTES) {
         return false;
     }
 
@@ -78,9 +148,9 @@ bool FuzzTaskControllerQueryInterval(FuzzedDataProvider &fdp)
         QUERY_RENDER_SERVICE_MAIN,
         QUERY_RENDER_SERVICE_RENDER,
         QURRY_TYPE_MAX,
-        -1,  // Invalid
-        999, // Invalid
-        QURRY_TYPE_MAX + 100  // Invalid
+        INVALID_QUERY_TYPE,
+        RESERVED_QUERY_TYPE,
+        QURRY_TYPE_MAX + INVALID_QUERY_TYPE_OFFSET
     };
 
     int queryItem = fdp.PickValueInArray(queryTypes);
@@ -90,7 +160,7 @@ bool FuzzTaskControllerQueryInterval(FuzzedDataProvider &fdp)
     queryRs.tid = fdp.ConsumeIntegral<int>();
     queryRs.paramA = fdp.ConsumeIntegral<int>();
     queryRs.paramB = fdp.ConsumeIntegral<int>();
-    queryRs.bundleName = fdp.ConsumeRandomLengthString(128);
+    queryRs.bundleName = fdp.ConsumeRandomLengthString(INTERVAL_BUNDLE_NAME_MAX);
 
     controller.QueryInterval(queryItem, queryRs);
 
@@ -100,7 +170,7 @@ bool FuzzTaskControllerQueryInterval(FuzzedDataProvider &fdp)
 // Fuzz SetAudioDeadline operations
 bool FuzzTaskControllerSetAudioDeadline(FuzzedDataProvider &fdp)
 {
-    if (fdp.remaining_bytes() < 16) {
+    if (fdp.remaining_bytes() < MIN_SET_AUDIO_BYTES) {
         return false;
     }
 
@@ -112,8 +182,8 @@ bool FuzzTaskControllerSetAudioDeadline(FuzzedDataProvider &fdp)
         AUDIO_DDL_ADD_THREAD,
         AUDIO_DDL_REMOVE_THREAD,
         AUDIO_DDL_DESTROY_GRP,
-        -1,  // Invalid
-        999  // Invalid
+        INVALID_QUERY_TYPE,
+        RESERVED_QUERY_TYPE
     };
 
     int queryItem = fdp.PickValueInArray(audioTypes);
@@ -134,7 +204,7 @@ bool FuzzTaskControllerSetAudioDeadline(FuzzedDataProvider &fdp)
 // Fuzz RTG group lifecycle operations in sequence
 bool FuzzRtgGroupLifecycle(FuzzedDataProvider &fdp)
 {
-    if (fdp.remaining_bytes() < 24) {
+    if (fdp.remaining_bytes() < MIN_GROUP_LIFECYCLE_BYTES) {
         return false;
     }
 
@@ -147,7 +217,7 @@ bool FuzzRtgGroupLifecycle(FuzzedDataProvider &fdp)
 
     if (createReply.rtgId > 0) {
         // Add random threads to the group
-        int numThreads = fdp.ConsumeIntegralInRange<int>(0, 10);
+        int numThreads = fdp.ConsumeIntegralInRange<int>(0, MAX_THREAD_OPERATIONS);
         for (int i = 0; i < numThreads; i++) {
             int tid = fdp.ConsumeIntegral<int>();
             IntervalReply addReply;
@@ -173,7 +243,7 @@ bool FuzzRtgGroupLifecycle(FuzzedDataProvider &fdp)
 // Fuzz QueryDeadline operations
 bool FuzzTaskControllerQueryDeadline(FuzzedDataProvider &fdp)
 {
-    if (fdp.remaining_bytes() < 16) {
+    if (fdp.remaining_bytes() < MIN_QUERY_DEADLINE_BYTES) {
         return false;
     }
 
@@ -182,8 +252,8 @@ bool FuzzTaskControllerQueryDeadline(FuzzedDataProvider &fdp)
     int queryTypes[] = {
         DDL_RATE,
         MSG_GAME,
-        -1,
-        999
+        INVALID_QUERY_TYPE,
+        RESERVED_QUERY_TYPE
     };
 
     int queryItem = fdp.PickValueInArray(queryTypes);
@@ -194,10 +264,10 @@ bool FuzzTaskControllerQueryDeadline(FuzzedDataProvider &fdp)
     std::unordered_map<std::string, std::string> payload;
 
     // Add random payload entries
-    int numEntries = fdp.ConsumeIntegralInRange<int>(0, 10);
+    int numEntries = fdp.ConsumeIntegralInRange<int>(0, MAX_QUERY_PAYLOAD_ENTRIES);
     for (int i = 0; i < numEntries; i++) {
-        std::string key = fdp.ConsumeRandomLengthString(32);
-        std::string value = fdp.ConsumeRandomLengthString(64);
+        std::string key = fdp.ConsumeRandomLengthString(PAYLOAD_KEY_MAX_LEN);
+        std::string value = fdp.ConsumeRandomLengthString(PAYLOAD_VALUE_MAX_LEN);
         payload[key] = value;
     }
 
@@ -211,24 +281,9 @@ bool FuzzTaskControllerInitRelease(FuzzedDataProvider &fdp)
 {
     TaskControllerInterface& controller = TaskControllerInterface::GetInstance();
 
-    int operation = fdp.ConsumeIntegralInRange<int>(0, 3);
-
-    switch (operation) {
-        case 0:
-            controller.Init();
-            break;
-        case 1:
-            controller.Release();
-            break;
-        case 2:
-            controller.Init();
-            controller.Init(); // Double init
-            break;
-        case 3:
-            controller.Release();
-            controller.Release(); // Double release
-            break;
-    }
+    auto operation = static_cast<TaskControllerOperation>(fdp.ConsumeIntegralInRange<int>(
+        0, MAX_TASK_CONTROLLER_OPERATION_INDEX));
+    DispatchTaskControllerOperation(operation, controller);
 
     return true;
 }
@@ -236,20 +291,20 @@ bool FuzzTaskControllerInitRelease(FuzzedDataProvider &fdp)
 // Fuzz with extreme RTG IDs and thread IDs
 bool FuzzExtremeIds(FuzzedDataProvider &fdp)
 {
-    if (fdp.remaining_bytes() < 12) {
+    if (fdp.remaining_bytes() < MIN_EXTREME_IDS_BYTES) {
         return false;
     }
 
     TaskControllerInterface& controller = TaskControllerInterface::GetInstance();
 
     // Test with extreme values
-    int extremeIds[] = {
-        -2147483648, // INT_MIN
+    const std::array<int, 6> extremeIds = {
+        std::numeric_limits<int>::min(),
         -1,
         0,
         1,
         65535,
-        2147483647  // INT_MAX
+        std::numeric_limits<int>::max()
     };
 
     int tid = fdp.PickValueInArray(extremeIds);
@@ -268,18 +323,18 @@ bool FuzzExtremeIds(FuzzedDataProvider &fdp)
 // Fuzz concurrent RTG operations
 bool FuzzConcurrentRtgOps(FuzzedDataProvider &fdp)
 {
-    if (fdp.remaining_bytes() < 20) {
+    if (fdp.remaining_bytes() < MIN_CONCURRENT_OP_BYTES) {
         return false;
     }
 
     // Simulate concurrent operations by rapidly executing them
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < MAX_RAPID_ENABLE_OPERATIONS; i++) {
         EnableRtg(fdp.ConsumeBool());
     }
 
     // Create multiple groups rapidly
     std::vector<int> groupIds;
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < MAX_GROUP_CREATE_ATTEMPTS; i++) {
         IntervalReply reply;
         TaskControllerInterface::GetInstance().SetAudioDeadline(
             AUDIO_DDL_CREATE_GRP, -1, -1, reply);
@@ -303,42 +358,45 @@ bool FuzzConcurrentRtgOps(FuzzedDataProvider &fdp)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
-    if (size < 4) {
+    if (size < OHOS::MIN_FUZZ_INPUT_SIZE) {
         return 0;
     }
 
     FuzzedDataProvider fdp(data, size);
 
     // Randomly choose which fuzzing function to execute
-    int choice = fdp.ConsumeIntegralInRange<int>(0, 8);
+    auto choice = static_cast<OHOS::RtgFuzzTarget>(fdp.ConsumeIntegralInRange<int>(
+        0, OHOS::MAX_RTG_FUZZ_TARGET_INDEX));
 
     switch (choice) {
-        case 0:
+        case OHOS::RtgFuzzTarget::ENABLE_RTG:
             OHOS::FuzzEnableRtg(fdp);
             break;
-        case 1:
+        case OHOS::RtgFuzzTarget::ENABLE_RTG_WITH_DATA:
             OHOS::FuzzEnableRtgWithData(fdp);
             break;
-        case 2:
+        case OHOS::RtgFuzzTarget::QUERY_INTERVAL:
             OHOS::FuzzTaskControllerQueryInterval(fdp);
             break;
-        case 3:
+        case OHOS::RtgFuzzTarget::SET_AUDIO_DEADLINE:
             OHOS::FuzzTaskControllerSetAudioDeadline(fdp);
             break;
-        case 4:
+        case OHOS::RtgFuzzTarget::GROUP_LIFECYCLE:
             OHOS::FuzzRtgGroupLifecycle(fdp);
             break;
-        case 5:
+        case OHOS::RtgFuzzTarget::QUERY_DEADLINE:
             OHOS::FuzzTaskControllerQueryDeadline(fdp);
             break;
-        case 6:
+        case OHOS::RtgFuzzTarget::INIT_RELEASE:
             OHOS::FuzzTaskControllerInitRelease(fdp);
             break;
-        case 7:
+        case OHOS::RtgFuzzTarget::EXTREME_IDS:
             OHOS::FuzzExtremeIds(fdp);
             break;
-        case 8:
+        case OHOS::RtgFuzzTarget::CONCURRENT_OPS:
             OHOS::FuzzConcurrentRtgOps(fdp);
+            break;
+        default:
             break;
     }
 
