@@ -15,6 +15,8 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
+#include <unordered_map>
 #include "concurrent_task_service.h"
 #include "concurrent_task_client.h"
 #include "message_parcel.h"
@@ -25,10 +27,134 @@ using namespace OHOS::ConcurrentTask;
 
 namespace OHOS {
 
+namespace {
+constexpr size_t MIN_FUZZ_INPUT_SIZE = 4;
+constexpr size_t MIN_REQUIRED_BYTES = 4;
+constexpr size_t MIN_MALFORMED_PARCEL_BYTES = 16;
+constexpr size_t MIN_TRUNCATED_PARCEL_BYTES = 8;
+constexpr size_t MIN_NEGATIVE_SIZE_BYTES = 8;
+constexpr size_t MIN_CLIENT_BYTES = 8;
+constexpr size_t MIN_RANDOM_SEQUENCE_BYTES = 12;
+constexpr size_t MIN_IPC_CONVERTER_BYTES = 20;
+constexpr uint32_t INVALID_IPC_CODE = 999;
+constexpr uint32_t INVALID_IPC_CODE_MASK = 0xFFFFFFFF;
+constexpr size_t MAX_RANDOM_DATA_SIZE = 512;
+constexpr int MAX_OVERSIZED_WRITES = 1000;
+constexpr int NEGATIVE_SIZE_MIN_VALUE = -1000;
+constexpr int NEGATIVE_SIZE_MAX_VALUE = -1;
+constexpr size_t PAYLOAD_STRING_LENGTH = 64;
+constexpr uint32_t IPC_CODE_RANDOM_MAX = 10;
+constexpr int MAX_TYPE_WRITE_COUNT = 20;
+constexpr size_t LONG_PAYLOAD_STRING_LENGTH = 128;
+enum class IpcFuzzTarget : int {
+    MALFORMED = 0,
+    TRUNCATED,
+    OVERSIZED,
+    NEGATIVE_SIZES,
+    CLIENT_WITHOUT_SERVICE,
+    RANDOM_TYPE_SEQUENCE,
+    EMPTY_PARCEL,
+    IPC_DATA_CONVERTERS
+};
+
+enum class ClientOperation : int {
+    REPORT_DATA = 0,
+    REPORT_SCENE_INFO,
+    QUERY_INTERVAL,
+    QUERY_DEADLINE,
+    SET_AUDIO_DEADLINE,
+    REQUEST_AUTH
+};
+
+enum class ParcelSequenceWriteType : int {
+    BOOL_VALUE = 0,
+    INT8_VALUE,
+    INT16_VALUE,
+    INT32_VALUE,
+    INT64_VALUE,
+    UINT32_VALUE,
+    STRING_VALUE,
+    DOUBLE_VALUE
+};
+
+constexpr int MAX_FUZZ_TARGET_INDEX = static_cast<int>(IpcFuzzTarget::IPC_DATA_CONVERTERS);
+
+void ReportDataOperation(ConcurrentTaskClient &client, FuzzedDataProvider &fdp)
+{
+    std::unordered_map<std::string, std::string> payload;
+    payload["test"] = fdp.ConsumeRandomLengthString(PAYLOAD_STRING_LENGTH);
+    client.ReportData(
+        fdp.ConsumeIntegral<uint32_t>(),
+        fdp.ConsumeIntegral<int64_t>(),
+        payload);
+}
+
+void ReportSceneInfoOperation(ConcurrentTaskClient &client, FuzzedDataProvider &fdp)
+{
+    std::unordered_map<std::string, std::string> payload;
+    client.ReportSceneInfo(fdp.ConsumeIntegral<uint32_t>(), payload);
+}
+
+void QueryIntervalOperation(ConcurrentTaskClient &client, FuzzedDataProvider &fdp)
+{
+    IntervalReply reply;
+    client.QueryInterval(fdp.ConsumeIntegral<int>(), reply);
+}
+
+void QueryDeadlineOperation(ConcurrentTaskClient &client, FuzzedDataProvider &fdp)
+{
+    DeadlineReply reply;
+    std::unordered_map<pid_t, uint32_t> payload;
+    client.QueryDeadline(fdp.ConsumeIntegral<int>(), reply, payload);
+}
+
+void SetAudioDeadlineOperation(ConcurrentTaskClient &client, FuzzedDataProvider &fdp)
+{
+    IntervalReply reply;
+    client.SetAudioDeadline(
+        fdp.ConsumeIntegral<int>(),
+        fdp.ConsumeIntegral<int>(),
+        fdp.ConsumeIntegral<int>(),
+        reply);
+}
+
+void RequestAuthOperation(ConcurrentTaskClient &client)
+{
+    std::unordered_map<std::string, std::string> payload;
+    client.RequestAuth(payload);
+}
+
+bool DispatchClientOperation(ClientOperation operation, ConcurrentTaskClient &client, FuzzedDataProvider &fdp)
+{
+    switch (operation) {
+        case ClientOperation::REPORT_DATA:
+            ReportDataOperation(client, fdp);
+            return true;
+        case ClientOperation::REPORT_SCENE_INFO:
+            ReportSceneInfoOperation(client, fdp);
+            return true;
+        case ClientOperation::QUERY_INTERVAL:
+            QueryIntervalOperation(client, fdp);
+            return true;
+        case ClientOperation::QUERY_DEADLINE:
+            QueryDeadlineOperation(client, fdp);
+            return true;
+        case ClientOperation::SET_AUDIO_DEADLINE:
+            SetAudioDeadlineOperation(client, fdp);
+            return true;
+        case ClientOperation::REQUEST_AUTH:
+            RequestAuthOperation(client);
+            return true;
+        default:
+            return true;
+    }
+}
+}
+
 // Fuzz IPC with malformed MessageParcel data
 bool FuzzMalformedParcel(FuzzedDataProvider &fdp)
 {
-    if (fdp.remaining_bytes() < 16) {
+    if (fdp.remaining_bytes() < MIN_MALFORMED_PARCEL_BYTES) {
         return false;
     }
 
@@ -45,14 +171,14 @@ bool FuzzMalformedParcel(FuzzedDataProvider &fdp)
             static_cast<uint32_t>(IConcurrentTaskServiceIpcCode::COMMAND_QUERY_DEADLINE),
             static_cast<uint32_t>(IConcurrentTaskServiceIpcCode::COMMAND_SET_AUDIO_DEADLINE),
             static_cast<uint32_t>(IConcurrentTaskServiceIpcCode::COMMAND_REQUEST_AUTH),
-            999,  // Invalid code
-            0xFFFFFFFF  // Invalid code
+            INVALID_IPC_CODE,  // Invalid code
+            INVALID_IPC_CODE_MASK  // Invalid code
         };
 
         uint32_t code = fdp.PickValueInArray(codes);
 
         // Write random data to parcel
-        size_t dataSize = fdp.ConsumeIntegralInRange<size_t>(0, 512);
+        size_t dataSize = fdp.ConsumeIntegralInRange<size_t>(0, MAX_RANDOM_DATA_SIZE);
         std::vector<uint8_t> randomData = fdp.ConsumeBytes<uint8_t>(dataSize);
 
         if (!randomData.empty()) {
@@ -72,7 +198,7 @@ bool FuzzMalformedParcel(FuzzedDataProvider &fdp)
 // Fuzz with truncated parcels
 bool FuzzTruncatedParcel(FuzzedDataProvider &fdp)
 {
-    if (fdp.remaining_bytes() < 8) {
+    if (fdp.remaining_bytes() < MIN_TRUNCATED_PARCEL_BYTES) {
         return false;
     }
 
@@ -100,7 +226,7 @@ bool FuzzTruncatedParcel(FuzzedDataProvider &fdp)
 // Fuzz with oversized data
 bool FuzzOversizedData(FuzzedDataProvider &fdp)
 {
-    if (fdp.remaining_bytes() < 4) {
+    if (fdp.remaining_bytes() < MIN_REQUIRED_BYTES) {
         return false;
     }
 
@@ -113,7 +239,7 @@ bool FuzzOversizedData(FuzzedDataProvider &fdp)
             IConcurrentTaskServiceIpcCode::COMMAND_REPORT_DATA);
 
         // Write huge amounts of data
-        for (int i = 0; i < 1000 && fdp.remaining_bytes() > 0; i++) {
+        for (int i = 0; i < MAX_OVERSIZED_WRITES && fdp.remaining_bytes() > 0; i++) {
             data.WriteInt32(fdp.ConsumeIntegral<int32_t>());
         }
 
@@ -129,7 +255,7 @@ bool FuzzOversizedData(FuzzedDataProvider &fdp)
 // Fuzz with negative sizes
 bool FuzzNegativeSizes(FuzzedDataProvider &fdp)
 {
-    if (fdp.remaining_bytes() < 8) {
+    if (fdp.remaining_bytes() < MIN_NEGATIVE_SIZE_BYTES) {
         return false;
     }
 
@@ -142,8 +268,8 @@ bool FuzzNegativeSizes(FuzzedDataProvider &fdp)
             IConcurrentTaskServiceIpcCode::COMMAND_QUERY_INTERVAL);
 
         // Write negative values where positive expected
-        data.WriteInt32(fdp.ConsumeIntegralInRange<int32_t>(-1000, -1));
-        data.WriteInt32(fdp.ConsumeIntegralInRange<int32_t>(-1000, -1));
+        data.WriteInt32(fdp.ConsumeIntegralInRange<int32_t>(NEGATIVE_SIZE_MIN_VALUE, NEGATIVE_SIZE_MAX_VALUE));
+        data.WriteInt32(fdp.ConsumeIntegralInRange<int32_t>(NEGATIVE_SIZE_MIN_VALUE, NEGATIVE_SIZE_MAX_VALUE));
 
         ConcurrentTaskService service;
         service.OnRemoteRequest(code, data, reply, option);
@@ -157,57 +283,16 @@ bool FuzzNegativeSizes(FuzzedDataProvider &fdp)
 // Fuzz Client with service unavailable
 bool FuzzClientWithoutService(FuzzedDataProvider &fdp)
 {
-    if (fdp.remaining_bytes() < 8) {
+    if (fdp.remaining_bytes() < MIN_CLIENT_BYTES) {
         return false;
     }
 
     try {
         // Try to use client when service may not be running
         ConcurrentTaskClient& client = ConcurrentTaskClient::GetInstance();
-
-        int operation = fdp.ConsumeIntegralInRange<int>(0, 5);
-
-        switch (operation) {
-            case 0: {
-                std::unordered_map<std::string, std::string> payload;
-                payload["test"] = fdp.ConsumeRandomLengthString(64);
-                client.ReportData(
-                    fdp.ConsumeIntegral<uint32_t>(),
-                    fdp.ConsumeIntegral<int64_t>(),
-                    payload);
-                break;
-            }
-            case 1: {
-                std::unordered_map<std::string, std::string> payload;
-                client.ReportSceneInfo(fdp.ConsumeIntegral<uint32_t>(), payload);
-                break;
-            }
-            case 2: {
-                IntervalReply reply;
-                client.QueryInterval(fdp.ConsumeIntegral<int>(), reply);
-                break;
-            }
-            case 3: {
-                DeadlineReply reply;
-                std::unordered_map<pid_t, uint32_t> payload;
-                client.QueryDeadline(fdp.ConsumeIntegral<int>(), reply, payload);
-                break;
-            }
-            case 4: {
-                IntervalReply reply;
-                client.SetAudioDeadline(
-                    fdp.ConsumeIntegral<int>(),
-                    fdp.ConsumeIntegral<int>(),
-                    fdp.ConsumeIntegral<int>(),
-                    reply);
-                break;
-            }
-            case 5: {
-                std::unordered_map<std::string, std::string> payload;
-                client.RequestAuth(payload);
-                break;
-            }
-        }
+        auto operation = static_cast<ClientOperation>(fdp.ConsumeIntegralInRange<int>(
+            0, static_cast<int>(ClientOperation::REQUEST_AUTH)));
+        DispatchClientOperation(operation, client, fdp);
 
         // Test stop and reconnect
         client.StopRemoteObject();
@@ -221,7 +306,7 @@ bool FuzzClientWithoutService(FuzzedDataProvider &fdp)
 // Fuzz MessageParcel with random type sequences
 bool FuzzRandomTypeSequence(FuzzedDataProvider &fdp)
 {
-    if (fdp.remaining_bytes() < 12) {
+    if (fdp.remaining_bytes() < MIN_RANDOM_SEQUENCE_BYTES) {
         return false;
     }
 
@@ -230,36 +315,37 @@ bool FuzzRandomTypeSequence(FuzzedDataProvider &fdp)
         MessageParcel reply;
         MessageOption option;
 
-        uint32_t code = fdp.ConsumeIntegralInRange<uint32_t>(0, 10);
+        uint32_t code = fdp.ConsumeIntegralInRange<uint32_t>(0, IPC_CODE_RANDOM_MAX);
 
         // Write random sequence of different types
-        int numWrites = fdp.ConsumeIntegralInRange<int>(1, 20);
+        int numWrites = fdp.ConsumeIntegralInRange<int>(1, MAX_TYPE_WRITE_COUNT);
         for (int i = 0; i < numWrites && fdp.remaining_bytes() > 0; i++) {
-            int writeType = fdp.ConsumeIntegralInRange<int>(0, 7);
+            auto writeType = static_cast<ParcelSequenceWriteType>(fdp.ConsumeIntegralInRange<int>(
+                0, static_cast<int>(ParcelSequenceWriteType::DOUBLE_VALUE)));
 
             switch (writeType) {
-                case 0:
+                case ParcelSequenceWriteType::BOOL_VALUE:
                     data.WriteBool(fdp.ConsumeBool());
                     break;
-                case 1:
+                case ParcelSequenceWriteType::INT8_VALUE:
                     data.WriteInt8(fdp.ConsumeIntegral<int8_t>());
                     break;
-                case 2:
+                case ParcelSequenceWriteType::INT16_VALUE:
                     data.WriteInt16(fdp.ConsumeIntegral<int16_t>());
                     break;
-                case 3:
+                case ParcelSequenceWriteType::INT32_VALUE:
                     data.WriteInt32(fdp.ConsumeIntegral<int32_t>());
                     break;
-                case 4:
+                case ParcelSequenceWriteType::INT64_VALUE:
                     data.WriteInt64(fdp.ConsumeIntegral<int64_t>());
                     break;
-                case 5:
+                case ParcelSequenceWriteType::UINT32_VALUE:
                     data.WriteUint32(fdp.ConsumeIntegral<uint32_t>());
                     break;
-                case 6:
-                    data.WriteString(fdp.ConsumeRandomLengthString(64));
+                case ParcelSequenceWriteType::STRING_VALUE:
+                    data.WriteString(fdp.ConsumeRandomLengthString(PAYLOAD_STRING_LENGTH));
                     break;
-                case 7:
+                case ParcelSequenceWriteType::DOUBLE_VALUE:
                     data.WriteDouble(fdp.ConsumeFloatingPoint<double>());
                     break;
             }
@@ -307,7 +393,7 @@ bool FuzzEmptyParcel(FuzzedDataProvider &fdp)
 // Fuzz IPC data converters
 bool FuzzIpcDataConverters(FuzzedDataProvider &fdp)
 {
-    if (fdp.remaining_bytes() < 20) {
+    if (fdp.remaining_bytes() < MIN_IPC_CONVERTER_BYTES) {
         return false;
     }
 
@@ -320,7 +406,7 @@ bool FuzzIpcDataConverters(FuzzedDataProvider &fdp)
         ipcReply.tid = fdp.ConsumeIntegral<int>();
         ipcReply.paramA = fdp.ConsumeIntegral<int>();
         ipcReply.paramB = fdp.ConsumeIntegral<int>();
-        ipcReply.bundleName = fdp.ConsumeRandomLengthString(128);
+        ipcReply.bundleName = fdp.ConsumeRandomLengthString(LONG_PAYLOAD_STRING_LENGTH);
 
         IntervalReply converted = service.IpcToQueryRs(ipcReply);
         IpcIntervalReply backConverted = service.QueryRsToIpc(converted);
@@ -345,39 +431,42 @@ bool FuzzIpcDataConverters(FuzzedDataProvider &fdp)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
-    if (size < 4) {
+    if (size < MIN_FUZZ_INPUT_SIZE) {
         return 0;
     }
 
     FuzzedDataProvider fdp(data, size);
 
     // Randomly choose which fuzzing function to execute
-    int choice = fdp.ConsumeIntegralInRange<int>(0, 7);
+    auto choice = static_cast<IpcFuzzTarget>(fdp.ConsumeIntegralInRange<int>(
+        0, MAX_FUZZ_TARGET_INDEX));
 
     switch (choice) {
-        case 0:
+        case IpcFuzzTarget::MALFORMED:
             OHOS::FuzzMalformedParcel(fdp);
             break;
-        case 1:
+        case IpcFuzzTarget::TRUNCATED:
             OHOS::FuzzTruncatedParcel(fdp);
             break;
-        case 2:
+        case IpcFuzzTarget::OVERSIZED:
             OHOS::FuzzOversizedData(fdp);
             break;
-        case 3:
+        case IpcFuzzTarget::NEGATIVE_SIZES:
             OHOS::FuzzNegativeSizes(fdp);
             break;
-        case 4:
+        case IpcFuzzTarget::CLIENT_WITHOUT_SERVICE:
             OHOS::FuzzClientWithoutService(fdp);
             break;
-        case 5:
+        case IpcFuzzTarget::RANDOM_TYPE_SEQUENCE:
             OHOS::FuzzRandomTypeSequence(fdp);
             break;
-        case 6:
+        case IpcFuzzTarget::EMPTY_PARCEL:
             OHOS::FuzzEmptyParcel(fdp);
             break;
-        case 7:
+        case IpcFuzzTarget::IPC_DATA_CONVERTERS:
             OHOS::FuzzIpcDataConverters(fdp);
+            break;
+        default:
             break;
     }
 
