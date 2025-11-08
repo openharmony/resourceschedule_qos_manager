@@ -372,36 +372,36 @@ bool FuzzGetAddrTagStress(FuzzedDataProvider &fdp)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
-    if (size < MIN_FUZZ_INPUT_SIZE) {
+    if (size < OHOS::MIN_FUZZ_INPUT_SIZE) {
         return 0;
     }
 
     FuzzedDataProvider fdp(data, size);
 
     // Randomly choose which fuzzing function to execute
-    auto choice = static_cast<UtilsFuzzChoice>(fdp.ConsumeIntegralInRange<int>(
-        0, MAX_FUZZ_TARGET_INDEX));
+    auto choice = static_cast<OHOS::UtilsFuzzChoice>(fdp.ConsumeIntegralInRange<int>(
+        0, OHOS::MAX_FUZZ_TARGET_INDEX));
 
     switch (choice) {
-        case UtilsFuzzChoice::NULL_INPUT:
+        case OHOS::UtilsFuzzChoice::NULL_INPUT:
             OHOS::FuzzGetAddrTagNull(fdp);
             break;
-        case UtilsFuzzChoice::VALID_POINTERS:
+        case OHOS::UtilsFuzzChoice::VALID_POINTERS:
             OHOS::FuzzGetAddrTagValid(fdp);
             break;
-        case UtilsFuzzChoice::REPEATED_CALLS:
+        case OHOS::UtilsFuzzChoice::REPEATED_CALLS:
             OHOS::FuzzGetAddrTagRepeated(fdp);
             break;
-        case UtilsFuzzChoice::DIFFERENT_POINTERS:
+        case OHOS::UtilsFuzzChoice::DIFFERENT_POINTERS:
             OHOS::FuzzGetAddrTagDifferentPtrs(fdp);
             break;
-        case UtilsFuzzChoice::RANDOM_MEMORY:
+        case OHOS::UtilsFuzzChoice::RANDOM_MEMORY:
             OHOS::FuzzGetAddrTagRandomMemory(fdp);
             break;
-        case UtilsFuzzChoice::EXTREME_VALUES:
+        case OHOS::UtilsFuzzChoice::EXTREME_VALUES:
             OHOS::FuzzGetAddrTagExtremeValues(fdp);
             break;
-        case UtilsFuzzChoice::STRESS_TEST:
+        case OHOS::UtilsFuzzChoice::STRESS_TEST:
             OHOS::FuzzGetAddrTagStress(fdp);
             break;
         default:

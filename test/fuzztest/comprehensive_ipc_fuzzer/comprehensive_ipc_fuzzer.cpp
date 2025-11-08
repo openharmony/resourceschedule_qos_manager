@@ -431,39 +431,39 @@ bool FuzzIpcDataConverters(FuzzedDataProvider &fdp)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
-    if (size < MIN_FUZZ_INPUT_SIZE) {
+    if (size < OHOS::MIN_FUZZ_INPUT_SIZE) {
         return 0;
     }
 
     FuzzedDataProvider fdp(data, size);
 
     // Randomly choose which fuzzing function to execute
-    auto choice = static_cast<IpcFuzzTarget>(fdp.ConsumeIntegralInRange<int>(
-        0, MAX_FUZZ_TARGET_INDEX));
+    auto choice = static_cast<OHOS::IpcFuzzTarget>(fdp.ConsumeIntegralInRange<int>(
+        0, OHOS::MAX_FUZZ_TARGET_INDEX));
 
     switch (choice) {
-        case IpcFuzzTarget::MALFORMED:
+        case OHOS::IpcFuzzTarget::MALFORMED:
             OHOS::FuzzMalformedParcel(fdp);
             break;
-        case IpcFuzzTarget::TRUNCATED:
+        case OHOS::IpcFuzzTarget::TRUNCATED:
             OHOS::FuzzTruncatedParcel(fdp);
             break;
-        case IpcFuzzTarget::OVERSIZED:
+        case OHOS::IpcFuzzTarget::OVERSIZED:
             OHOS::FuzzOversizedData(fdp);
             break;
-        case IpcFuzzTarget::NEGATIVE_SIZES:
+        case OHOS::IpcFuzzTarget::NEGATIVE_SIZES:
             OHOS::FuzzNegativeSizes(fdp);
             break;
-        case IpcFuzzTarget::CLIENT_WITHOUT_SERVICE:
+        case OHOS::IpcFuzzTarget::CLIENT_WITHOUT_SERVICE:
             OHOS::FuzzClientWithoutService(fdp);
             break;
-        case IpcFuzzTarget::RANDOM_TYPE_SEQUENCE:
+        case OHOS::IpcFuzzTarget::RANDOM_TYPE_SEQUENCE:
             OHOS::FuzzRandomTypeSequence(fdp);
             break;
-        case IpcFuzzTarget::EMPTY_PARCEL:
+        case OHOS::IpcFuzzTarget::EMPTY_PARCEL:
             OHOS::FuzzEmptyParcel(fdp);
             break;
-        case IpcFuzzTarget::IPC_DATA_CONVERTERS:
+        case OHOS::IpcFuzzTarget::IPC_DATA_CONVERTERS:
             OHOS::FuzzIpcDataConverters(fdp);
             break;
         default:
