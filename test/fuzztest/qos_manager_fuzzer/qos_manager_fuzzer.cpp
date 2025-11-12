@@ -53,7 +53,6 @@
 #include <unordered_map>
 #include <unistd.h>
 #include <sys/types.h>
-#include <errno.h>
 
 using namespace OHOS::QOS;
 using namespace OHOS::ConcurrentTask;
@@ -169,7 +168,7 @@ char* SafeStrndup(const uint8_t* data, size_t size, size_t maxLen)
             free(str);
             return nullptr;
         }
-        errno_t err = memcpy_s(str, len + 1, data, len);
+        int err = memcpy_s(str, len + 1, data, len);
         if (err != 0) {
             // If memcpy_s fails, free and return nullptr
             free(str);
