@@ -507,28 +507,28 @@ void RunTestCase(const uint8_t* data, size_t size, size_t& offset, uint8_t selec
 {
     switch (selector) {
         case TEST_CASE_QOS_LEVEL_MANAGEMENT: // Test QoS level management APIs
-            if (offset + QOS_LEVEL_APIS_SIZE <= size) TestQosLevelApis(data, size, offset);
+            if (offset + QOS_LEVEL_APIS_SIZE <= size) { TestQosLevelApis(data, size, offset);}
             break;
         case TEST_CASE_C_API_QOS: // Test C API QoS management
-            if (offset + C_API_QOS_SIZE <= size) TestCApiQosManagement(data, size, offset);
+            if (offset + C_API_QOS_SIZE <= size) { TestCApiQosManagement(data, size, offset); }
             break;
         case TEST_CASE_CONCURRENT_TASK_REPORTING: // Test concurrent task reporting
-            if (offset + CONCURRENT_TASK_REPORTING_SIZE <= size) TestConcurrentTaskReporting(data, size, offset);
+            if (offset + CONCURRENT_TASK_REPORTING_SIZE <= size) { TestConcurrentTaskReporting(data, size, offset); }
             break;
         case TEST_CASE_CONCURRENT_TASK_QUERY: // Test concurrent task query
-            if (offset + CONCURRENT_TASK_QUERY_SIZE <= size) TestConcurrentTaskQuery(data, size, offset);
+            if (offset + CONCURRENT_TASK_QUERY_SIZE <= size) { TestConcurrentTaskQuery(data, size, offset); }
             break;
         case TEST_CASE_REQUEST_AUTH: // Test request authorization
-            if (offset < size) TestRequestAuth(data, size, offset);
+            if (offset < size) { TestRequestAuth(data, size, offset); }
             break;
         case TEST_CASE_AUDIO_DEADLINE: // Test audio deadline
-            if (offset + AUDIO_DEADLINE_SIZE <= size) TestAudioDeadline(data, size, offset);
+            if (offset + AUDIO_DEADLINE_SIZE <= size) { TestAudioDeadline(data, size, offset); }
             break;
         case TEST_CASE_STOP_REMOTE_OBJECT: // Test stop remote object
             TestStopRemoteObject(data, size, offset);
             break;
         case TEST_CASE_GEWU_OPERATIONS: // Test Gewu operations
-            if (offset < size) TestGewuOperations(data, size, offset);
+            if (offset < size) { TestGewuOperations(data, size, offset); }
             break;
         case TEST_CASE_EDGE_CASES: // Test edge cases
             TestEdgeCases(data, size, offset);
