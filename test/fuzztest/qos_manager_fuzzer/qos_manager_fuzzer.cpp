@@ -30,8 +30,8 @@
  * - Gewu Session Management: 4 APIs
  */
 
-#ifndef QOS_MANAGER_FUZZER_CPP
-#define QOS_MANAGER_FUZZER_CPP
+#ifndef QOS_MANAGER_FUZZER_H
+#define QOS_MANAGER_FUZZER_H
 
 #include "qos.h"
 #include "concurrent_task_client.h"
@@ -53,6 +53,7 @@
 #include <unordered_map>
 #include <unistd.h>
 #include <sys/types.h>
+#include <errno.h>
 
 using namespace OHOS::QOS;
 using namespace OHOS::ConcurrentTask;
@@ -162,13 +163,18 @@ char* SafeStrndup(const uint8_t* data, size_t size, size_t maxLen)
         return nullptr;
     }
     if (len > 0) {
-        // Use standard memcpy - it's a void function, but we can validate parameters
+        // Use secure memcpy_s for safe memory copying
         if (str == nullptr || data == nullptr) {
             // Invalid parameters, free and return nullptr
             free(str);
             return nullptr;
         }
-        memcpy(str, data, len);
+        errno_t err = memcpy_s(str, len + 1, data, len);
+        if (err != 0) {
+            // If memcpy_s fails, free and return nullptr
+            free(str);
+            return nullptr;
+        }
     }
     str[len] = '\0';
     return str;
@@ -502,42 +508,28 @@ void RunTestCase(const uint8_t* data, size_t size, size_t& offset, uint8_t selec
 {
     switch (selector) {
         case TEST_CASE_QOS_LEVEL_MANAGEMENT: // Test QoS level management APIs
-            if (offset + QOS_LEVEL_APIS_SIZE <= size) {
-                TestQosLevelApis(data, size, offset);
-            }
+            if (offset + QOS_LEVEL_APIS_SIZE <= size) TestQosLevelApis(data, size, offset);
             break;
         case TEST_CASE_C_API_QOS: // Test C API QoS management
-            if (offset + C_API_QOS_SIZE <= size) {
-                TestCApiQosManagement(data, size, offset);
-            }
+            if (offset + C_API_QOS_SIZE <= size) TestCApiQosManagement(data, size, offset);
             break;
         case TEST_CASE_CONCURRENT_TASK_REPORTING: // Test concurrent task reporting
-            if (offset + CONCURRENT_TASK_REPORTING_SIZE <= size) {
-                TestConcurrentTaskReporting(data, size, offset);
-            }
+            if (offset + CONCURRENT_TASK_REPORTING_SIZE <= size) TestConcurrentTaskReporting(data, size, offset);
             break;
         case TEST_CASE_CONCURRENT_TASK_QUERY: // Test concurrent task query
-            if (offset + CONCURRENT_TASK_QUERY_SIZE <= size) {
-                TestConcurrentTaskQuery(data, size, offset);
-            }
+            if (offset + CONCURRENT_TASK_QUERY_SIZE <= size) TestConcurrentTaskQuery(data, size, offset);
             break;
         case TEST_CASE_REQUEST_AUTH: // Test request authorization
-            if (offset < size) {
-                TestRequestAuth(data, size, offset);
-            }
+            if (offset < size) TestRequestAuth(data, size, offset);
             break;
         case TEST_CASE_AUDIO_DEADLINE: // Test audio deadline
-            if (offset + AUDIO_DEADLINE_SIZE <= size) {
-                TestAudioDeadline(data, size, offset);
-            }
+            if (offset + AUDIO_DEADLINE_SIZE <= size) TestAudioDeadline(data, size, offset);
             break;
         case TEST_CASE_STOP_REMOTE_OBJECT: // Test stop remote object
             TestStopRemoteObject(data, size, offset);
             break;
         case TEST_CASE_GEWU_OPERATIONS: // Test Gewu operations
-            if (offset < size) {
-                TestGewuOperations(data, size, offset);
-            }
+            if (offset < size) TestGewuOperations(data, size, offset);
             break;
         case TEST_CASE_EDGE_CASES: // Test edge cases
             TestEdgeCases(data, size, offset);
@@ -572,4 +564,4 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     return 0;
 }
 
-#endif // QOS_MANAGER_FUZZER_CPP
+#endif // QOS_MANAGER_FUZZER_H
