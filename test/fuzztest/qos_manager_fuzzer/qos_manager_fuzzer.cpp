@@ -364,7 +364,6 @@ void TestRequestAuth(const uint8_t* data, size_t size, size_t& offset)
     }
 
     auto& client = ConcurrentTaskClient::GetInstance();
-
     auto payload = CreatePayload(data, size, &offset);
 
     // Test RequestAuth
