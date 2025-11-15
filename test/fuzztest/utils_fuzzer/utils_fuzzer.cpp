@@ -16,6 +16,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <memory>
 #include <vector>
 #include "concurrent_task_utils.h"
 #include "securec.h"
@@ -100,27 +101,24 @@ bool HandleStackArrayCase()
 
 bool HandleHeapAllocationCase(FuzzedDataProvider &fdp)
 {
-    void* heapPtr = malloc(fdp.ConsumeIntegralInRange<size_t>(1, HEAP_MAX_ALLOC_SIZE));
-    if (!heapPtr) {
-        return true;
-    }
-    uint64_t tag = GetAddrTag(heapPtr);
+    size_t allocSize = fdp.ConsumeIntegralInRange<size_t>(1, HEAP_MAX_ALLOC_SIZE);
+    auto heapPtr = std::unique_ptr<uint8_t[]>(new uint8_t[allocSize]);
+    uint64_t tag = GetAddrTag(heapPtr.get());
     (void)tag;
-    free(heapPtr);
     return true;
 }
 
 bool HandleAlignedAllocationCase(FuzzedDataProvider &fdp)
 {
-    void* alignedPtr = nullptr;
     size_t alignment = fdp.PickValueInArray(ALIGNMENT_OPTIONS);
     size_t size = fdp.ConsumeIntegralInRange<size_t>(1, ALIGNED_ALLOC_MAX_SIZE);
-    if (posix_memalign(&alignedPtr, alignment, size) != 0 || alignedPtr == nullptr) {
+    void* rawPtr = nullptr;
+    if (posix_memalign(&rawPtr, alignment, size) != 0 || rawPtr == nullptr) {
         return true;
     }
-    uint64_t tag = GetAddrTag(alignedPtr);
+    auto alignedPtr = std::unique_ptr<void, decltype(&free)>(rawPtr, free);
+    uint64_t tag = GetAddrTag(alignedPtr.get());
     (void)tag;
-    free(alignedPtr);
     return true;
 }
 
@@ -167,13 +165,9 @@ bool HandleRandomUnalignedCase(FuzzedDataProvider &fdp)
 bool HandleLargeAllocationCase(FuzzedDataProvider &fdp)
 {
     size_t largeSize = fdp.ConsumeIntegralInRange<size_t>(LARGE_ALLOCATION_MIN_SIZE, LARGE_ALLOCATION_MAX_SIZE);
-    void* largePtr = malloc(largeSize);
-    if (!largePtr) {
-        return true;
-    }
-    uint64_t tag = GetAddrTag(largePtr);
+    auto largePtr = std::unique_ptr<uint8_t[]>(new uint8_t[largeSize]);
+    uint64_t tag = GetAddrTag(largePtr.get());
     (void)tag;
-    free(largePtr);
     return true;
 }
 
@@ -355,12 +349,9 @@ bool FuzzGetAddrTagStress(FuzzedDataProvider &fdp)
         (void)tag;
 
         if ((i % HEAP_ALLOCATION_INTERVAL) == 0 && fdp.remaining_bytes() > 0) {
-            void* heapVar = malloc(sizeof(int));
-            if (heapVar) {
-                uint64_t heapTag = GetAddrTag(heapVar);
-                (void)heapTag;
-                free(heapVar);
-            }
+            auto heapVar = std::unique_ptr<int>(new int);
+            uint64_t heapTag = GetAddrTag(heapVar.get());
+            (void)heapTag;
         }
     }
 
