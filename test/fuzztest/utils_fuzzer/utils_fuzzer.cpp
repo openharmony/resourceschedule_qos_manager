@@ -102,7 +102,7 @@ bool HandleStackArrayCase()
 bool HandleHeapAllocationCase(FuzzedDataProvider &fdp)
 {
     size_t allocSize = fdp.ConsumeIntegralInRange<size_t>(1, HEAP_MAX_ALLOC_SIZE);
-    auto heapPtr = std::unique_ptr<uint8_t[]>(new uint8_t[allocSize]);
+    auto heapPtr = std::make_unique<uint8_t[]>(allocSize);
     uint64_t tag = GetAddrTag(heapPtr.get());
     (void)tag;
     return true;
@@ -165,7 +165,7 @@ bool HandleRandomUnalignedCase(FuzzedDataProvider &fdp)
 bool HandleLargeAllocationCase(FuzzedDataProvider &fdp)
 {
     size_t largeSize = fdp.ConsumeIntegralInRange<size_t>(LARGE_ALLOCATION_MIN_SIZE, LARGE_ALLOCATION_MAX_SIZE);
-    auto largePtr = std::unique_ptr<uint8_t[]>(new uint8_t[largeSize]);
+    auto largePtr = std::make_unique<uint8_t[]>(largeSize);
     uint64_t tag = GetAddrTag(largePtr.get());
     (void)tag;
     return true;
@@ -349,7 +349,7 @@ bool FuzzGetAddrTagStress(FuzzedDataProvider &fdp)
         (void)tag;
 
         if ((i % HEAP_ALLOCATION_INTERVAL) == 0 && fdp.remaining_bytes() > 0) {
-            auto heapVar = std::unique_ptr<int>(new int);
+            auto heapVar = std::make_unique<int>();
             uint64_t heapTag = GetAddrTag(heapVar.get());
             (void)heapTag;
         }
