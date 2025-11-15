@@ -126,5 +126,25 @@ int GetQosForOtherThread(enum QosLevel &level, int tid)
 {
     return QosController::GetInstance().GetThreadQosForOtherThread(level, tid);
 }
+
+int AddThreadToProcRtg(int tid)
+{
+    return 0;
+}
+
+int AddThreadsToProcRtg(int tid[5], int size)
+{
+    return 0;
+}
+
+int RemoveThreadFromProcRtg(int tid)
+{
+    return 0;
+}
+
+int RemoveThreadsFromProcRtg(int tid[5], int size)
+{
+    return 0;
+}
 } // namespace QOS
 } // namespace OHOS
