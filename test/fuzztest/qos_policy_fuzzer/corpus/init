@@ -1,0 +1,28 @@
+/*
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+{
+  "policyType": 1,
+  "policyFlag": 15,
+  "policies": [
+    {"nice": 0, "latencyNice": 0, "uclampMin": 0, "uclampMax": 1024, "rtSchedPriority": 0, "policy": 0},
+    {"nice": -10, "latencyNice": -10, "uclampMin": 100, "uclampMax": 900, "rtSchedPriority": 0, "policy": 0},
+    {"nice": 0, "latencyNice": 0, "uclampMin": 200, "uclampMax": 800, "rtSchedPriority": 0, "policy": 0},
+    {"nice": -5, "latencyNice": -5, "uclampMin": 300, "uclampMax": 700, "rtSchedPriority": 10, "policy": 1},
+    {"nice": -15, "latencyNice": -15, "uclampMin": 400, "uclampMax": 1024, "rtSchedPriority": 50, "policy": 2},
+    {"nice": -19, "latencyNice": -19, "uclampMin": 512, "uclampMax": 1024, "rtSchedPriority": 99, "policy": 1},
+    {"nice": -20, "latencyNice": -20, "uclampMin": 1024, "uclampMax": 1024, "rtSchedPriority": 99, "policy": 2}
+  ]
+}
