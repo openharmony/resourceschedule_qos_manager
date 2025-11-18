@@ -362,10 +362,8 @@ void TestRequestAuth(const uint8_t* data, size_t size, size_t& offset)
     if (offset >= size) {
         return;
     }
-
     auto& client = ConcurrentTaskClient::GetInstance();
     auto payload = CreatePayload(data, size, &offset);
-
     // Test RequestAuth
     if (!payload.empty()) {
         static_cast<void>(client.RequestAuth(payload));
