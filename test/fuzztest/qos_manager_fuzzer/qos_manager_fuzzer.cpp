@@ -495,10 +495,18 @@ void TestEdgeCases(const uint8_t* data, size_t size, size_t& offset)
 
 }  // namespace
 
-// ============================================================================
-// Main Fuzzer Entry Point
-// ============================================================================
-
+void TestComprehensive(const uint8_t *data, size_t size, size_t &offset)
+{
+    if (offset + QOS_LEVEL_APIS_SIZE <= size) {
+        TestQosLevelApis(data, size, offset);
+    }
+    if (offset + CONCURRENT_TASK_REPORTING_SIZE <= size) {
+        TestConcurrentTaskReporting(data, size, offset);
+    }
+    if (offset < size) {
+        TestRequestAuth(data, size, offset);
+    }
+}
 // Helper function to run specific test cases based on selector
 void RunTestCase(const uint8_t* data, size_t size, size_t& offset, uint8_t selector)
 {
@@ -532,15 +540,7 @@ void RunTestCase(const uint8_t* data, size_t size, size_t& offset, uint8_t selec
             break;
         case TEST_CASE_COMPREHENSIVE: // Comprehensive test - execute multiple API groups
         default:
-            if (offset + QOS_LEVEL_APIS_SIZE <= size) {
-                TestQosLevelApis(data, size, offset);
-            }
-            if (offset + CONCURRENT_TASK_REPORTING_SIZE <= size) {
-                TestConcurrentTaskReporting(data, size, offset);
-            }
-            if (offset < size) {
-                TestRequestAuth(data, size, offset);
-            }
+            TestComprehensive(data, size, offset);
             break;
     }
 }
