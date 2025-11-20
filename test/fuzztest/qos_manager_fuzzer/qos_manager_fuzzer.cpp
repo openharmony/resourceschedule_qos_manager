@@ -495,7 +495,7 @@ void TestEdgeCases(const uint8_t* data, size_t size, size_t& offset)
 
 }  // namespace
 
-void TestComprehensive(const uint8_t *data, size_t size, size_t &offset)
+void TestDefault(const uint8_t *data, size_t size, size_t &offset)
 {
     if (offset + QOS_LEVEL_APIS_SIZE <= size) {
         TestQosLevelApis(data, size, offset);
@@ -540,7 +540,7 @@ void RunTestCase(const uint8_t* data, size_t size, size_t& offset, uint8_t selec
             break;
         case TEST_CASE_COMPREHENSIVE: // Comprehensive test - execute multiple API groups
         default:
-            TestComprehensive(data, size, offset);
+            TestDefault(data, size, offset);
             break;
     }
 }
