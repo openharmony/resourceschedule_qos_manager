@@ -63,7 +63,8 @@
                     "header": {
                         "header_base": "//foundation/resourceschedule/qos_manager/interfaces/inner_api/",
                         "header_files": [
-                            "qos.h"
+                            "qos.h",
+                            "pi_mutex.h"
                         ]
                     },
                     "name": "//foundation/resourceschedule/qos_manager/qos:qos"
