@@ -184,6 +184,11 @@ void ConcurrentTaskClient::StopRemoteObject()
     clientService_ = nullptr;
 }
 
+int ConcurrentTaskClient::SetSystemQoS(int tid, int level)
+{
+    return 0;
+}
+
 ConcurrentTaskClient::ConcurrentTaskDeathRecipient::ConcurrentTaskDeathRecipient(
     ConcurrentTaskClient& concurrentTaskClient) : concurrentTaskClient_(concurrentTaskClient) {}
 
