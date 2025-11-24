@@ -184,7 +184,7 @@ void ConcurrentTaskClient::StopRemoteObject()
     clientService_ = nullptr;
 }
 
-ErrCode ConcurrentTaskClient::SetSystemQoS(int tid, int level)
+int ConcurrentTaskClient::SetSystemQoS(int tid, int level)
 {
     return 0;
 }
