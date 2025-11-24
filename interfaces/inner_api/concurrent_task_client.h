@@ -105,6 +105,14 @@ public:
      */
     void StopRemoteObject();
 
+    /**
+     * @brief Set system QoS for specified thread.
+     *
+     * @param tid Indicates the tid of thread that want to set.
+     * @param level Indicates the syetem QoS level want to set.
+     */
+    int SetSystemQoS(int tid, int level);
+
 protected:
     ConcurrentTaskClient() = default;
     virtual ~ConcurrentTaskClient() = default;
