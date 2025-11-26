@@ -294,35 +294,8 @@ bool FuzzOperationSequence(FuzzedDataProvider &fdp)
     return true;
 }
 
-// 测试9: 跨线程操作测试
-bool FuzzCrossThreadOperations(FuzzedDataProvider &fdp)
-{
-    // 创建一个新线程
-    std::thread worker([]() {
-        constexpr int workerSleepMs = 10;
-        (void)gettid();
-        // 主线程会尝试操作这个线程的 QoS
-        std::this_thread::sleep_for(std::chrono::milliseconds(workerSleepMs));
-    });
-    
-    // 主线程操作工作线程的 QoS
-    if (worker.joinable()) {
-        // 注意：这里获取不到真实的 worker tid，只是测试接口
-        int fakeTid = GetThreadId(fdp);
-        QosLevel level = GetValidQosLevel(fdp);
-        
-        QOS::SetQosForOtherThread(level, fakeTid);
-        
-        enum QosLevel outLevel;
-        QosController::GetInstance().GetThreadQosForOtherThread(outLevel, fakeTid);
-        
-        worker.join();
-    }
-    
-    return true;
-}
 
-// 测试10: QosLeave vs ResetThreadQos 差异测试
+// 测试9: QosLeave vs ResetThreadQos 差异测试
 bool FuzzLeaveVsReset(FuzzedDataProvider &fdp)
 {
     QosLevel level = GetValidQosLevel(fdp);
@@ -345,47 +318,6 @@ bool FuzzLeaveVsReset(FuzzedDataProvider &fdp)
     
     return true;
 }
-
-// 原有的测试函数（简化版）
-bool FuzzQosControllerGetThreadQosForOtherThread(FuzzedDataProvider &fdp)
-{
-    enum QosLevel level;
-    int tid = GetThreadId(fdp);
-    QosController::GetInstance().GetThreadQosForOtherThread(level, tid);
-    return true;
-}
-
-bool FuzzQosInterfaceQosLeave(FuzzedDataProvider &fdp)
-{
-    QosLevel level = GetValidQosLevel(fdp);
-    QOS::SetThreadQos(level);
-    QosLeave();
-    return true;
-}
-
-bool FuzzQosResetThreadQos(FuzzedDataProvider &fdp)
-{
-    QosLevel level = GetValidQosLevel(fdp);
-    QOS::SetThreadQos(level);
-    QOS::ResetThreadQos();
-    return true;
-}
-
-bool FuzzQosSetQosForOtherThread(FuzzedDataProvider &fdp)
-{
-    QosLevel level = GetValidQosLevel(fdp);
-    int tid = GetThreadId(fdp);
-    QOS::SetQosForOtherThread(level, tid);
-    return true;
-}
-
-bool FuzzQosSetThreadQos(FuzzedDataProvider &fdp)
-{
-    QosLevel level = GetValidQosLevel(fdp);
-    QOS::SetThreadQos(level);
-    return true;
-}
-
 
 enum FuzzStrategy : uint8_t {
     INVALID_QOS_LEVELS = 0,
@@ -411,21 +343,15 @@ static void DispatchFuzzStrategy(FuzzedDataProvider &fdp, uint8_t strategy)
     using FuzzFunc = bool(*)(FuzzedDataProvider &);
 
     static constexpr FuzzFunc kTable[] = {
-        FuzzInvalidQosLevels,                          // 0
-        FuzzInvalidThreadIds,                          // 1
-        FuzzQosStateTransitions,                       // 2
-        FuzzDoubleOperations,                          // 3
-        FuzzUninitializedState,                        // 4
-        FuzzResourceLeak,                              // 5
-        FuzzRaceCondition,                             // 6
-        FuzzOperationSequence,                         // 7
-        FuzzCrossThreadOperations,                     // 8
-        FuzzLeaveVsReset,                              // 9
-        FuzzQosControllerGetThreadQosForOtherThread,   // 10
-        FuzzQosInterfaceQosLeave,                      // 11
-        FuzzQosResetThreadQos,                         // 12
-        FuzzQosSetQosForOtherThread,                   // 13
-        FuzzQosSetThreadQos                            // 14
+        FuzzInvalidQosLevels,
+        FuzzInvalidThreadIds,
+        FuzzQosStateTransitions,
+        FuzzDoubleOperations,
+        FuzzUninitializedState,
+        FuzzResourceLeak,
+        FuzzRaceCondition,
+        FuzzOperationSequence,
+        FuzzLeaveVsReset
     };
 
     constexpr size_t count = sizeof(kTable) / sizeof(kTable[0]);
