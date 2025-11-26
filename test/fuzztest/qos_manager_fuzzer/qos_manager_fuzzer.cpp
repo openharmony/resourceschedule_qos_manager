@@ -395,63 +395,85 @@ void TestQosTransitions(const uint8_t* data, size_t size, size_t& offset)
 
 using TestHandler = std::function<void(const uint8_t*, size_t, size_t&)>;
 
+void RunComprehensiveCase(const uint8_t* data, size_t size, size_t& offset)
+{
+    if (offset + QOS_LEVEL_APIS_SIZE <= size) {
+        TestQosLevelApis(data, size, offset);
+    }
+    if (offset + CONCURRENT_TASK_REPORTING_SIZE <= size) {
+        TestConcurrentTaskReporting(data, size, offset);
+    }
+    if (offset < size) {
+        TestRequestAuth(data, size, offset);
+    }
+}
+
+void RunQosLevelManagementCase(const uint8_t* data, size_t size, size_t& offset)
+{
+    if (offset + QOS_LEVEL_APIS_SIZE <= size) {
+        TestQosLevelApis(data, size, offset);
+    }
+}
+
+void RunCApiQosCase(const uint8_t* data, size_t size, size_t& offset)
+{
+    if (offset + C_API_QOS_SIZE <= size) {
+        TestCApiQosManagement(data, size, offset);
+    }
+}
+
+void RunConcurrentTaskReportingCase(const uint8_t* data, size_t size, size_t& offset)
+{
+    if (offset + CONCURRENT_TASK_REPORTING_SIZE <= size) {
+        TestConcurrentTaskReporting(data, size, offset);
+    }
+}
+
+void RunConcurrentTaskQueryCase(const uint8_t* data, size_t size, size_t& offset)
+{
+    if (offset + CONCURRENT_TASK_QUERY_SIZE <= size) {
+        TestConcurrentTaskQuery(data, size, offset);
+    }
+}
+
+void RunRequestAuthCase(const uint8_t* data, size_t size, size_t& offset)
+{
+    if (offset < size) {
+        TestRequestAuth(data, size, offset);
+    }
+}
+
+void RunStopRemoteObjectCase(const uint8_t* data, size_t size, size_t& offset)
+{
+    TestStopRemoteObject(data, size, offset);
+}
+
+void RunQosTransitionsCase(const uint8_t* data, size_t size, size_t& offset)
+{
+    TestQosTransitions(data, size, offset);
+}
+
+static const std::unordered_map<uint8_t, TestHandler> g_caseHandlers = {
+    { TEST_CASE_QOS_LEVEL_MANAGEMENT, RunQosLevelManagementCase },
+    { TEST_CASE_C_API_QOS, RunCApiQosCase },
+    { TEST_CASE_CONCURRENT_TASK_REPORTING, RunConcurrentTaskReportingCase },
+    { TEST_CASE_CONCURRENT_TASK_QUERY, RunConcurrentTaskQueryCase },
+    { TEST_CASE_REQUEST_AUTH, RunRequestAuthCase },
+    { TEST_CASE_STOP_REMOTE_OBJECT, RunStopRemoteObjectCase },
+    { TEST_CASE_EDGE_CASES, RunQosTransitionsCase },
+    { TEST_CASE_COMPREHENSIVE, RunComprehensiveCase }
+};
+
 // Helper function to run specific test cases based on selector
 void RunTestCase(const uint8_t* data, size_t size, size_t& offset, uint8_t selector)
 {
-    const TestHandler runComprehensive = [](const uint8_t* dataIn, size_t sizeIn, size_t& offsetIn) {
-        if (offsetIn + QOS_LEVEL_APIS_SIZE <= sizeIn) {
-            TestQosLevelApis(dataIn, sizeIn, offsetIn);
-        }
-        if (offsetIn + CONCURRENT_TASK_REPORTING_SIZE <= sizeIn) {
-            TestConcurrentTaskReporting(dataIn, sizeIn, offsetIn);
-        }
-        if (offsetIn < sizeIn) {
-            TestRequestAuth(dataIn, sizeIn, offsetIn);
-        }
-    };
-
-    static const std::unordered_map<uint8_t, TestHandler> caseHandlers = {
-        { TEST_CASE_QOS_LEVEL_MANAGEMENT, [](const uint8_t* dataIn, size_t sizeIn, size_t& offsetIn) {
-            if (offsetIn + QOS_LEVEL_APIS_SIZE <= sizeIn) {
-                TestQosLevelApis(dataIn, sizeIn, offsetIn);
-            }
-        }},
-        { TEST_CASE_C_API_QOS, [](const uint8_t* dataIn, size_t sizeIn, size_t& offsetIn) {
-            if (offsetIn + C_API_QOS_SIZE <= sizeIn) {
-                TestCApiQosManagement(dataIn, sizeIn, offsetIn);
-            }
-        }},
-        { TEST_CASE_CONCURRENT_TASK_REPORTING, [](const uint8_t* dataIn, size_t sizeIn, size_t& offsetIn) {
-            if (offsetIn + CONCURRENT_TASK_REPORTING_SIZE <= sizeIn) {
-                TestConcurrentTaskReporting(dataIn, sizeIn, offsetIn);
-            }
-        }},
-        { TEST_CASE_CONCURRENT_TASK_QUERY, [](const uint8_t* dataIn, size_t sizeIn, size_t& offsetIn) {
-            if (offsetIn + CONCURRENT_TASK_QUERY_SIZE <= sizeIn) {
-                TestConcurrentTaskQuery(dataIn, sizeIn, offsetIn);
-            }
-        }},
-        { TEST_CASE_REQUEST_AUTH, [](const uint8_t* dataIn, size_t sizeIn, size_t& offsetIn) {
-            if (offsetIn < sizeIn) {
-                TestRequestAuth(dataIn, sizeIn, offsetIn);
-            }
-        }},
-        { TEST_CASE_STOP_REMOTE_OBJECT, [](const uint8_t* dataIn, size_t sizeIn, size_t& offsetIn) {
-            TestStopRemoteObject(dataIn, sizeIn, offsetIn);
-        }},
-        { TEST_CASE_EDGE_CASES, [](const uint8_t* dataIn, size_t sizeIn, size_t& offsetIn) {
-            TestQosTransitions(dataIn, sizeIn, offsetIn);
-        }},
-        { TEST_CASE_COMPREHENSIVE, runComprehensive }
-    };
-
-    auto handler = caseHandlers.find(selector);
-    if (handler != caseHandlers.end()) {
+    auto handler = g_caseHandlers.find(selector);
+    if (handler != g_caseHandlers.end()) {
         handler->second(data, size, offset);
         return;
     }
 
-    runComprehensive(data, size, offset);
+    RunComprehensiveCase(data, size, offset);
 }
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
