@@ -16,7 +16,7 @@
 /**
  * Unified QoS Manager Comprehensive Fuzz Driver
  *
- * Consolidates all 20 unique APIs from QoS management, concurrent task, and Gewu
+ * Consolidates all 15 unique APIs from QoS management and concurrent task
  * operations into a single unified fuzzing driver with 4 execution modes.
  *
  * API Coverage:
@@ -25,13 +25,8 @@
  * - Concurrent Task Reporting: 2 APIs
  * - Concurrent Task Query: 2 APIs
  * - Authorization: 1 API
- * - Audio Deadline: 1 API
  * - Remote Object Management: 1 API
- * - Gewu Session Management: 4 APIs
  */
-
-#ifndef QOS_MANAGER_FUZZER_H
-#define QOS_MANAGER_FUZZER_H
 
 #include "qos.h"
 #include "concurrent_task_client.h"
@@ -48,7 +43,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <algorithm>
-#include <memory>
+#include <functional>
 #include <string>
 #include <unordered_map>
 #include <unistd.h>
@@ -67,7 +62,6 @@ using namespace OHOS::ConcurrentTask;
 #define CONCURRENT_TASK_REPORTING_SIZE 12
 #define CONCURRENT_TASK_QUERY_SIZE 8
 #define C_API_QOS_SIZE 2
-#define AUDIO_DEADLINE_SIZE 12
 #define QOS_LEVEL_APIS_SIZE 8
 #define QOS_LEVEL_MAX 8
 
@@ -77,11 +71,9 @@ using namespace OHOS::ConcurrentTask;
 #define TEST_CASE_CONCURRENT_TASK_REPORTING 2
 #define TEST_CASE_CONCURRENT_TASK_QUERY 3
 #define TEST_CASE_REQUEST_AUTH 4
-#define TEST_CASE_AUDIO_DEADLINE 5
-#define TEST_CASE_STOP_REMOTE_OBJECT 6
-#define TEST_CASE_GEWU_OPERATIONS 7
-#define TEST_CASE_EDGE_CASES 8
-#define TEST_CASE_COMPREHENSIVE 9
+#define TEST_CASE_STOP_REMOTE_OBJECT 5
+#define TEST_CASE_EDGE_CASES 6
+#define TEST_CASE_COMPREHENSIVE 7
 
 // ============================================================================
 // Fuzzing Helper Functions
@@ -146,37 +138,6 @@ std::string SafeExtractString(const uint8_t* data, size_t size, size_t* offset,
     std::string result(reinterpret_cast<const char*>(data + *offset), strLen);
     *offset += strLen;
     return result;
-}
-
-/**
- * Safely extract a C string from fuzzing input
- */
-char* SafeStrndup(const uint8_t* data, size_t size, size_t maxLen)
-{
-    if (size == 0 || maxLen == 0) {
-        return nullptr;
-    }
-    size_t len = (size < maxLen) ? size : maxLen;
-    char* str = static_cast<char*>(malloc(len + 1));
-    if (str == nullptr) {
-        return nullptr;
-    }
-    if (len > 0) {
-        // Use secure memcpy_s for safe memory copying
-        if (str == nullptr || data == nullptr) {
-            // Invalid parameters, free and return nullptr
-            free(str);
-            return nullptr;
-        }
-        int err = memcpy_s(str, len + 1, data, len);
-        if (err != 0) {
-            // If memcpy_s fails, free and return nullptr
-            free(str);
-            return nullptr;
-        }
-    }
-    str[len] = '\0';
-    return str;
 }
 
 /**
@@ -371,32 +332,6 @@ void TestRequestAuth(const uint8_t* data, size_t size, size_t& offset)
 }
 
 // ============================================================================
-// Audio Deadline API (1 API)
-// ============================================================================
-
-/**
- * Test audio deadline:
- * SetAudioDeadline
- */
-void TestAudioDeadline(const uint8_t* data, size_t size, size_t& offset)
-{
-    if (offset + AUDIO_DEADLINE_SIZE > size) {
-        return;
-    }
-
-    // Extract parameters
-    int queryItem = SafeExtractInt<int>(data, size, &offset);
-    int tid = SafeExtractInt<int>(data, size, &offset);
-    int grpId = SafeExtractInt<int>(data, size, &offset);
-
-    // Note: SetAudioDeadline might require specific service context
-    // The exact signature might vary based on the library version
-    static_cast<void>(queryItem);
-    static_cast<void>(tid);
-    static_cast<void>(grpId);
-}
-
-// ============================================================================
 // Remote Object Management API (1 API)
 // ============================================================================
 
@@ -422,50 +357,13 @@ void TestStopRemoteObject(const uint8_t* data, size_t size, size_t& offset)
 }
 
 // ============================================================================
-// Gewu Session and Request Management APIs (4 APIs)
+// QoS Transition and Thread Control Testing
 // ============================================================================
 
 /**
- * Test Gewu-style operations through available APIs
- * Note: Direct Gewu C APIs may not be available, using QoS APIs instead
+ * Test QoS transitions and thread-level control flows
  */
-void TestGewuOperations(const uint8_t* data, size_t size, size_t& offset)
-{
-    if (offset >= size) {
-        return;
-    }
-
-    // Extract session attributes as QoS parameters
-    size_t attrOffset = offset;
-    size_t attrMaxLen = (size - offset > STRING_DEFAULT_MAX_LEN) ? STRING_DEFAULT_MAX_LEN : size - offset;
-    char* attributes = SafeStrndup(data + attrOffset, size - attrOffset, attrMaxLen);
-
-    if (attributes != nullptr) {
-        // Test sequence: Create-like operation (SetThreadQos)
-        QosLevel level = SafeExtractQosLevel(data, size, &offset);
-        SetThreadQos(level);
-
-        // Test Get-like operation (GetThreadQos)
-        QosLevel retrieved = static_cast<QosLevel>(0);
-        GetThreadQos(retrieved);
-
-        // Test Reset-like operation (ResetThreadQos)
-        ResetThreadQos();
-
-        free(attributes);
-    }
-
-    offset = size;  // Consume remaining data
-}
-
-// ============================================================================
-// Edge Cases and Boundary Testing
-// ============================================================================
-
-/**
- * Test edge cases and boundary conditions
- */
-void TestEdgeCases(const uint8_t* data, size_t size, size_t& offset)
+void TestQosTransitions(const uint8_t* data, size_t size, size_t& offset)
 {
     // Test multiple QoS level transitions
     QosLevel levels[] = {
@@ -495,54 +393,65 @@ void TestEdgeCases(const uint8_t* data, size_t size, size_t& offset)
 
 }  // namespace
 
-void TestDefault(const uint8_t *data, size_t size, size_t &offset)
-{
-    if (offset + QOS_LEVEL_APIS_SIZE <= size) {
-        TestQosLevelApis(data, size, offset);
-    }
-    if (offset + CONCURRENT_TASK_REPORTING_SIZE <= size) {
-        TestConcurrentTaskReporting(data, size, offset);
-    }
-    if (offset < size) {
-        TestRequestAuth(data, size, offset);
-    }
-}
+using TestHandler = std::function<void(const uint8_t*, size_t, size_t&)>;
+
 // Helper function to run specific test cases based on selector
 void RunTestCase(const uint8_t* data, size_t size, size_t& offset, uint8_t selector)
 {
-    switch (selector) {
-        case TEST_CASE_QOS_LEVEL_MANAGEMENT: // Test QoS level management APIs
-            if (offset + QOS_LEVEL_APIS_SIZE <= size) { TestQosLevelApis(data, size, offset);}
-            break;
-        case TEST_CASE_C_API_QOS: // Test C API QoS management
-            if (offset + C_API_QOS_SIZE <= size) { TestCApiQosManagement(data, size, offset); }
-            break;
-        case TEST_CASE_CONCURRENT_TASK_REPORTING: // Test concurrent task reporting
-            if (offset + CONCURRENT_TASK_REPORTING_SIZE <= size) { TestConcurrentTaskReporting(data, size, offset); }
-            break;
-        case TEST_CASE_CONCURRENT_TASK_QUERY: // Test concurrent task query
-            if (offset + CONCURRENT_TASK_QUERY_SIZE <= size) { TestConcurrentTaskQuery(data, size, offset); }
-            break;
-        case TEST_CASE_REQUEST_AUTH: // Test request authorization
-            if (offset < size) { TestRequestAuth(data, size, offset); }
-            break;
-        case TEST_CASE_AUDIO_DEADLINE: // Test audio deadline
-            if (offset + AUDIO_DEADLINE_SIZE <= size) { TestAudioDeadline(data, size, offset); }
-            break;
-        case TEST_CASE_STOP_REMOTE_OBJECT: // Test stop remote object
-            TestStopRemoteObject(data, size, offset);
-            break;
-        case TEST_CASE_GEWU_OPERATIONS: // Test Gewu operations
-            if (offset < size) { TestGewuOperations(data, size, offset); }
-            break;
-        case TEST_CASE_EDGE_CASES: // Test edge cases
-            TestEdgeCases(data, size, offset);
-            break;
-        case TEST_CASE_COMPREHENSIVE: // Comprehensive test - execute multiple API groups
-        default:
-            TestDefault(data, size, offset);
-            break;
+    const TestHandler runComprehensive = [](const uint8_t* dataIn, size_t sizeIn, size_t& offsetIn) {
+        if (offsetIn + QOS_LEVEL_APIS_SIZE <= sizeIn) {
+            TestQosLevelApis(dataIn, sizeIn, offsetIn);
+        }
+        if (offsetIn + CONCURRENT_TASK_REPORTING_SIZE <= sizeIn) {
+            TestConcurrentTaskReporting(dataIn, sizeIn, offsetIn);
+        }
+        if (offsetIn < sizeIn) {
+            TestRequestAuth(dataIn, sizeIn, offsetIn);
+        }
+    };
+
+    static const std::unordered_map<uint8_t, TestHandler> caseHandlers = {
+        { TEST_CASE_QOS_LEVEL_MANAGEMENT, [](const uint8_t* dataIn, size_t sizeIn, size_t& offsetIn) {
+            if (offsetIn + QOS_LEVEL_APIS_SIZE <= sizeIn) {
+                TestQosLevelApis(dataIn, sizeIn, offsetIn);
+            }
+        }},
+        { TEST_CASE_C_API_QOS, [](const uint8_t* dataIn, size_t sizeIn, size_t& offsetIn) {
+            if (offsetIn + C_API_QOS_SIZE <= sizeIn) {
+                TestCApiQosManagement(dataIn, sizeIn, offsetIn);
+            }
+        }},
+        { TEST_CASE_CONCURRENT_TASK_REPORTING, [](const uint8_t* dataIn, size_t sizeIn, size_t& offsetIn) {
+            if (offsetIn + CONCURRENT_TASK_REPORTING_SIZE <= sizeIn) {
+                TestConcurrentTaskReporting(dataIn, sizeIn, offsetIn);
+            }
+        }},
+        { TEST_CASE_CONCURRENT_TASK_QUERY, [](const uint8_t* dataIn, size_t sizeIn, size_t& offsetIn) {
+            if (offsetIn + CONCURRENT_TASK_QUERY_SIZE <= sizeIn) {
+                TestConcurrentTaskQuery(dataIn, sizeIn, offsetIn);
+            }
+        }},
+        { TEST_CASE_REQUEST_AUTH, [](const uint8_t* dataIn, size_t sizeIn, size_t& offsetIn) {
+            if (offsetIn < sizeIn) {
+                TestRequestAuth(dataIn, sizeIn, offsetIn);
+            }
+        }},
+        { TEST_CASE_STOP_REMOTE_OBJECT, [](const uint8_t* dataIn, size_t sizeIn, size_t& offsetIn) {
+            TestStopRemoteObject(dataIn, sizeIn, offsetIn);
+        }},
+        { TEST_CASE_EDGE_CASES, [](const uint8_t* dataIn, size_t sizeIn, size_t& offsetIn) {
+            TestQosTransitions(dataIn, sizeIn, offsetIn);
+        }},
+        { TEST_CASE_COMPREHENSIVE, runComprehensive }
+    };
+
+    auto handler = caseHandlers.find(selector);
+    if (handler != caseHandlers.end()) {
+        handler->second(data, size, offset);
+        return;
     }
+
+    runComprehensive(data, size, offset);
 }
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
@@ -559,5 +468,3 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     RunTestCase(data, size, offset, selector);
     return 0;
 }
-
-#endif // QOS_MANAGER_FUZZER_H
