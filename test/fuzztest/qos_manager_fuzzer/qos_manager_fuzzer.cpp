@@ -91,7 +91,7 @@ T SafeExtractInt(const uint8_t* data, size_t size, size_t* offset)
         *offset = size;
         return T();
     }
-    T value = *reinterpret_cast<const T*>(data + *offset);
+    std::memcpy(&value, data + *offset, sizeof(T));
     *offset += sizeof(T);
     return value;
 }
