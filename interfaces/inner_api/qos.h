@@ -53,6 +53,10 @@ int ResetThreadQos();
 int ResetQosForOtherThread(int tid);
 int GetThreadQos(enum QosLevel &level);
 int GetQosForOtherThread(enum QosLevel &level, int tid);
+int AddThreadToProcRtg(int tid);
+int AddThreadsToRrocRtg(int tid[5], int size);
+int RemoveThreadFromProcRtg(int tid);
+int RemoveThreadsFromProcRtg(int tid[5], int size);
 } // namespace QOS
 } // namespace OHOS
 
