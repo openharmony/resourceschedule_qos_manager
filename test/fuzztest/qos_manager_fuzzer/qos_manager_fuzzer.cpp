@@ -84,14 +84,18 @@ namespace {
 /**
  * Safely extract an integer of any type from fuzzing input
  */
-template<typename T>
-T SafeExtractInt(const uint8_t* data, size_t size, size_t* offset)
+template <typename T>
+T SafeExtractInt(const uint8_t *data, size_t size, size_t *offset)
 {
     if (*offset + sizeof(T) > size) {
         *offset = size;
-        return T();
+        return T{};
     }
-    std::memcpy(&value, data + *offset, sizeof(T));
+    T value{};
+    if (std::memcpy_s(&value, sizeof(T), data + *offset, sizeof(T)) != 0) {
+        *offset = size;
+        return T{};
+    }
     *offset += sizeof(T);
     return value;
 }

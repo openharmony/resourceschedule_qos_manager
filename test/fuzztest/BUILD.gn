@@ -16,10 +16,10 @@ group("fuzztest") {
   deps = [
     "concurrent_fuzzer:ConcurrentFuzzTest",
     "qos_fuzzer:QosFuzzTest",
-    "qos_manager_fuzzer:QosManagerFuzzTest"
+    "qos_manager_fuzzer:QosManagerFuzzTest",
     "qos_policy_fuzzer:QosPolicyFuzzTest",
     "rtg_operations_fuzzer:RtgOperationsFuzzTest",
     "utils_fuzzer:UtilsFuzzTest",
-    "comprehensive_ipc_fuzzer:ComprehensiveIpcFuzzTest",
+    "comprehensive_ipc_fuzzer:ComprehensiveIpcFuzzTest"
   ]
 }
