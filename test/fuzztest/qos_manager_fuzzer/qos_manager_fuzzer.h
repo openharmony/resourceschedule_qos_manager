@@ -16,6 +16,8 @@
 #ifndef QOS_MANAGER_FUZZER_H
 #define QOS_MANAGER_FUZZER_H
 
+#define FUZZ_PROJECT_NAME "qos_manager_fuzzer"
+
 #include "qos.h"
 #include "concurrent_task_client.h"
 #include "concurrent_task_type.h"
