@@ -40,8 +40,78 @@ namespace {
     constexpr int TEST_DATA_SEVENTH = 7;
     constexpr int TEST_DATA_EIGHTH = 8;
     constexpr int TEST_DATA_TENTH = 10;
+
+    constexpr QosLevel VALID_QOS_LEVELS[] = {
+        QosLevel::QOS_BACKGROUND,
+        QosLevel::QOS_UTILITY,
+        QosLevel::QOS_DEFAULT,
+        QosLevel::QOS_USER_INITIATED,
+        QosLevel::QOS_DEADLINE_REQUEST,
+        QosLevel::QOS_USER_INTERACTIVE
+    };
+    constexpr size_t VALID_QOS_COUNT = sizeof(VALID_QOS_LEVELS) / sizeof(VALID_QOS_LEVELS[0]);
+    
+    constexpr int INVALID_QOS_LEVELS[] = {
+        -1, -100, 6, 7, 100, 255, INT_MIN, INT_MAX
+    };
+    constexpr size_t INVALID_QOS_COUNT = sizeof(INVALID_QOS_LEVELS) / sizeof(INVALID_QOS_LEVELS[0]);
 }
 
+
+static QosLevel GetValidQosLevel(FuzzedDataProvider &fdp)
+{
+    size_t index = fdp.ConsumeIntegralInRange<size_t>(0, VALID_QOS_COUNT - 1);
+    return VALID_QOS_LEVELS[index];
+}
+
+static int GetPossiblyInvalidQosLevel(FuzzedDataProvider &fdp)
+{
+    if (fdp.ConsumeBool()) {
+        return static_cast<int>(GetValidQosLevel(fdp));
+    } else {
+        size_t index = fdp.ConsumeIntegralInRange<size_t>(0, INVALID_QOS_COUNT - 1);
+        return INVALID_QOS_LEVELS[index];
+    }
+}
+
+static int GetThreadId(FuzzedDataProvider &fdp)
+{
+    constexpr int invalidTid1 = -1;
+    constexpr int invalidTid2 = 0;
+    constexpr int initProcessTid = 1;
+    constexpr int threadTidMax = INT_MAX;
+    constexpr int threadTidMin = INT_MIN;
+    constexpr int threadTidMaxValid = 65535;
+
+    enum ThreadIdChoice : uint8_t {
+        CURRENT_THREAD = 0,
+        INIT_PROCESS,
+        INVALID_TID_NEG1,
+        INVALID_TID_ZERO,
+        MAX_TID,
+        MIN_TID,
+        RANDOM_VALID
+    };
+
+    uint8_t choice = fdp.ConsumeIntegralInRange<uint8_t>(0, 6);
+
+    switch (choice) {
+        case CURRENT_THREAD:
+            return gettid();
+        case INIT_PROCESS:
+            return initProcessTid;
+        case INVALID_TID_NEG1:
+            return invalidTid1;
+        case INVALID_TID_ZERO:
+            return invalidTid2;
+        case MAX_TID:
+            return threadTidMax;
+        case MIN_TID:
+            return threadTidMin;
+        default:
+            return fdp.ConsumeIntegralInRange<int>(1, threadTidMaxValid);
+    }
+}
 
 bool FuzzQosControllerGetThreadQosForOtherThread(FuzzedDataProvider &fdp)
 {
@@ -117,24 +187,6 @@ bool FuzzQosSetThreadQos(FuzzedDataProvider &fdp)
         QOS::SetThreadQos(QOS::QosLevel::QOS_USER_INITIATED);
     }
     return true;
-}
-
-static QosLevel GetValidQosLevel(FuzzedDataProvider &fdp)
-{
-    size_t index = fdp.ConsumeIntegralInRange<size_t>(0, VALID_QOS_COUNT - 1);
-    return VALID_QOS_LEVELS[index];
-}
-
-static int GetPossiblyInvalidQosLevel(FuzzedDataProvider &fdp)
-{
-    if (fdp.ConsumeBool()) {
-        // 返回有效值
-        return static_cast<int>(GetValidQosLevel(fdp));
-    } else {
-        // 返回无效值
-        size_t index = fdp.ConsumeIntegralInRange<size_t>(0, INVALID_QOS_COUNT - 1);
-        return INVALID_QOS_LEVELS[index];
-    }
 }
 
 bool FuzzInvalidQosLevels(FuzzedDataProvider &fdp)
