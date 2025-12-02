@@ -118,6 +118,186 @@ bool FuzzQosSetThreadQos(FuzzedDataProvider &fdp)
     }
     return true;
 }
+
+static QosLevel GetValidQosLevel(FuzzedDataProvider &fdp)
+{
+    size_t index = fdp.ConsumeIntegralInRange<size_t>(0, VALID_QOS_COUNT - 1);
+    return VALID_QOS_LEVELS[index];
+}
+
+static int GetPossiblyInvalidQosLevel(FuzzedDataProvider &fdp)
+{
+    if (fdp.ConsumeBool()) {
+        // 返回有效值
+        return static_cast<int>(GetValidQosLevel(fdp));
+    } else {
+        // 返回无效值
+        size_t index = fdp.ConsumeIntegralInRange<size_t>(0, INVALID_QOS_COUNT - 1);
+        return INVALID_QOS_LEVELS[index];
+    }
+}
+
+bool FuzzInvalidQosLevels(FuzzedDataProvider &fdp)
+{
+    int invalidLevel = GetPossiblyInvalidQosLevel(fdp);
+    int tid = GetThreadId(fdp);
+    
+    QOS::SetQosForOtherThread(static_cast<QosLevel>(invalidLevel), tid);
+    
+    return true;
+}
+
+bool FuzzInvalidThreadIds(FuzzedDataProvider &fdp)
+{
+    QosLevel level = GetValidQosLevel(fdp);
+    
+    int invalidTids[] = {-1, 0, -100, INT_MIN, INT_MAX, 999999};
+    for (int tid : invalidTids) {
+        QOS::SetQosForOtherThread(level, tid);
+        
+        enum QosLevel outLevel;
+        QosController::GetInstance().GetThreadQosForOtherThread(outLevel, tid);
+    }
+    
+    return true;
+}
+
+bool FuzzQosStateTransitions(FuzzedDataProvider &fdp)
+{
+    QosLevel initialLevel = GetValidQosLevel(fdp);
+    QOS::SetThreadQos(initialLevel);
+    
+    for (size_t i = 0; i < VALID_QOS_COUNT && fdp.remaining_bytes() > 0; i++) {
+        QosLevel newLevel = GetValidQosLevel(fdp);
+        QOS::SetThreadQos(newLevel);
+        
+        enum QosLevel currentLevel;
+        QOS::GetThreadQos(currentLevel);
+    }
+    
+    QOS::ResetThreadQos();
+    
+    return true;
+}
+
+bool FuzzDoubleOperations(FuzzedDataProvider &fdp)
+{
+    QosLevel level = GetValidQosLevel(fdp);
+    
+    QOS::SetThreadQos(level);
+    QOS::SetThreadQos(level);
+    
+    QOS::ResetThreadQos();
+    QOS::ResetThreadQos();
+    
+    QOS::SetThreadQos(level);
+    QosLeave();
+    QosLeave();
+    
+    return true;
+}
+
+bool FuzzUninitializedState(FuzzedDataProvider &fdp)
+{
+    enum QosLevel level;
+
+    QOS::GetThreadQos(level);
+    QOS::ResetThreadQos();
+    QosLeave();
+    
+    return true;
+}
+
+bool FuzzResourceLeak(FuzzedDataProvider &fdp)
+{
+    size_t iterations = fdp.ConsumeIntegralInRange<size_t>(100, 500);
+    
+    for (size_t i = 0; i < iterations && fdp.remaining_bytes() > 0; i++) {
+        QosLevel level = GetValidQosLevel(fdp);
+        int tid = GetThreadId(fdp);
+        
+        QOS::SetQosForOtherThread(level, tid);
+        
+        enum QosLevel outLevel;
+        QosController::GetInstance().GetThreadQosForOtherThread(outLevel, tid);
+    }
+    
+    return true;
+}
+
+bool FuzzRaceCondition(FuzzedDataProvider &fdp)
+{
+    int targetTid = gettid();
+    size_t threadCount = fdp.ConsumeIntegralInRange<size_t>(2, 5);
+    std::vector<std::thread> threads;
+    
+    constexpr size_t minBytesForThread = 4;
+    constexpr int qosSetRepeat = 10;
+
+    for (size_t i = 0; i < threadCount && fdp.remaining_bytes() > minBytesForThread; i++) {
+        QosLevel level = GetValidQosLevel(fdp);
+        threads.emplace_back([level, targetTid]() {
+            for (int j = 0; j < qosSetRepeat; j++) {
+                QOS::SetQosForOtherThread(level, targetTid);
+                
+                enum QosLevel outLevel;
+                QosController::GetInstance().GetThreadQosForOtherThread(outLevel, targetTid);
+            }
+        });
+    }
+    
+    for (auto& t : threads) {
+        if (t.joinable()) {
+            t.join();
+        }
+    }
+    
+    return true;
+}
+
+bool FuzzOperationSequence(FuzzedDataProvider &fdp)
+{
+    QosLevel level = GetValidQosLevel(fdp);
+    int tid = GetThreadId(fdp);
+    
+    (void)QOS::SetQosForOtherThread(level, tid);
+    
+    enum QosLevel getLevel;
+    (void)QosController::GetInstance().GetThreadQosForOtherThread(getLevel, tid);
+    
+    if (fdp.ConsumeBool()) {
+        QosLevel newLevel = GetValidQosLevel(fdp);
+        QOS::SetQosForOtherThread(newLevel, tid);
+    }
+    
+    (void)QosController::GetInstance().ResetThreadQosForOtherThread(tid);
+    
+    (void)QosController::GetInstance().GetThreadQosForOtherThread(getLevel, tid);
+    
+    return true;
+}
+
+
+bool FuzzLeaveVsReset(FuzzedDataProvider &fdp)
+{
+    QosLevel level = GetValidQosLevel(fdp);
+    
+    QOS::SetThreadQos(level);
+    QosLeave();
+    
+    QOS::SetThreadQos(level);
+    QOS::ResetThreadQos();
+    
+    QOS::SetThreadQos(level);
+    if (fdp.ConsumeBool()) {
+        QosLeave();
+    } else {
+        QOS::ResetThreadQos();
+    }
+    
+    return true;
+}
+
 }  // namespace OHOS
 
 /* Fuzzer entry point */
@@ -129,6 +309,15 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::FuzzQosResetThreadQos(fdp);
     OHOS::FuzzQosSetQosForOtherThread(fdp);
     OHOS::FuzzQosSetThreadQos(fdp);
+    OHOS::FuzzInvalidQosLevels(fdp);
+    OHOS::FuzzInvalidThreadIds(fdp);
+    OHOS::FuzzQosStateTransitions(fdp);
+    OHOS::FuzzDoubleOperations(fdp);
+    OHOS::FuzzUninitializedState(fdp);
+    OHOS::FuzzResourceLeak(fdp);
+    OHOS::FuzzRaceCondition(fdp);
+    OHOS::FuzzOperationSequence(fdp);
+    OHOS::FuzzLeaveVsReset(fdp);
     return 0;
 }
 
