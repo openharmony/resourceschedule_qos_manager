@@ -14,6 +14,13 @@
  */
 #include <cstddef>
 #include <cstdint>
+#include <unistd.h>
+#include <cstdio>
+#include <cstdlib>
+#include <fcntl.h>
+#include <vector>
+#include <thread>
+#include <climits>
 #include "concurrent_task_service.h"
 #include "securec.h"
 #include "qos.h"
