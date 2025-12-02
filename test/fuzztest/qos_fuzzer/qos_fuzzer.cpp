@@ -74,15 +74,6 @@ QosLevel SafeExtractQosLevel(const uint8_t* data, size_t size, size_t* offset)
     return static_cast<QosLevel>(levelByte % QOS_LEVEL_MAX);
 }
 
-QosLevel SafeExtractQosLevelC(const uint8_t* data, size_t size, size_t* offset)
-{
-    if (*offset >= size) {
-        return static_cast<QosLevel>(0);
-    }
-    uint8_t levelByte = data[(*offset)++];
-    return static_cast<QosLevel>(levelByte % QOS_LEVEL_MAX);
-}
-
 void TestQosLevelApis(const uint8_t* data, size_t size, size_t& offset)
 {
     if (offset >= size) {
@@ -121,7 +112,7 @@ void TestCApiQosManagement(const uint8_t* data, size_t size, size_t& offset)
         return;
     }
 
-    QosLevel level = SafeExtractQosLevelC(data, size, &offset);
+    QosLevel level = SafeExtractQosLevel(data, size, &offset);
     SetThreadQos(level);
 
     QosLevel currentLevel = static_cast<QosLevel>(0);
