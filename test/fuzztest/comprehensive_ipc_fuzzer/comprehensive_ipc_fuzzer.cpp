@@ -13,14 +13,20 @@
  * limitations under the License.
  */
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
+#include <functional>
 #include <string>
 #include <unordered_map>
+#include <sys/types.h>
+#include <unistd.h>
 #include "concurrent_task_service.h"
 #include "concurrent_task_client.h"
 #include "message_parcel.h"
 #include "message_option.h"
+#include "securec.h"
 #include <fuzzer/FuzzedDataProvider.h>
 
 using namespace OHOS::ConcurrentTask;
@@ -46,6 +52,10 @@ constexpr size_t PAYLOAD_STRING_LENGTH = 64;
 constexpr uint32_t IPC_CODE_RANDOM_MAX = 10;
 constexpr int MAX_TYPE_WRITE_COUNT = 20;
 constexpr size_t LONG_PAYLOAD_STRING_LENGTH = 128;
+constexpr size_t CLIENT_FUZZER_MIN_INPUT_SIZE = 8;
+constexpr uint8_t CLIENT_SELECTOR_RANGE = 10;
+constexpr size_t CONCURRENT_TASK_REPORTING_SIZE = 12;
+constexpr size_t CONCURRENT_TASK_QUERY_SIZE = 8;
 enum class IpcFuzzTarget : int {
     MALFORMED = 0,
     TRUNCATED,
@@ -78,6 +88,13 @@ enum class ParcelSequenceWriteType : int {
 };
 
 constexpr int MAX_FUZZ_TARGET_INDEX = static_cast<int>(IpcFuzzTarget::IPC_DATA_CONVERTERS);
+enum ClientTestCase : uint8_t {
+    TEST_CASE_CONCURRENT_TASK_REPORTING = 2,
+    TEST_CASE_CONCURRENT_TASK_QUERY = 3,
+    TEST_CASE_REQUEST_AUTH = 4,
+    TEST_CASE_STOP_REMOTE_OBJECT = 5,
+    TEST_CASE_COMPREHENSIVE = 7
+};
 
 void ReportDataOperation(ConcurrentTaskClient &client, FuzzedDataProvider &fdp)
 {
@@ -426,6 +443,187 @@ bool FuzzIpcDataConverters(FuzzedDataProvider &fdp)
     return true;
 }
 
+namespace {
+
+template <typename T>
+T SafeExtractInt(const uint8_t *data, size_t size, size_t *offset)
+{
+    if (*offset + sizeof(T) > size) {
+        *offset = size;
+        return T{};
+    }
+    T value{};
+    if (memcpy_s(&value, sizeof(T), data + *offset, sizeof(T)) != 0) {
+        *offset = size;
+        return T{};
+    }
+    *offset += sizeof(T);
+    return value;
+}
+
+std::string SafeExtractString(const uint8_t* data, size_t size, size_t* offset, size_t maxLen)
+{
+    if (*offset >= size) {
+        return "";
+    }
+
+    size_t remaining = size - *offset;
+    size_t strLen = std::min(remaining, maxLen);
+
+    std::string result(reinterpret_cast<const char*>(data + *offset), strLen);
+    *offset += strLen;
+    return result;
+}
+
+std::unordered_map<std::string, std::string> CreatePayload(
+    const uint8_t* data, size_t size, size_t* offset)
+{
+    std::unordered_map<std::string, std::string> payload;
+
+    if (*offset >= size) {
+        return payload;
+    }
+
+    std::string bundleName = SafeExtractString(data, size, offset, PAYLOAD_STRING_LENGTH);
+    if (!bundleName.empty()) {
+        payload["bundleName"] = bundleName;
+    }
+
+    std::string sceneType = SafeExtractString(data, size, offset, PAYLOAD_STRING_LENGTH);
+    if (!sceneType.empty()) {
+        payload["sceneType"] = sceneType;
+    }
+
+    if (payload.empty()) {
+        payload["default"] = "fuzz_test";
+    }
+
+    return payload;
+}
+
+void TestConcurrentTaskReporting(const uint8_t* data, size_t size, size_t& offset)
+{
+    if (offset + CONCURRENT_TASK_REPORTING_SIZE > size) {
+        return;
+    }
+
+    auto& client = ConcurrentTaskClient::GetInstance();
+
+    uint32_t resType = SafeExtractInt<uint32_t>(data, size, &offset);
+    int64_t value = static_cast<int64_t>(SafeExtractInt<int32_t>(data, size, &offset));
+
+    auto payload = CreatePayload(data, size, &offset);
+
+    static_cast<void>(client.ReportData(resType, value, payload));
+    static_cast<void>(client.ReportSceneInfo(resType, payload));
+}
+
+void TestConcurrentTaskQuery(const uint8_t* data, size_t size, size_t& offset)
+{
+    if (offset + CONCURRENT_TASK_QUERY_SIZE > size) {
+        return;
+    }
+
+    auto& client = ConcurrentTaskClient::GetInstance();
+
+    int queryItem = SafeExtractInt<int>(data, size, &offset);
+    int pid = SafeExtractInt<int>(data, size, &offset);
+
+    IntervalReply intervalReply;
+    static_cast<void>(client.QueryInterval(queryItem % CLIENT_SELECTOR_RANGE, intervalReply));
+
+    DeadlineReply deadlineReply;
+    std::unordered_map<pid_t, uint32_t> pidMap;
+    if (pid > 0) {
+        pidMap[static_cast<pid_t>(pid)] = static_cast<uint32_t>(queryItem);
+    }
+    static_cast<void>(client.QueryDeadline(queryItem % QUERY_ITEM_MODULO, deadlineReply, pidMap));
+}
+
+void TestRequestAuth(const uint8_t* data, size_t size, size_t& offset)
+{
+    if (offset >= size) {
+        return;
+    }
+    auto& client = ConcurrentTaskClient::GetInstance();
+    auto payload = CreatePayload(data, size, &offset);
+    if (!payload.empty()) {
+        static_cast<void>(client.RequestAuth(payload));
+    }
+}
+
+void TestStopRemoteObject(const uint8_t* data, size_t size, size_t& offset)
+{
+    auto& client = ConcurrentTaskClient::GetInstance();
+
+    if (offset < size) {
+        uint32_t resType = SafeExtractInt<uint32_t>(data, size, &offset);
+        int64_t value = static_cast<int64_t>(SafeExtractInt<int32_t>(data, size, &offset));
+
+        auto payload = CreatePayload(data, size, &offset);
+        static_cast<void>(client.ReportData(resType, value, payload));
+    }
+
+    static_cast<void>(client.StopRemoteObject());
+}
+
+using ClientTestHandler = std::function<void(const uint8_t*, size_t, size_t&)>;
+
+const std::unordered_map<uint8_t, ClientTestHandler> G_CLIENT_CASE_HANDLERS = {
+    { TEST_CASE_CONCURRENT_TASK_REPORTING, [](const uint8_t* data, size_t size, size_t& offset) {
+        if (offset + CONCURRENT_TASK_REPORTING_SIZE <= size) {
+            TestConcurrentTaskReporting(data, size, offset);
+        }
+    } },
+    { TEST_CASE_CONCURRENT_TASK_QUERY, [](const uint8_t* data, size_t size, size_t& offset) {
+        if (offset + CONCURRENT_TASK_QUERY_SIZE <= size) {
+            TestConcurrentTaskQuery(data, size, offset);
+        }
+    } },
+    { TEST_CASE_REQUEST_AUTH, [](const uint8_t* data, size_t size, size_t& offset) {
+        if (offset < size) {
+            TestRequestAuth(data, size, offset);
+        }
+    } },
+    { TEST_CASE_STOP_REMOTE_OBJECT, [](const uint8_t* data, size_t size, size_t& offset) {
+        TestStopRemoteObject(data, size, offset);
+    } },
+    { TEST_CASE_COMPREHENSIVE, [](const uint8_t* data, size_t size, size_t& offset) {
+        if (offset + CONCURRENT_TASK_REPORTING_SIZE <= size) {
+            TestConcurrentTaskReporting(data, size, offset);
+        }
+        if (offset + CONCURRENT_TASK_QUERY_SIZE <= size) {
+            TestConcurrentTaskQuery(data, size, offset);
+        }
+        if (offset < size) {
+            TestRequestAuth(data, size, offset);
+        }
+    } }
+};
+
+void DispatchClientTestCase(const uint8_t* data, size_t size, size_t& offset, uint8_t selector)
+{
+    auto handler = G_CLIENT_CASE_HANDLERS.find(selector);
+    if (handler != G_CLIENT_CASE_HANDLERS.end()) {
+        handler->second(data, size, offset);
+        return;
+    }
+
+    G_CLIENT_CASE_HANDLERS.at(TEST_CASE_COMPREHENSIVE)(data, size, offset);
+}
+
+} // namespace
+
+void RunClientFuzzCases(const uint8_t* data, size_t size)
+{
+    if (size < CLIENT_FUZZER_MIN_INPUT_SIZE) {
+        return;
+    }
+    size_t offset = 0;
+    uint8_t selector = data[offset++] % CLIENT_SELECTOR_RANGE;
+    DispatchClientTestCase(data, size, offset, selector);
+}
+
 } // namespace OHOS
 
 /* Fuzzer entry point */
@@ -469,6 +667,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         default:
             break;
     }
+
+    OHOS::RunClientFuzzCases(data, size);
 
     return 0;
 }
