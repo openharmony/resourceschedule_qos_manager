@@ -20,6 +20,7 @@
 #include <functional>
 #include <string>
 #include <unordered_map>
+#include <vector>
 #include <sys/types.h>
 #include <unistd.h>
 #include "concurrent_task_service.h"
@@ -56,6 +57,7 @@ constexpr size_t CLIENT_FUZZER_MIN_INPUT_SIZE = 8;
 constexpr uint8_t CLIENT_SELECTOR_RANGE = 10;
 constexpr size_t CONCURRENT_TASK_REPORTING_SIZE = 12;
 constexpr size_t CONCURRENT_TASK_QUERY_SIZE = 8;
+constexpr int QUERY_ITEM_MODULO = 10;
 enum class IpcFuzzTarget : int {
     MALFORMED = 0,
     TRUNCATED,
@@ -89,11 +91,11 @@ enum class ParcelSequenceWriteType : int {
 
 constexpr int MAX_FUZZ_TARGET_INDEX = static_cast<int>(IpcFuzzTarget::IPC_DATA_CONVERTERS);
 enum ClientTestCase : uint8_t {
-    TEST_CASE_CONCURRENT_TASK_REPORTING = 2,
-    TEST_CASE_CONCURRENT_TASK_QUERY = 3,
-    TEST_CASE_REQUEST_AUTH = 4,
-    TEST_CASE_STOP_REMOTE_OBJECT = 5,
-    TEST_CASE_COMPREHENSIVE = 7
+    TEST_CASE_CONCURRENT_TASK_REPORTING = 0,
+    TEST_CASE_CONCURRENT_TASK_QUERY = 1,
+    TEST_CASE_REQUEST_AUTH = 2,
+    TEST_CASE_STOP_REMOTE_OBJECT = 3,
+    TEST_CASE_COMPREHENSIVE = 4
 };
 
 void ReportDataOperation(ConcurrentTaskClient &client, FuzzedDataProvider &fdp)
@@ -571,33 +573,21 @@ using ClientTestHandler = std::function<void(const uint8_t*, size_t, size_t&)>;
 
 const std::unordered_map<uint8_t, ClientTestHandler> G_CLIENT_CASE_HANDLERS = {
     { TEST_CASE_CONCURRENT_TASK_REPORTING, [](const uint8_t* data, size_t size, size_t& offset) {
-        if (offset + CONCURRENT_TASK_REPORTING_SIZE <= size) {
-            TestConcurrentTaskReporting(data, size, offset);
-        }
+        TestConcurrentTaskReporting(data, size, offset);
     } },
     { TEST_CASE_CONCURRENT_TASK_QUERY, [](const uint8_t* data, size_t size, size_t& offset) {
-        if (offset + CONCURRENT_TASK_QUERY_SIZE <= size) {
-            TestConcurrentTaskQuery(data, size, offset);
-        }
+        TestConcurrentTaskQuery(data, size, offset);
     } },
     { TEST_CASE_REQUEST_AUTH, [](const uint8_t* data, size_t size, size_t& offset) {
-        if (offset < size) {
-            TestRequestAuth(data, size, offset);
-        }
+        TestRequestAuth(data, size, offset);
     } },
     { TEST_CASE_STOP_REMOTE_OBJECT, [](const uint8_t* data, size_t size, size_t& offset) {
         TestStopRemoteObject(data, size, offset);
     } },
     { TEST_CASE_COMPREHENSIVE, [](const uint8_t* data, size_t size, size_t& offset) {
-        if (offset + CONCURRENT_TASK_REPORTING_SIZE <= size) {
-            TestConcurrentTaskReporting(data, size, offset);
-        }
-        if (offset + CONCURRENT_TASK_QUERY_SIZE <= size) {
-            TestConcurrentTaskQuery(data, size, offset);
-        }
-        if (offset < size) {
-            TestRequestAuth(data, size, offset);
-        }
+        TestConcurrentTaskReporting(data, size, offset);
+        TestConcurrentTaskQuery(data, size, offset);
+        TestRequestAuth(data, size, offset);
     } }
 };
 

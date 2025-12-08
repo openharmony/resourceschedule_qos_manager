@@ -19,6 +19,7 @@
 #include <unordered_map>
 #include <unistd.h>
 #include <sys/types.h>
+#include <type_traits>
 #include "concurrent_task_service.h"
 #include "securec.h"
 #include "qos.h"
@@ -52,21 +53,33 @@ enum QosManagerTestCase : uint8_t {
 template <typename T>
 T SafeExtractInt(const uint8_t *data, size_t size, size_t *offset)
 {
-    if (*offset + sizeof(T) > size) {
+    static_assert(std::is_trivially_copyable<T>::value, "T must be trivially copyable");
+
+    if (offset == nullptr || data == nullptr) {
+        return T{};
+    }
+
+    if (*offset > size || size - *offset < sizeof(T)) {
         *offset = size;
         return T{};
     }
+
     T value{};
     if (memcpy_s(&value, sizeof(T), data + *offset, sizeof(T)) != 0) {
         *offset = size;
         return T{};
     }
+
     *offset += sizeof(T);
     return value;
 }
 
 QosLevel SafeExtractQosLevel(const uint8_t* data, size_t size, size_t* offset)
 {
+    if (offset == nullptr || data == nullptr) {
+        return static_cast<QosLevel>(0);
+    }
+
     if (*offset >= size) {
         return static_cast<QosLevel>(0);
     }
