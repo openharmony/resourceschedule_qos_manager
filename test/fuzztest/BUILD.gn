@@ -19,6 +19,6 @@ group("fuzztest") {
     "qos_policy_fuzzer:QosPolicyFuzzTest",
     "rtg_operations_fuzzer:RtgOperationsFuzzTest",
     "utils_fuzzer:UtilsFuzzTest",
-    "comprehensive_ipc_fuzzer:ComprehensiveIpcFuzzTest",
+    "comprehensive_ipc_fuzzer:ComprehensiveIpcFuzzTest"
   ]
 }
