@@ -127,22 +127,22 @@ int GetQosForOtherThread(enum QosLevel &level, int tid)
     return QosController::GetInstance().GetThreadQosForOtherThread(level, tid);
 }
 
-int AddThreadToProcRtg(int tid)
+int AddThreadToProcRtg([[maybe_unused]] int tid)
 {
     return 0;
 }
 
-int AddThreadsToProcRtg(int tid[5], int size)
+int AddThreadsToProcRtg([[maybe_unused]] int tid[5], [[maybe_unused]] int size)
 {
     return 0;
 }
 
-int RemoveThreadFromProcRtg(int tid)
+int RemoveThreadFromProcRtg([[maybe_unused]] int tid)
 {
     return 0;
 }
 
-int RemoveThreadsFromProcRtg(int tid[5], int size)
+int RemoveThreadsFromProcRtg([[maybe_unused]] int tid[5], [[maybe_unused]] int size)
 {
     return 0;
 }
