@@ -47,7 +47,8 @@
                 "//foundation/resourceschedule/qos_manager/services:concurrentsvc",
                 "//foundation/resourceschedule/qos_manager/frameworks/concurrent_task_client:concurrent_task_client",
                 "//foundation/resourceschedule/qos_manager/qos:qos",
-                "//foundation/resourceschedule/qos_manager/frameworks/native:qos_ndk"
+                "//foundation/resourceschedule/qos_manager/frameworks/native:qos_ndk",
+                "//foundation/resourceschedule/qos_manager/qos:pi_mutex"
             ],
             "inner_kits": [
                 {
@@ -63,11 +64,19 @@
                     "header": {
                         "header_base": "//foundation/resourceschedule/qos_manager/interfaces/inner_api/",
                         "header_files": [
-                            "qos.h",
-                            "pi_mutex.h"
+                            "qos.h"
                         ]
                     },
                     "name": "//foundation/resourceschedule/qos_manager/qos:qos"
+                },
+                {
+                    "header": {
+                        "header_base": "//foundation/resourceschedule/qos_manager/interfaces/inner_api/",
+                        "header_files": [
+                            "pi_mutex.h"
+                        ]
+                    },
+                    "name": "//foundation/resourceschedule/qos_manager/qos:pi_mutex"
                 }
             ],
             "test": [

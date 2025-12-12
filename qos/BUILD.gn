@@ -56,3 +56,9 @@ ohos_shared_library("qos") {
   subsystem_name = "resourceschedule"
   part_name = "qos_manager"
 }
+
+ohos_shared_headers("pi_mutex") {
+  include_dirs = [ "../interfaces/inner_api/" ]
+  subsystem_name = "resourceschedule"
+  part_name = "qos_manager"
+}
