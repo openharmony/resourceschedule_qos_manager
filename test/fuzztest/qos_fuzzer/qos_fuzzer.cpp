@@ -40,7 +40,7 @@ using namespace OHOS::ConcurrentTask;
 using namespace OHOS::QOS;
 
 namespace OHOS {
-static std::mutex onStopMutex_;
+static std::mutex g_onStopMutex;
 #define  QUADRUPLE  4
 #define  LEN 4
 
