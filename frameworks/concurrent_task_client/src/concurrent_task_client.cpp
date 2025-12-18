@@ -184,7 +184,7 @@ void ConcurrentTaskClient::StopRemoteObject()
     clientService_ = nullptr;
 }
 
-int ConcurrentTaskClient::SetSystemQoS(int tid, int level)
+int ConcurrentTaskClient::SetSystemQoS([[maybe_unused]] int tid, [[maybe_unused]] int level)
 {
     return 0;
 }

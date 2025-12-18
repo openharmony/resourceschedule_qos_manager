@@ -60,12 +60,50 @@
           },
           "name": "//foundation/resourceschedule/qos_manager/frameworks/concurrent_task_client:concurrent_task_client"
         },
-        {
-          "header": {
-            "header_base": "//foundation/resourceschedule/qos_manager/interfaces/inner_api/",
-            "header_files": [
-              "qos.h",
-              "pi_mutex.h"
+        "build": {
+            "sub_component": [
+                "//foundation/resourceschedule/qos_manager/etc/init:concurrent_task_service.cfg",
+                "//foundation/resourceschedule/qos_manager/etc/param:ffrt.para",
+                "//foundation/resourceschedule/qos_manager/etc/param:ffrt.para.dac",
+                "//foundation/resourceschedule/qos_manager/sa_profile:concurrent_task_sa_profile",
+                "//foundation/resourceschedule/qos_manager/services:concurrentsvc",
+                "//foundation/resourceschedule/qos_manager/frameworks/concurrent_task_client:concurrent_task_client",
+                "//foundation/resourceschedule/qos_manager/qos:qos",
+                "//foundation/resourceschedule/qos_manager/frameworks/native:qos_ndk",
+                "//foundation/resourceschedule/qos_manager/qos:pi_mutex"
+            ],
+            "inner_kits": [
+                {
+                    "header": {
+                        "header_base": "//foundation/resourceschedule/qos_manager/interfaces/inner_api/",
+                        "header_files": [
+                            "concurrent_task_client.h"
+                        ]
+                    },
+                    "name": "//foundation/resourceschedule/qos_manager/frameworks/concurrent_task_client:concurrent_task_client"
+                },
+                {
+                    "header": {
+                        "header_base": "//foundation/resourceschedule/qos_manager/interfaces/inner_api/",
+                        "header_files": [
+                            "qos.h"
+                        ]
+                    },
+                    "name": "//foundation/resourceschedule/qos_manager/qos:qos"
+                },
+                {
+                    "header": {
+                        "header_base": "//foundation/resourceschedule/qos_manager/interfaces/inner_api/",
+                        "header_files": [
+                            "pi_mutex.h"
+                        ]
+                    },
+                    "name": "//foundation/resourceschedule/qos_manager/qos:pi_mutex"
+                }
+            ],
+            "test": [
+                "//foundation/resourceschedule/qos_manager/test:concurrent_unittest",
+                "//foundation/resourceschedule/qos_manager/test/fuzztest:fuzztest"
             ]
           },
           "name": "//foundation/resourceschedule/qos_manager/qos:qos"

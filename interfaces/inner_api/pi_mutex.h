@@ -13,21 +13,27 @@
  * limitations under the License.
  */
 
-#ifndef QOS_PI_MUETX_H
-#define QOS_PI_MUETX_H
+#ifndef QOS_MANAGER_PI_MUETX_H
+#define QOS_MANAGER_PI_MUETX_H
 
 #include <pthread.h>
-#include <mutex>
 #include <type_traits>
 
 namespace OHOS {
-namespace QOS {
-class PiMutex : public std::mutex {
+namespace PiMutex {
+template<class, class = std::void_t<>>
+struct HasType : std::false_type {};
+
+template<class T>
+struct HasType<T, std::void_t<typename T::native_handle_type>> : std::true_type {};
+
+template<class Mutex>
+class PiMutex : public Mutex {
 public:
     PiMutex()
     {
-        if constexpr (std::is_same_v<std::mutex::native_handle_type, pthread_mutex_t*>) {
-            std::mutex::native_handle_type handle = std::mutex::native_handle();
+        if constexpr (HasType<Mutex> && std::is_same_v<Mutex::native_handle_type, pthread_mutex_t*>) {
+            typename Mutex::native_handle_type handle = Mutex::native_handle();
             pthread_mutexattr_t attr;
             pthread_mutexattr_init(&attr);
             pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
@@ -43,4 +49,4 @@ public:
 } // namespace QOS
 } // namespace OHOS
 
-#endif // QOS_PI_MUETX_H
+#endif // QOS_MANAGER_PI_MUETX_H
