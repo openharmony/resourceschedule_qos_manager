@@ -24,9 +24,7 @@
 #include "concurrent_task_client.h"
 #include "concurrent_task_controller_interface.h"
 #include "concurrent_task_service.h"
-#define private public
 #include "concurrent_task_service_ability.h"
-#undef private
 #include "func_loader.h"
 #include "message_option.h"
 #include "message_parcel.h"
@@ -39,7 +37,7 @@ using namespace OHOS::QOS;
 
 namespace OHOS {
 namespace QOS {
-int AddThreadsToProcRtg(int tid[5], int size);
+int AddThreadsToProcRtg(int tid[], int size);
 } // namespace QOS
 } // namespace OHOS
 
@@ -54,6 +52,8 @@ constexpr int MAX_IPC_STRING = 32;
 constexpr int MAX_PAYLOAD_STRING = 64;
 constexpr int MIN_IPC_BYTES = 8;
 constexpr int SA_TEST_ID = 5204; // arbitrary system ability id for fuzzing
+constexpr size_t PROC_RTG_TID_COUNT = 5;
+constexpr size_t MAX_FUZZ_SHORT_STRING_LENGTH = 8;
 
 enum class QosOp : int {
     CONTROLLER = 0,
@@ -145,7 +145,7 @@ static void ExerciseQosPolicy(FuzzedDataProvider &fdp)
 static void ExerciseProcRtg(FuzzedDataProvider &fdp)
 {
     int tid = ConsumeTid(fdp);
-    std::array<int, 5> tids {};
+    std::array<int, PROC_RTG_TID_COUNT> tids {};
     for (auto &item : tids) {
         item = ConsumeTid(fdp);
     }
@@ -160,7 +160,8 @@ static std::unordered_map<std::string, std::string> BuildStringPayload(FuzzedDat
 {
     std::unordered_map<std::string, std::string> payload;
     payload["k"] = fdp.ConsumeRandomLengthString(MAX_PAYLOAD_STRING);
-    payload[fdp.ConsumeRandomLengthString(8)] = fdp.ConsumeRandomLengthString(MAX_PAYLOAD_STRING);
+    payload[fdp.ConsumeRandomLengthString(MAX_FUZZ_SHORT_STRING_LENGTH)] =
+        fdp.ConsumeRandomLengthString(MAX_PAYLOAD_STRING);
     return payload;
 }
 
@@ -216,7 +217,7 @@ static void ExerciseFuncLoader(FuzzedDataProvider &fdp)
 {
     std::string path = fdp.ConsumeRandomLengthString(MAX_IPC_STRING);
     FuncLoader loader(path);
-    loader.LoadSymbol(fdp.ConsumeRandomLengthString(8).c_str());
+    loader.LoadSymbol(fdp.ConsumeRandomLengthString(MAX_FUZZ_SHORT_STRING_LENGTH).c_str());
     loader.LoadSymbol("");
     loader.LoadSymbol("nonexistent_symbol");
     loader.GetLoadSuccess();
@@ -242,8 +243,10 @@ static void ExerciseServiceAbility(FuzzedDataProvider &fdp)
 {
     ConcurrentTaskServiceAbility ability(SA_TEST_ID, fdp.ConsumeBool());
     ability.OnStart();
-    ability.OnAddSystemAbility(fdp.ConsumeIntegral<int32_t>(), fdp.ConsumeRandomLengthString(8));
-    ability.OnRemoveSystemAbility(fdp.ConsumeIntegral<int32_t>(), fdp.ConsumeRandomLengthString(8));
+    ability.OnAddSystemAbility(
+        fdp.ConsumeIntegral<int32_t>(), fdp.ConsumeRandomLengthString(MAX_FUZZ_SHORT_STRING_LENGTH));
+    ability.OnRemoveSystemAbility(
+        fdp.ConsumeIntegral<int32_t>(), fdp.ConsumeRandomLengthString(MAX_FUZZ_SHORT_STRING_LENGTH));
     ability.GetClassName();
     if (fdp.ConsumeBool()) {
         ability.OnStart(); // repeat to trigger duplicate start branch
