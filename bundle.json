@@ -1,64 +1,42 @@
 {
-  "name": "@ohos/qos_manager",
-  "description": "qos_manager",
-  "version": "3.1",
-  "license": "Apache License 2.0",
-  "publishAs": "code-segment",
-  "segment": {
-    "destPath": "foundation/resourceschedule/qos_manager"
-  },
-  "dirs": {},
-  "scripts": {},
-  "component": {
-    "name": "qos_manager",
-    "subsystem": "resourceschedule",
-    "syscap": [
-      "SystemCapability.Resourceschedule.QoS.Core"
-    ],
-    "features": [],
-    "adapted_system_type": [
-      "standard"
-    ],
-    "rom": "2048KB",
-    "ram": "10240KB",
-    "deps": {
-      "components": [
-        "ability_base",
-        "ability_runtime",
-        "access_token",
-        "config_policy",
-        "c_utils",
-        "frame_aware_sched",
-        "hilog",
-        "hitrace",
-        "init",
-        "ipc",
-        "libxml2",
-        "safwk",
-        "samgr"
-      ],
-      "third_party": []
+    "name": "@ohos/qos_manager",
+    "description": "qos_manager",
+    "version": "3.1",
+    "license": "Apache License 2.0",
+    "publishAs": "code-segment",
+    "segment": {
+        "destPath": "foundation/resourceschedule/qos_manager"
     },
-    "build": {
-      "sub_component": [
-        "//foundation/resourceschedule/qos_manager/etc/init:concurrent_task_service.cfg",
-        "//foundation/resourceschedule/qos_manager/etc/param:ffrt.para",
-        "//foundation/resourceschedule/qos_manager/etc/param:ffrt.para.dac",
-        "//foundation/resourceschedule/qos_manager/sa_profile:concurrent_task_sa_profile",
-        "//foundation/resourceschedule/qos_manager/services:concurrentsvc",
-        "//foundation/resourceschedule/qos_manager/frameworks/concurrent_task_client:concurrent_task_client",
-        "//foundation/resourceschedule/qos_manager/qos:qos",
-        "//foundation/resourceschedule/qos_manager/frameworks/native:qos_ndk"
-      ],
-      "inner_kits": [
-        {
-          "header": {
-            "header_base": "//foundation/resourceschedule/qos_manager/interfaces/inner_api/",
-            "header_files": [
-              "concurrent_task_client.h"
+    "dirs": {},
+    "scripts": {},
+    "component": {
+        "name": "qos_manager",
+        "subsystem": "resourceschedule",
+        "syscap": [ "SystemCapability.Resourceschedule.QoS.Core" ],
+        "features": [],
+        "adapted_system_type": [
+            "standard"
+        ],
+        "rom": "2048KB",
+        "ram": "10240KB",
+        "deps": {
+            "components": [
+                "ability_base",
+                "ability_runtime",
+                "access_token",
+                "config_policy",
+                "c_utils",
+                "frame_aware_sched",
+                "hilog",
+                "hitrace",
+                "init",
+                "ipc",
+                "libxml2",
+                "safwk",
+                "samgr"
+            ],
+            "third_party": [
             ]
-          },
-          "name": "//foundation/resourceschedule/qos_manager/frameworks/concurrent_task_client:concurrent_task_client"
         },
         "build": {
             "sub_component": [
@@ -105,15 +83,6 @@
                 "//foundation/resourceschedule/qos_manager/test:concurrent_unittest",
                 "//foundation/resourceschedule/qos_manager/test/fuzztest:fuzztest"
             ]
-          },
-          "name": "//foundation/resourceschedule/qos_manager/qos:qos"
         }
-      ],
-      "test": [
-        "//foundation/resourceschedule/qos_manager/test:concurrent_unittest",
-        "//foundation/resourceschedule/qos_manager/test/fuzztest:fuzztest",
-        "//foundation/resourceschedule/qos_manager/test/fuzztest/template_fuzzer:fuzztest"
-      ]
     }
-  }
 }
