@@ -60,12 +60,14 @@ inline void ConcurrentTaskServiceAbility::FuzzOnStop()
     OnStop();
 }
 
-inline void ConcurrentTaskServiceAbility::FuzzOnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+inline void ConcurrentTaskServiceAbility::FuzzOnAddSystemAbility(int32_t systemAbilityId,
+    const std::string& deviceId)
 {
     OnAddSystemAbility(systemAbilityId, deviceId);
 }
 
-inline void ConcurrentTaskServiceAbility::FuzzOnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+inline void ConcurrentTaskServiceAbility::FuzzOnRemoveSystemAbility(int32_t systemAbilityId,
+    const std::string& deviceId)
 {
     OnRemoveSystemAbility(systemAbilityId, deviceId);
 }
