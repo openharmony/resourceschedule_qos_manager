@@ -28,6 +28,13 @@ public:
     ConcurrentTaskServiceAbility(int32_t sysAbilityId, bool runOnCreate) : SystemAbility(sysAbilityId, runOnCreate) {}
     ~ConcurrentTaskServiceAbility() override = default;
 
+#if defined(QOS_MANAGER_FUZZTEST)
+    void FuzzOnStart();
+    void FuzzOnStop();
+    void FuzzOnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId);
+    void FuzzOnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId);
+#endif
+
 private:
     void OnStart() override;
 
@@ -41,6 +48,28 @@ private:
 
     DISALLOW_COPY_AND_MOVE(ConcurrentTaskServiceAbility);
 };
+
+#if defined(QOS_MANAGER_FUZZTEST)
+inline void ConcurrentTaskServiceAbility::FuzzOnStart()
+{
+    OnStart();
+}
+
+inline void ConcurrentTaskServiceAbility::FuzzOnStop()
+{
+    OnStop();
+}
+
+inline void ConcurrentTaskServiceAbility::FuzzOnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    OnAddSystemAbility(systemAbilityId, deviceId);
+}
+
+inline void ConcurrentTaskServiceAbility::FuzzOnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    OnRemoveSystemAbility(systemAbilityId, deviceId);
+}
+#endif
 } // namespace ConcurrentTask
 } // namespace OHOS
 
