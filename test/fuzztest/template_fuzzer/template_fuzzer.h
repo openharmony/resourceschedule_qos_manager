@@ -13,7 +13,8 @@
  * limitations under the License.
  */
 
-#include "template_fuzzer.h"
+#ifndef RESOURCESCHEDULE_QOS_MANAGER_TEST_FUZZTEST_TEMPLATE_FUZZER_TEMPLATE_FUZZER_H
+#define RESOURCESCHEDULE_QOS_MANAGER_TEST_FUZZTEST_TEMPLATE_FUZZER_TEMPLATE_FUZZER_H
 
 #include <cstddef>
 #include <cstdint>
@@ -46,6 +47,8 @@ constexpr int RT_PRIORITY_LIMIT = 128;
 constexpr int MAX_IPC_STRING = 32;
 constexpr int MAX_PAYLOAD_STRING = 64;
 constexpr int MIN_IPC_BYTES = 8;
+constexpr size_t PROC_RTG_TID_COUNT = 5;
+constexpr size_t MAX_FUZZ_SHORT_STRING_LENGTH = 8;
 
 enum class QosOp : int {
     CONTROLLER = 0,
@@ -137,7 +140,7 @@ static void ExerciseQosPolicy(FuzzedDataProvider &fdp)
 static void ExerciseProcRtg(FuzzedDataProvider &fdp)
 {
     int tid = ConsumeTid(fdp);
-    std::array<int, 5> tids {};
+    std::array<int, PROC_RTG_TID_COUNT> tids {};
     for (auto &item : tids) {
         item = ConsumeTid(fdp);
     }
@@ -151,7 +154,8 @@ static std::unordered_map<std::string, std::string> BuildStringPayload(FuzzedDat
 {
     std::unordered_map<std::string, std::string> payload;
     payload["k"] = fdp.ConsumeRandomLengthString(MAX_PAYLOAD_STRING);
-    payload[fdp.ConsumeRandomLengthString(8)] = fdp.ConsumeRandomLengthString(MAX_PAYLOAD_STRING);
+    payload[fdp.ConsumeRandomLengthString(MAX_FUZZ_SHORT_STRING_LENGTH)] =
+        fdp.ConsumeRandomLengthString(MAX_PAYLOAD_STRING);
     return payload;
 }
 
@@ -205,7 +209,7 @@ static void ExerciseFuncLoader(FuzzedDataProvider &fdp)
 {
     std::string path = fdp.ConsumeRandomLengthString(MAX_IPC_STRING);
     FuncLoader loader(path);
-    loader.LoadSymbol(fdp.ConsumeRandomLengthString(8).c_str());
+    loader.LoadSymbol(fdp.ConsumeRandomLengthString(MAX_FUZZ_SHORT_STRING_LENGTH).c_str());
     loader.GetLoadSuccess();
 }
 
@@ -277,3 +281,5 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     return 0;
 }
 } // namespace OHOS
+
+#endif
