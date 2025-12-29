@@ -242,16 +242,16 @@ static void ExerciseServiceDirect(FuzzedDataProvider &fdp)
 static void ExerciseServiceAbility(FuzzedDataProvider &fdp)
 {
     ConcurrentTaskServiceAbility ability(SA_TEST_ID, fdp.ConsumeBool());
-    ability.OnStart();
-    ability.OnAddSystemAbility(
+    ability.FuzzOnStart();
+    ability.FuzzOnAddSystemAbility(
         fdp.ConsumeIntegral<int32_t>(), fdp.ConsumeRandomLengthString(MAX_FUZZ_SHORT_STRING_LENGTH));
-    ability.OnRemoveSystemAbility(
+    ability.FuzzOnRemoveSystemAbility(
         fdp.ConsumeIntegral<int32_t>(), fdp.ConsumeRandomLengthString(MAX_FUZZ_SHORT_STRING_LENGTH));
     ability.GetClassName();
     if (fdp.ConsumeBool()) {
-        ability.OnStart(); // repeat to trigger duplicate start branch
+        ability.FuzzOnStart(); // repeat to trigger duplicate start branch
     }
-    ability.OnStop();
+    ability.FuzzOnStop();
 }
 
 static void ExerciseTaskController(FuzzedDataProvider &fdp)

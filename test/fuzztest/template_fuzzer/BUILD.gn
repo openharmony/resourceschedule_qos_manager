@@ -35,6 +35,7 @@ ohos_fuzztest("TemplateFuzzer") {
   sources = [
     "template_fuzzer.cpp",
   ]
+  defines = [ "QOS_MANAGER_FUZZTEST" ]
   deps = [
     "../../../frameworks/concurrent_task_client:concurrent_task_client",
     "../../../qos:qos",
