@@ -32,7 +32,7 @@ class PiMutex : public Mutex {
 public:
     PiMutex()
     {
-        if constexpr (HasType<Mutex> && std::is_same_v<Mutex::native_handle_type, pthread_mutex_t*>) {
+        if constexpr (HasType<Mutex>::value && std::is_same_v<typename Mutex::native_handle_type, pthread_mutex_t*>) {
             typename Mutex::native_handle_type handle = Mutex::native_handle();
             pthread_mutexattr_t attr;
             pthread_mutexattr_init(&attr);
