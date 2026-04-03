@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Copyright (c) 2026 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -16,7 +16,7 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 
 ##############################fuzztest##########################################
-ohos_fuzztest("TemplateFuzzer") {
+ohos_fuzztest("TemplateFuzzTest") {
   module_out_path = "qos_manager/qos_manager/"
 
   include_dirs = [
@@ -59,7 +59,7 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":TemplateFuzzer",
+    ":TemplateFuzzTest",
   ]
 }
 ###############################################################################
