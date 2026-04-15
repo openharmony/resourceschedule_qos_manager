@@ -47,6 +47,8 @@ namespace {
     constexpr int TEST_DATA_EIGHTH = 8;
     constexpr int TEST_DATA_NINTH = 9;
     constexpr int TEST_DATA_TENTH = 10;
+    constexpr int INT32_COUNT_THREE = 3;
+    constexpr int INVALID_QOS_LEVEL = 999;
 }
 
 bool FuzzConcurrentTaskServiceReportData(const uint8_t* data, size_t size)
@@ -200,7 +202,7 @@ bool FuzzConcurrentTaskServiceSetThreadQos(const uint8_t* data, size_t size)
         } else if (level == TEST_DATA_SEVENTH || level == TEST_DATA_EIGHTH) {
             QOS::SetThreadQos(QOS::QosLevel::QOS_USER_INITIATED);
         } else if (level == TEST_DATA_NINTH) {
-            QOS::SetThreadQos(static_cast<QOS::QosLevel>(999)); // 超大值
+            QOS::SetThreadQos(static_cast<QOS::QosLevel>(INVALID_QOS_LEVEL)); // 超大值
         }
     }
     return true;
@@ -452,7 +454,7 @@ bool FuzzConcurrentTaskServiceAbilityOnStop(const uint8_t* data, size_t size)
 bool FuzzConcurrentTaskServiceAbilityLifecycle(const uint8_t* data, size_t size)
 {
     FuzzedDataProvider fdp(data, size);
-    if (size > sizeof(int32_t) * 3) {
+    if (size > sizeof(int32_t) * INT32_COUNT_THREE) {
         int32_t sysAbilityId = fdp.ConsumeIntegral<int32_t>();
         int32_t addAbilityId = fdp.ConsumeIntegral<int32_t>();
         std::string deviceId = std::to_string(fdp.ConsumeIntegral<int32_t>());
@@ -630,7 +632,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
     OHOS::FuzzConcurrentTaskServiceAbilityOnStop(data, size);
     OHOS::FuzzConcurrentTaskClientWithEmptyData(data, size);
-    OHOS::FuzzConcurrentTaskServiceAbilityLifecycle(data, size); 
+    OHOS::FuzzConcurrentTaskServiceAbilityLifecycle(data, size);
 
     TaskControllerFuzzTestSuit(data, size);
     return 0;
