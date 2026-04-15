@@ -15,7 +15,7 @@ group("fuzztest") {
   testonly = true
   deps = [
     "concurrent_fuzzer:ConcurrentFuzzTest",
-    "template_fuzzer:TemplateFuzzer",
+    "template_fuzzer:fuzztest",
     "qos_fuzzer:QosFuzzTest",
     "qos_policy_fuzzer:QosPolicyFuzzTest",
     "rtg_operations_fuzzer:RtgOperationsFuzzTest",
