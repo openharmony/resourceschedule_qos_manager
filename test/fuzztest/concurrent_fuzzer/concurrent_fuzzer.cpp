@@ -45,7 +45,10 @@ namespace {
     constexpr int TEST_DATA_SIXTH = 6;
     constexpr int TEST_DATA_SEVENTH = 7;
     constexpr int TEST_DATA_EIGHTH = 8;
+    constexpr int TEST_DATA_NINTH = 9;
     constexpr int TEST_DATA_TENTH = 10;
+    constexpr int INT32_COUNT_THREE = 3;
+    constexpr int INVALID_QOS_LEVEL = 999;
 }
 
 bool FuzzConcurrentTaskServiceReportData(const uint8_t* data, size_t size)
@@ -186,7 +189,11 @@ bool FuzzConcurrentTaskServiceSetThreadQos(const uint8_t* data, size_t size)
     if (size > sizeof(int) + sizeof(int)) {
         int level = fdp.ConsumeIntegral<int>();
         level = level % TEST_DATA_TENTH;
-        if (level == TEST_DATA_FIFTH || level == TEST_DATA_SECOND) {
+        
+        // 添加边界测试
+        if (level == 0) {
+            QOS::SetThreadQos(static_cast<QOS::QosLevel>(-1)); // 非法值
+        } else if (level == TEST_DATA_FIRST || level == TEST_DATA_SECOND) {
             QOS::SetThreadQos(QOS::QosLevel::QOS_BACKGROUND);
         } else if (level == TEST_DATA_THIRD || level == TEST_DATA_FOURTH) {
             QOS::SetThreadQos(QOS::QosLevel::QOS_UTILITY);
@@ -194,6 +201,8 @@ bool FuzzConcurrentTaskServiceSetThreadQos(const uint8_t* data, size_t size)
             QOS::SetThreadQos(QOS::QosLevel::QOS_DEFAULT);
         } else if (level == TEST_DATA_SEVENTH || level == TEST_DATA_EIGHTH) {
             QOS::SetThreadQos(QOS::QosLevel::QOS_USER_INITIATED);
+        } else if (level == TEST_DATA_NINTH) {
+            QOS::SetThreadQos(static_cast<QOS::QosLevel>(INVALID_QOS_LEVEL)); // 超大值
         }
     }
     return true;
@@ -426,6 +435,54 @@ bool FuzzConcurrentTaskClientStopRemoteObject(const uint8_t* data, size_t size)
     return true;
 }
 
+bool FuzzConcurrentTaskServiceAbilityOnStop(const uint8_t* data, size_t size)
+{
+    FuzzedDataProvider fdp(data, size);
+    if (size > sizeof(int32_t)) {
+        int32_t sysAbilityId = fdp.ConsumeIntegral<int32_t>();
+        if ((sysAbilityId > ASSET_SERVICE_ID) && (sysAbilityId < VENDOR_SYS_ABILITY_ID_BEGIN)) {
+            bool runOnCreate = true;
+            ConcurrentTaskServiceAbility concurrenttaskserviceability =
+                ConcurrentTaskServiceAbility(sysAbilityId, runOnCreate);
+            concurrenttaskserviceability.OnStart();
+            concurrenttaskserviceability.OnStop();  // 测试停止
+        }
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskServiceAbilityLifecycle(const uint8_t* data, size_t size)
+{
+    FuzzedDataProvider fdp(data, size);
+    if (size > sizeof(int32_t) * INT32_COUNT_THREE) {
+        int32_t sysAbilityId = fdp.ConsumeIntegral<int32_t>();
+        int32_t addAbilityId = fdp.ConsumeIntegral<int32_t>();
+        std::string deviceId = std::to_string(fdp.ConsumeIntegral<int32_t>());
+        
+        if ((sysAbilityId > ASSET_SERVICE_ID) && (sysAbilityId < VENDOR_SYS_ABILITY_ID_BEGIN)) {
+            bool runOnCreate = true;
+            ConcurrentTaskServiceAbility ability(sysAbilityId, runOnCreate);
+            
+            // 完整生命周期
+            ability.OnStart();
+            ability.OnAddSystemAbility(addAbilityId, deviceId);
+            ability.OnRemoveSystemAbility(addAbilityId, deviceId);
+            ability.OnStop();
+        }
+    }
+    return true;
+}
+
+bool FuzzConcurrentTaskClientWithEmptyData(const uint8_t* data, size_t size)
+{
+    // 测试空 payload
+    std::unordered_map<std::string, std::string> emptyPayload;
+    ConcurrentTaskClient::GetInstance().ReportData(0, 0, emptyPayload);
+    ConcurrentTaskClient::GetInstance().ReportSceneInfo(0, emptyPayload);
+    ConcurrentTaskClient::GetInstance().RequestAuth(emptyPayload);
+    return true;
+}
+
 bool FuzzConcurrentTaskControllerInterfaceReportData(const uint8_t* data, size_t size)
 {
     FuzzedDataProvider fdp(data, size);
@@ -535,6 +592,10 @@ bool FuzzQosControllerGetThreadQosForOtherThread(const uint8_t* data, size_t siz
 static void TaskControllerFuzzTestSuit(const uint8_t *data, size_t size)
 {
     OHOS::FuzzQosControllerGetThreadQosForOtherThread(data, size);
+    OHOS::FuzzConcurrentTaskControllerInterfaceInit(data, size);
+    OHOS::FuzzConcurrentTaskControllerInterfaceReportData(data, size);
+    OHOS::FuzzConcurrentTaskControllerInterfaceQueryInterval(data, size);
+    OHOS::FuzzConcurrentTaskControllerInterfaceRelease(data, size);
 }
 
 /* Fuzzer entry point */
@@ -568,6 +629,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::FuzzConcurrentTaskClientSetAudioDeadline(data, size);
     OHOS::FuzzConcurrentTaskClinetRequestAuth(data, size);
     OHOS::FuzzConcurrentTaskClientStopRemoteObject(data, size);
+
+    OHOS::FuzzConcurrentTaskServiceAbilityOnStop(data, size);
+    OHOS::FuzzConcurrentTaskClientWithEmptyData(data, size);
+    OHOS::FuzzConcurrentTaskServiceAbilityLifecycle(data, size);
 
     TaskControllerFuzzTestSuit(data, size);
     return 0;
