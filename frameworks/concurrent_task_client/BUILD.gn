@@ -51,6 +51,7 @@ ohos_source_set("concurrent_task_idl") {
   public_configs = [ ":client_public_config" ]
   deps = [ ":qos_manager_interface" ]
   external_deps = [
+    "bounds_checking_function:libsec_shared",
     "c_utils:utils",
     "ipc:ipc_core",
   ]
@@ -98,6 +99,7 @@ ohos_shared_library("concurrent_task_client") {
   deps = [ ":qos_manager_interface" ]
 
   external_deps = [
+    "bounds_checking_function:libsec_shared",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
