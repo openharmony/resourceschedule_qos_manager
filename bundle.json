@@ -24,6 +24,7 @@
                 "ability_base",
                 "ability_runtime",
                 "access_token",
+                "bounds_checking_function",
                 "config_policy",
                 "c_utils",
                 "frame_aware_sched",
