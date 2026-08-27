@@ -33,6 +33,7 @@ ohos_fuzztest("UtilsFuzzTest") {
     "../../../services:concurrentsvc",
   ]
   external_deps = [
+    "bounds_checking_function:libsec_shared",
     "c_utils:utils",
     "hilog:libhilog",
   ]
